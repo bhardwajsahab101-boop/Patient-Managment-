@@ -1,0 +1,231 @@
+<% title = 'Reports' %>
+<% extraStyles = ['/css/reports.css'] %>
+
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h3 class="fw-bold mb-1"><i class="fas fa-chart-line text-primary me-2"></i>Reports</h3>
+    <p class="text-muted mb-0">Revenue analytics and patient insights</p>
+  </div>
+  <div class="growth-badge <%= stats.growth >= 0 ? 'growth-positive' : 'growth-negative' %>">
+    <i class="fas <%= stats.growth >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down' %> me-1"></i>
+    <%= stats.growth >= 0 ? '+' : '' %><%= stats.growth %>%
+  </div>
+</div>
+
+<!-- Date Filter Toolbar -->
+<div class="toolbar-card mb-4">
+  <form method="GET" action="/reports" class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label small text-muted fw-semibold">From Date</label>
+      <input type="date" name="from" value="<%= filters.from %>" class="form-control">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small text-muted fw-semibold">To Date</label>
+      <input type="date" name="to" value="<%= filters.to %>" class="form-control">
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary flex-fill">
+        <i class="fas fa-filter me-2"></i>Apply
+      </button>
+      <a href="/reports" class="btn btn-outline-secondary">
+        <i class="fas fa-rotate-left"></i>
+      </a>
+    </div>
+  </form>
+
+  <div class="quick-filters mt-3 pt-3 border-top">
+    <span class="quick-filter-label">Quick filters:</span>
+    <a href="/reports?from=<%= new Date().toISOString().split('T')[0] %>" class="btn btn-sm btn-outline-primary">
+      <i class="fas fa-calendar-day me-1"></i>Today
+    </a>
+    <a href="/reports?from=<%= new Date(Date.now() - 7*86400000).toISOString().split('T')[0] %>" class="btn btn-sm btn-outline-warning">
+      <i class="fas fa-calendar-week me-1"></i>Last 7 Days
+    </a>
+    <a href="/reports?from=<%= new Date(Date.now() - 30*86400000).toISOString().split('T')[0] %>" class="btn btn-sm btn-outline-info">
+      <i class="fas fa-calendar me-1"></i>Last 30 Days
+    </a>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-4 mb-4">
+  <div class="col-md-3 col-sm-6">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, #dbeafe, #eff6ff); color: #2563eb;">
+        <i class="fas fa-rupee-sign"></i>
+      </div>
+      <div class="kpi-content">
+        <h6 class="kpi-label">Total Revenue</h6>
+        <h3 class="kpi-value">₹<%= (stats.totalRevenue || 0).toLocaleString("en-IN") %></h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-sm-6">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, #dcfce7, #f0fdf4); color: #16a34a;">
+        <i class="fas fa-users"></i>
+      </div>
+      <div class="kpi-content">
+        <h6 class="kpi-label">Patients</h6>
+        <h3 class="kpi-value"><%= stats.totalPatients || 0 %></h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-sm-6">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, #fef3c7, #fffbeb); color: #d97706;">
+        <i class="fas fa-stethoscope"></i>
+      </div>
+      <div class="kpi-content">
+        <h6 class="kpi-label">Visits</h6>
+        <h3 class="kpi-value"><%= stats.totalVisits || 0 %></h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 col-sm-6">
+    <div class="kpi-card">
+      <div class="kpi-icon" style="background: linear-gradient(135deg, #fee2e2, #fef2f2); color: #dc2626;">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="kpi-content">
+        <h6 class="kpi-label">Overdue</h6>
+        <h3 class="kpi-value text-danger"><%= stats.overdueCount || 0 %></h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart Section -->
+<div class="chart-card mb-4">
+  <div class="chart-header">
+    <h5><i class="fas fa-chart-area me-2 text-primary"></i>Revenue Trend</h5>
+    <div class="d-flex align-items-center gap-2">
+      <% if (filters.from && filters.to) { %>
+        <span class="chart-badge text-muted" style="background:#f1f5f9;"><%= filters.from %> to <%= filters.to %></span>
+      <% } else { %>
+        <span class="chart-badge text-muted" style="background:#f1f5f9;">Last 30 days</span>
+      <% } %>
+      <span class="chart-badge"><%= (stats.revenueChart || []).length %> days</span>
+    </div>
+  </div>
+  <div class="chart-body">
+    <% if (!stats.revenueChart || stats.revenueChart.length === 0) { %>
+      <div class="empty-chart">
+        <i class="fas fa-chart-line"></i>
+        <p>No revenue data for selected period</p>
+        <small class="text-muted mt-2">Try selecting a wider date range or add some visits with prices.</small>
+      </div>
+    <% } else { %>
+      <div style="position: relative; height: 320px; width: 100%;">
+        <canvas id="revenueChart"></canvas>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Top Patients Table -->
+<div class="table-card">
+  <div class="table-header">
+    <h5><i class="fas fa-trophy me-2 text-warning"></i>Top Patients</h5>
+    <span class="table-badge"><%= (stats.topPatients || []).length %> records</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table modern-table">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th class="text-center">Visits</th>
+          <th class="text-end">Total Spend</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% (stats.topPatients || []).forEach((p, index) => { %>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <span class="rank-badge rank-<%= index < 3 ? index + 1 : 'other' %>"><%= index + 1 %></span>
+                <span class="fw-semibold"><%= p.name %></span>
+              </div>
+            </td>
+            <td class="text-center">
+              <span class="visit-count"><%= p.visitCount %></span>
+            </td>
+            <td class="text-end fw-bold text-primary">
+              ₹<%= p.totalSpend.toLocaleString("en-IN") %>
+            </td>
+          </tr>
+        <% }) %>
+        <% if ((stats.topPatients || []).length === 0) { %>
+          <tr>
+            <td colspan="3" class="text-center text-muted py-4">
+              <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+              No data available for selected period
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Chart Script -->
+<script>
+  const data = <%- JSON.stringify(stats.revenueChart || []) %>;
+
+  if (data.length > 0) {
+    const ctx = document.getElementById("revenueChart").getContext("2d");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: data.map(d => {
+          const date = new Date(d._id);
+          return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        }),
+        datasets: [{
+          label: "Revenue (₹)",
+          data: data.map(d => d.total),
+          borderColor: "#0d6efd",
+          backgroundColor: "rgba(13, 110, 253, 0.08)",
+          borderWidth: 3,
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: "#0d6efd",
+          pointBorderColor: "#fff",
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: "rgba(0,0,0,0.05)" },
+            ticks: {
+              callback: function(value) {
+                return '₹' + value.toLocaleString('en-IN');
+              }
+            }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
+</script>
+

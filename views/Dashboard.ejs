@@ -1,0 +1,166 @@
+<% title = 'Dashboard' %>
+<% extraStyles = ['/css/dashboard.css'] %>
+
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<!-- Hero Header -->
+<div class="dashboard-hero">
+  <div class="container">
+    <h1>Father Sahab Lifeline</h1>
+    <p class="subtitle">Welcome back! Manage your patients with ease. Today: <%= new Date().toDateString() %></p>
+  </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="stats-grid mb-4">
+  <div class="stat-card">
+    <i class="fas fa-users stat-icon"></i>
+    <div class="stat-number"><%= stats.totalPatients %></div>
+    <div class="stat-label">Total Patients</div>
+  </div>
+  <div class="stat-card">
+    <i class="fas fa-calendar-check stat-icon" style="color: #16a34a;"></i>
+    <div class="stat-number" style="color: #16a34a;"><%= stats.followupsTodayTomorrow %></div>
+    <div class="stat-label">Follow-ups</div>
+  </div>
+  <div class="stat-card">
+    <i class="fas fa-clock stat-icon" style="color: #dc2626;"></i>
+    <div class="stat-number" style="color: #dc2626;"><%= stats.followupsOverdue %></div>
+    <div class="stat-label">Overdue</div>
+  </div>
+  <div class="stat-card">
+    <i class="fas fa-rupee-sign stat-icon" style="color: #d97706;"></i>
+    <div class="stat-number" style="color: #d97706;">₹<%= stats.totalRevenue %></div>
+    <div class="stat-label">Revenue</div>
+  </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="actions-grid mb-4">
+  <a href="/patients/new" class="action-btn">
+    <i class="fas fa-user-plus"></i>
+    <span>Add Patient</span>
+  </a>
+  <a href="/followup" class="action-btn">
+    <i class="fas fa-calendar-alt"></i>
+    <span>View Follow-ups</span>
+  </a>
+  <a href="/reports" class="action-btn">
+    <i class="fas fa-chart-line"></i>
+    <span>Reports</span>
+  </a>
+  <a href="/patients" class="action-btn">
+    <i class="fas fa-list"></i>
+    <span>All Patients</span>
+  </a>
+</div>
+
+<!-- Needs Attention -->
+<section class="attention-section">
+  <div class="attention-header">
+    <h3><i class="fas fa-bolt text-warning me-2"></i>Needs Attention</h3>
+    <span class="count"><%= urgentPatients.length %> patients</span>
+  </div>
+
+  <% if (!urgentPatients || urgentPatients.length === 0) { %>
+    <div class="empty-box">
+      <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+      <p>All patients are up to date</p>
+    </div>
+  <% } else { %>
+    <div class="attention-list">
+      <% urgentPatients.forEach(p => { %>
+        <% 
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          const next = new Date(p.nextVisit);
+          next.setHours(0,0,0,0);
+          let statusClass = next < today ? "overdue" : "today";
+          let statusLabel = next < today ? "Overdue" : "Today";
+          let badgeClass = next < today ? "bg-danger" : "bg-warning text-dark";
+        %>
+        <div class="attention-card <%= statusClass %>">
+          <div class="attention-left">
+            <div class="patient-avatar"><%= p.name.charAt(0).toUpperCase() %></div>
+            <div>
+              <h6 class="mb-1"><%= p.name %></h6>
+              <small class="text-muted"><i class="fas fa-phone me-1"></i><%= p.phone %></small><br>
+              <small class="date"><i class="far fa-calendar me-1"></i><%= new Date(p.nextVisit).toDateString() %></small>
+            </div>
+          </div>
+          <div class="attention-right">
+            <span class="badge <%= badgeClass %>"><%= statusLabel %></span>
+            <a href="/message/<%= p._id %>" class="call-btn">
+              <i class="fas fa-phone me-1"></i>Call
+            </a>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+
+<!-- Recent Patients -->
+<section class="recent-section">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="fas fa-user-clock text-primary me-2"></i>Recent Patients</h3>
+    <a href="/patients" class="btn btn-sm btn-outline-primary">View All</a>
+  </div>
+
+  <% if (recentPatients.length) { %>
+    <div class="recent-grid">
+      <% recentPatients.forEach(patient => { %>
+        <% 
+          const latestVisit = patient.visits && patient.visits.length ? patient.visits[patient.visits.length - 1] : null;
+          let status = 'Upcoming', statusClass = 'bg-success';
+          if (latestVisit && latestVisit.nextVisit) {
+            const nextDate = new Date(latestVisit.nextVisit);
+            const today = new Date(); today.setHours(0,0,0,0); nextDate.setHours(0,0,0,0);
+            if (nextDate < today) { status = 'Overdue'; statusClass = 'bg-danger'; }
+            else if (nextDate.toDateString() === today.toDateString()) { status = 'Today'; statusClass = 'bg-warning text-dark'; }
+          }
+        %>
+        <a href="/patient/<%= patient._id %>" class="recent-card">
+          <div class="patient-avatar"><%= patient.name.charAt(0).toUpperCase() %></div>
+          <div class="patient-info flex-grow-1">
+            <h6><%= patient.name %></h6>
+            <div class="patient-meta">
+              <%= patient.age %> yrs • <%= patient.phone %><br>
+              <small class="text-muted">
+                <%= latestVisit ? `Next: ${new Date(latestVisit.nextVisit).toDateString()}` : 'No visit scheduled' %>
+              </small>
+            </div>
+          </div>
+          <span class="badge <%= statusClass %>"><%= status %></span>
+        </a>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty-box">
+      <i class="fas fa-user-plus fa-2x text-muted mb-2"></i>
+      <p>No patients yet. <a href="/patients/new">Add your first patient!</a></p>
+    </div>
+  <% } %>
+</section>
+
+<!-- About -->
+<section class="about-section">
+  <div class="about-grid">
+    <div class="about-item">
+      <div class="about-icon-wrapper">
+        <i class="fas fa-heart about-icon"></i>
+      </div>
+      <h4>About Father Sahab Lifeline</h4>
+      <p>Trusted healthcare management system providing compassionate care with modern technology. Efficient patient tracking and follow-ups.</p>
+    </div>
+    <div class="about-item">
+      <div class="about-icon-wrapper">
+        <i class="fas fa-phone about-icon"></i>
+      </div>
+      <h4>Contact</h4>
+      <p><i class="fas fa-phone me-2 text-primary"></i>+91 98765 43210</p>
+      <p><i class="fas fa-envelope me-2 text-primary"></i>info@fathersahablifeline.com</p>
+    </div>
+  </div>
+</section>
+

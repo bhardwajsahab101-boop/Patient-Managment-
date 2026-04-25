@@ -1,0 +1,290 @@
+/* ============================================
+   REPORTS PAGE - Modern Design
+   ============================================ */
+
+/* ---- Growth Badge ---- */
+.growth-badge {
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.growth-positive {
+  background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+  color: #16a34a;
+  border: 2px solid #bbf7d0;
+}
+
+.growth-negative {
+  background: linear-gradient(135deg, #fee2e2, #fef2f2);
+  color: #dc2626;
+  border: 2px solid #fecaca;
+}
+
+/* ---- Toolbar Card ---- */
+.toolbar-card {
+  background: white;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.toolbar-card .form-control {
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  height: 44px;
+  transition: all 0.2s ease;
+}
+
+.toolbar-card .form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+}
+
+.toolbar-card .btn {
+  border-radius: 12px;
+  font-weight: 600;
+  height: 44px;
+}
+
+.quick-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.quick-filter-label {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* ---- KPI Cards ---- */
+.kpi-card {
+  background: white;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.kpi-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.kpi-label {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.kpi-value {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+/* ---- Chart Card ---- */
+.chart-card {
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.chart-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chart-header h5 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.chart-badge {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.chart-body {
+  padding: 1.5rem;
+  min-height: 320px;
+}
+
+.empty-chart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+  color: #cbd5e1;
+}
+
+.empty-chart i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-chart p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* ---- Table Card ---- */
+.table-card {
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header h5 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.table-badge {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.table-responsive {
+  padding: 0;
+}
+
+/* ---- Modern Table ---- */
+.modern-table {
+  margin: 0;
+}
+
+.modern-table thead th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem 1.5rem;
+  border: none;
+}
+
+.modern-table tbody td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.modern-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.modern-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.rank-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  color: white;
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #cd7f32, #b87333);
+  color: white;
+}
+
+.rank-other {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.visit-count {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .quick-filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .chart-body {
+    min-height: 250px;
+  }
+}

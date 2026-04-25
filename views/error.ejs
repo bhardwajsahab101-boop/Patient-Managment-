@@ -1,0 +1,15 @@
+<% title = 'Error' %>
+
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<div class="container text-center mt-5">
+
+  <p>
+    <%= (typeof err !== "undefined" && err?.message) 
+        ? err.message 
+        : (typeof message !== "undefined" ? message : "Unexpected error") %>
+  </p>
+
+  <a href="/" class="btn btn-primary mt-3">Go Back Home</a>
+
+</div>

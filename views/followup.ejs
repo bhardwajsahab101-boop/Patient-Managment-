@@ -1,0 +1,133 @@
+<% title = 'Follow-ups' %>
+<% extraStyles = ['/css/followup.css'] %>
+
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<!-- Hero Header -->
+<div class="dashboard-hero">
+  <div class="container">
+    <h1><i class="far fa-calendar-check me-3"></i>Follow-up Dashboard</h1>
+    <p class="subtitle">Today's focus: <%= new Date().toDateString() %> | <%= followups.length %> patients need attention</p>
+  </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid mb-4">
+  <div class="stat-card">
+    <i class="fas fa-users stat-icon"></i>
+    <div class="stat-number"><%= stats.totalPatients %></div>
+    <div class="stat-label">Total Patients</div>
+  </div>
+  
+  <div class="stat-card">
+    <i class="fas fa-clock stat-icon" style="color: #dc2626;"></i>
+    <div class="stat-number" style="color: #dc2626;"><%= stats.overdueCount %></div>
+    <div class="stat-label">Overdue</div>
+  </div>
+  
+  <div class="stat-card">
+    <i class="fas fa-calendar-day stat-icon" style="color: #d97706;"></i>
+    <div class="stat-number" style="color: #d97706;"><%= stats.todayCount %></div>
+    <div class="stat-label">Today</div>
+  </div>
+  
+  <div class="stat-card">
+    <i class="fas fa-calendar-alt stat-icon" style="color: #16a34a;"></i>
+    <div class="stat-number" style="color: #16a34a;"><%= stats.tomorrowCount %></div>
+    <div class="stat-label">Tomorrow</div>
+  </div>
+  
+  <div class="stat-card">
+    <i class="fas fa-rupee-sign stat-icon" style="color: #7c3aed;"></i>
+    <div class="stat-number" style="color: #7c3aed;">₹<%= stats.followupRevenue.toLocaleString() %></div>
+    <div class="stat-label">Revenue</div>
+  </div>
+</div>
+
+<!-- Status Legend -->
+<div class="legend-bar mb-4">
+  <span class="legend-item">
+    <span class="legend-dot" style="background: #dc2626;"></span> Overdue
+  </span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background: #d97706;"></span> Today
+  </span>
+  <span class="legend-item">
+    <span class="legend-dot" style="background: #16a34a;"></span> Tomorrow
+  </span>
+</div>
+
+<!-- Followup Patients Grid -->
+<% if (!followups || followups.length === 0) { %>
+  <div class="empty-state">
+    <i class="fas fa-calendar-check"></i>
+    <h4>No follow-ups today</h4>
+    <p>All patients are up to date!</p>
+    <a href="/patients/new" class="btn btn-primary">
+      <i class="fas fa-plus me-2"></i>Add Patient
+    </a>
+  </div>
+<% } else { %>
+  <div class="row">
+    <% followups.forEach(item => { %>
+      <% const p = item.patient; %>
+      <% 
+        let statusColor = '#16a34a';
+        let statusBg = '#f0fdf4';
+        let statusBorder = '#16a34a';
+        if (item.status === 'overdue') {
+          statusColor = '#dc2626';
+          statusBg = '#fef2f2';
+          statusBorder = '#dc2626';
+        } else if (item.status === 'today') {
+          statusColor = '#d97706';
+          statusBg = '#fffbeb';
+          statusBorder = '#d97706';
+        }
+      %>
+      <div class="col-lg-4 col-md-6 mb-4">
+        <div class="followup-card h-100" style="--status-color: <%= statusColor %>; --status-bg: <%= statusBg %>; --status-border: <%= statusBorder %>;">
+          <!-- Card Header -->
+          <div class="followup-card-header">
+            <div class="patient-avatar"><%= p.name.charAt(0).toUpperCase() %></div>
+            <span class="status-badge" style="background: <%= statusBg %>; color: <%= statusColor %>; border: 1px solid <%= statusBorder %>;">
+              <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
+            </span>
+          </div>
+
+          <!-- Card Body -->
+          <div class="followup-card-body">
+            <h5 class="patient-name"><%= p.name %></h5>
+            <div class="info-list">
+              <div class="info-item">
+                <i class="fas fa-phone"></i>
+                <span><%= p.phone %></span>
+              </div>
+              <div class="info-item">
+                <i class="fas fa-calendar"></i>
+                <span><%= item.nextVisit.toDateString() %></span>
+              </div>
+              <% if(p.treatment) { %>
+                <div class="info-item">
+                  <i class="fas fa-stethoscope"></i>
+                  <span><%= p.treatment %></span>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="followup-card-footer">
+            <a href="/patient/<%= p._id %>" class="btn btn-outline-primary btn-sm">
+              <i class="fas fa-eye me-1"></i>View
+            </a>
+            <a href="/message/<%= p._id %>" class="btn btn-success btn-sm">
+              <i class="fab fa-whatsapp me-1"></i>Message
+            </a>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Father Sahab Lifeline - Manage your clinic without paperwork. Store patient records, track visits, and manage follow-ups."
+    />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- Landing Page Styles -->
+    <link rel="stylesheet" href="/css/landing.css" />
+
+    <title>Father Sahab Lifeline</title>
+  </head>
+
+  <body class="landing-page">
+    <!-- Navbar -->
+    <nav class="landing-navbar d-flex align-items-center px-4">
+      <div class="container d-flex align-items-center justify-content-between">
+        <a class="navbar-brand" href="/">Father Sahab Lifeline</a>
+
+        <div class="d-flex align-items-center gap-2">
+          <% if (currentUser) { %>
+            <a href="/dashboard" class="btn btn-primary nav-btn">
+              <i class="fas fa-columns me-1"></i> Dashboard
+            </a>
+            <form action="/logout" method="POST" class="d-inline m-0">
+              <button type="submit" class="btn btn-outline-light nav-btn">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+              </button>
+            </form>
+          <% } else { %>
+            <a href="/login" class="btn btn-outline-light nav-btn">Login</a>
+            <a href="/signup" class="btn btn-primary nav-btn">Sign Up</a>
+          <% } %>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+      <div class="hero-content container">
+        <div class="hero-badge fade-in-up">
+          <i class="fas fa-shield-halved"></i>
+          <span>Secure & Private Clinic Management</span>
+        </div>
+
+        <h1 class="fade-in-up delay-1">
+          Manage Your Clinic<br />Without Paperwork
+        </h1>
+
+        <p class="lead fade-in-up delay-2">
+          Store patient records, track visits, and manage follow-ups — all in
+          one secure, easy-to-use platform built for modern clinics.
+        </p>
+
+        <div class="hero-buttons fade-in-up delay-3">
+          <% if (currentUser) { %>
+            <a href="/dashboard" class="btn btn-pill btn-pill-lg btn-white">
+              <i class="fas fa-columns"></i> Go to Dashboard
+            </a>
+          <% } else { %>
+            <a href="/signup" class="btn btn-pill btn-pill-lg btn-white">
+              <i class="fas fa-rocket"></i> Get Started Free
+            </a>
+            <a href="/login" class="btn btn-pill btn-pill-lg btn-outline-white">
+              <i class="fas fa-right-to-bracket"></i> Login
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title">Everything You Need</h2>
+          <p class="section-subtitle">
+            A complete toolkit to run your clinic smoothly and efficiently.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="feature-card fade-in-up">
+              <div class="feature-icon bg-primary bg-gradient text-white">
+                <i class="fas fa-clipboard-list"></i>
+              </div>
+              <h4>Patient Records</h4>
+              <p>
+                Store and access complete patient history, prescriptions, and
+                notes instantly from anywhere.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="feature-card fade-in-up delay-1">
+              <div class="feature-icon bg-success bg-gradient text-white">
+                <i class="fas fa-bell"></i>
+              </div>
+              <h4>Follow-Ups</h4>
+              <p>
+                Never miss a patient's next visit with automated reminders and
+                smart scheduling.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="feature-card fade-in-up delay-2">
+              <div class="feature-icon bg-info bg-gradient text-white">
+                <i class="fas fa-chart-pie"></i>
+              </div>
+              <h4>Reports</h4>
+              <p>
+                Track daily earnings, patient flow, and clinic performance with
+                beautiful visual reports.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-section" id="how-it-works">
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="section-title">How It Works</h2>
+          <p class="section-subtitle">
+            Get started in three simple steps and transform your clinic today.
+          </p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="step-card fade-in-up">
+              <div class="step-number">1</div>
+              <h5>Add Patient</h5>
+              <p>Enter basic details in seconds and create a digital record.</p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="step-card fade-in-up delay-1">
+              <div class="step-number">2</div>
+              <h5>Track Visits</h5>
+              <p>Save treatment history, prescriptions, and bills easily.</p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="step-card fade-in-up delay-2">
+              <div class="step-number">3</div>
+              <h5>Manage Clinic</h5>
+              <p>View reports, follow-ups, and insights in one dashboard.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Trust Section -->
+    <section class="trust-section">
+      <div class="container text-center">
+        <div class="fade-in-up">
+          <div
+            class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3"
+            style="width: 72px; height: 72px"
+          >
+            <i class="fas fa-lock text-primary fs-3"></i>
+          </div>
+          <h3 class="section-title">Your Data is Safe</h3>
+          <p class="section-subtitle">
+            Our secure system is designed to keep patient records private and
+            protected. Role-based access, encrypted sessions, and regular
+            backups ensure your clinic data stays safe.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA / Dashboard Section -->
+    <section class="cta-section">
+      <div class="cta-content container">
+        <h2 class="fade-in-up">
+          <%= currentUser ? 'Welcome Back, ' + currentUser.name : 'Start Managing Your Clinic Today' %>
+        </h2>
+        <p class="fade-in-up delay-1">
+          <%= currentUser ? 'Jump back into your dashboard and continue managing your clinic seamlessly.' : 'Join hundreds of clinics already using Father Sahab Lifeline to simplify their workflow.' %>
+        </p>
+
+        <div class="fade-in-up delay-2">
+          <% if (currentUser) { %>
+            <a href="/dashboard" class="btn-dashboard">
+              <i class="fas fa-columns"></i> Go to Dashboard
+            </a>
+          <% } else { %>
+            <a href="/signup" class="btn-dashboard">
+              <i class="fas fa-user-plus"></i> Create Free Account
+            </a>
+          <% } %>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+      <p class="mb-0">
+        &copy; <%= new Date().getFullYear() %> Father Sahab Lifeline. All rights
+        reserved.
+      </p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
+

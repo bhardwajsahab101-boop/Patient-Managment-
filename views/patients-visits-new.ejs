@@ -1,0 +1,88 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">➕ Add Visit for <%= patient.name %></h4>
+          <small class="text-white-50">
+            <%= patient.phone %> • Age: <%= patient.age %>
+          </small>
+        </div>
+
+        <form
+          method="POST"
+          action="/patients/<%= patient._id %>/visits?_method=POST"
+        >
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="visit-notes" class="form-label">Visit Notes</label>
+              <textarea
+                class="form-control"
+                id="visit-notes"
+                name="visit[notes]"
+                rows="3"
+                placeholder="Treatment details, diagnosis, medications..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="visit-price" class="form-label">Amount (₹)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="visit-price"
+                  name="visit[price]"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
+                  required
+                />
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="visit-nextVisit" class="form-label"
+                  >Next Visit</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="visit-nextVisit"
+                  name="visit[nextVisit]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer bg-light">
+            <div class="d-flex gap-2 justify-content-between">
+              <a
+                href="/patient/<%= patient._id %>"
+                class="btn btn-outline-secondary"
+              >
+                ← Back to Patient
+              </a>
+              <button type="submit" class="btn btn-primary">Save Visit</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    border: none;
+    border-radius: 15px;
+  }
+  .card-header {
+    border-radius: 15px 15px 0 0 !important;
+  }
+  textarea.form-control {
+    resize: vertical;
+  }
+</style>

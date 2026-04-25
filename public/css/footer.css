@@ -1,0 +1,266 @@
+/* ============================================
+   FOOTER - Modern Design
+   ============================================ */
+
+.footer {
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  color: #94a3b8;
+  margin-top: auto;
+  padding: 60px 0 0;
+  padding-left: 240px;
+  border-top: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+@media (max-width: 992px) {
+  .footer {
+    padding-left: 0;
+  }
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* ---- Main Grid ---- */
+.footer-main {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.25fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+
+/* ---- Brand Column ---- */
+.footer-brand {
+  padding-right: 20px;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.footer-logo i {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.footer-logo h4 {
+  color: #ffffff;
+  font-weight: 700;
+  margin: 0;
+  font-size: 1.3rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.footer-brand p {
+  line-height: 1.7;
+  margin-bottom: 20px;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.social-links {
+  display: flex;
+  gap: 10px;
+}
+
+.social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #60a5fa;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.social-links a:hover {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  transform: translateY(-3px);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+}
+
+/* ---- Footer Sections ---- */
+.footer-section h6 {
+  color: #ffffff;
+  font-weight: 700;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  font-family: "Poppins", sans-serif;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section li {
+  margin-bottom: 10px;
+}
+
+.footer-section a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+}
+
+.footer-section a i {
+  font-size: 0.6rem;
+  color: #3b82f6;
+  transition: transform 0.2s ease;
+}
+
+.footer-section a:hover {
+  color: #60a5fa;
+}
+
+.footer-section a:hover i {
+  transform: translateX(4px);
+}
+
+/* ---- Contact List ---- */
+.contact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.contact-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(37, 99, 235, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  font-size: 0.85rem;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.contact-item span {
+  color: #94a3b8;
+}
+
+/* ---- Bottom Bar ---- */
+.footer-bottom {
+  border-top: 1px solid rgba(30, 41, 59, 0.8);
+  padding: 24px 0;
+}
+
+.footer-bottom-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-bottom-links a {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: color 0.2s ease;
+}
+
+.footer-bottom-links a:hover {
+  color: #94a3b8;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .footer-brand {
+    grid-column: 1 / -1;
+    padding-right: 0;
+    text-align: center;
+  }
+  .footer-logo {
+    justify-content: center;
+  }
+  .social-links {
+    justify-content: center;
+  }
+  .footer-bottom-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-container {
+    padding: 0 16px;
+  }
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+  .footer-section a {
+    justify-content: center;
+  }
+  .contact-item {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 479px) {
+  .footer-container {
+    padding: 0 12px;
+  }
+  .footer {
+    padding: 40px 0 0;
+  }
+  .footer-main {
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  .footer-logo h4 {
+    font-size: 1.1rem;
+  }
+  .footer-bottom {
+    padding: 16px 0;
+  }
+  .footer-bottom-links {
+    gap: 16px;
+  }
+}

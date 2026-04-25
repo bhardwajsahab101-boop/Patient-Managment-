@@ -1,0 +1,413 @@
+/* ============================================
+   DASHBOARD PAGE - Modern Design
+   ============================================ */
+
+/* ---- Hero Header ---- */
+.dashboard-hero {
+  background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 50%, #1e40af 100%);
+  color: white;
+  padding: 3rem 2rem;
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(13, 110, 253, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.dashboard-hero h1 {
+  font-family: "Poppins", sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+  letter-spacing: -1px;
+  position: relative;
+}
+
+.dashboard-hero .subtitle {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 300;
+  position: relative;
+}
+
+/* ---- Stats Grid ---- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-blue);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card:hover::after {
+  transform: scaleX(1);
+}
+
+.stat-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+  display: inline-block;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ---- Quick Actions ---- */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.action-btn {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  text-decoration: none;
+  color: #475569;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.action-btn i {
+  font-size: 1.4rem;
+  color: var(--primary-blue);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eff6ff;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+}
+
+.action-btn:hover {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.12);
+}
+
+.action-btn:hover i {
+  background: var(--primary-blue);
+  color: white;
+}
+
+/* ---- Attention Section ---- */
+.attention-section {
+  background: white;
+  padding: 1.75rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 2rem;
+}
+
+.attention-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.attention-header h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.attention-header .count {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.attention-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.attention-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border-left: 5px solid;
+  background: #fafafa;
+  transition: all 0.25s ease;
+}
+
+.attention-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.attention-card.overdue {
+  border-color: #dc2626;
+  background: linear-gradient(90deg, #fef2f2 0%, white 100%);
+}
+
+.attention-card.today {
+  border-color: #f59e0b;
+  background: linear-gradient(90deg, #fffbeb 0%, white 100%);
+}
+
+.attention-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.attention-left h6 {
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.attention-left .date {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.attention-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.call-btn {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(22, 163, 74, 0.25);
+}
+
+.call-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+  color: white;
+}
+
+/* ---- Recent Patients ---- */
+.recent-section {
+  margin-bottom: 2rem;
+}
+
+.recent-section h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1.25rem;
+}
+
+.recent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1rem;
+}
+
+.recent-card {
+  background: white;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.recent-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  border-color: #cbd5e1;
+}
+
+.patient-info h6 {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.patient-meta {
+  color: #64748b;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ---- About Section ---- */
+.about-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2.5rem;
+}
+
+.about-item {
+  text-align: center;
+}
+
+.about-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.about-icon {
+  font-size: 1.75rem;
+  color: var(--primary-blue);
+}
+
+.about-item h4 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  font-size: 1.15rem;
+}
+
+.about-item p {
+  color: #64748b;
+  line-height: 1.7;
+  margin-bottom: 0.5rem;
+}
+
+/* ---- Empty Box ---- */
+.empty-box {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #94a3b8;
+}
+
+.empty-box i {
+  opacity: 0.5;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+  .dashboard-hero h1 {
+    font-size: 2rem;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-hero {
+    padding: 2rem 1rem;
+  }
+  .dashboard-hero h1 {
+    font-size: 1.75rem;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  .attention-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .attention-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .recent-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

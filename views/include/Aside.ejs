@@ -1,0 +1,77 @@
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <h3>Patient Care Management System</h3>
+  </div>
+
+  <a class="<%= currentRoute === '/' ? 'active' : '' %>" href="/dashboard">Dashboard</a>
+
+  <a
+    class="<%= currentRoute.startsWith('/patients') ? 'active' : '' %>"
+    href="/patients"
+    >Patients</a
+  >
+
+  <a
+    class="<%= currentRoute.startsWith('/followup') ? 'active' : '' %>"
+    href="/followup"
+    >Follow-ups</a
+  >
+
+  <a
+    class="<%= currentRoute.startsWith('/reports') ? 'active' : '' %>"
+    href="/reports"
+    >Reports</a
+  >
+
+  <section class="bottom">
+    <p>Need Help? Quick support and help</p>
+    <button>Contact Support</button>
+  </section>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+
+    const toggles = document.querySelectorAll(".sidebar-toggle");
+    toggles.forEach(function (toggle) {
+      toggle.addEventListener("click", function () {
+        const icon = this.querySelector(".toggle-icon");
+        const isDesktop = window.innerWidth >= 993;
+        if (isDesktop) {
+          sidebar.classList.toggle("hidden");
+          document.body.classList.toggle("sidebar-hidden");
+        } else {
+          sidebar.classList.toggle("show");
+          overlay.classList.toggle("show");
+        }
+        if (icon) {
+          icon.classList.toggle("fa-bars");
+          icon.classList.toggle("fa-xmark");
+        }
+      });
+    });
+
+    if (overlay) {
+      overlay.addEventListener("click", function () {
+        sidebar.classList.remove("show");
+        overlay.classList.remove("show");
+      });
+    }
+
+    document.querySelectorAll(".sidebar a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 992) {
+          sidebar.classList.remove("show");
+          overlay.classList.remove("show");
+        } else if (sidebar.classList.contains("hidden")) {
+          sidebar.classList.remove("hidden");
+          document.body.classList.remove("sidebar-hidden");
+        }
+      });
+    });
+  });
+</script>

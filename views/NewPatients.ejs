@@ -1,0 +1,71 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<h3 class="fw-bold mb-4">Add New Patient</h3>
+
+<div class="card p-4 shadow-sm">
+  <% if (typeof errors !== 'undefined' && errors && errors.length) { %>
+    <div class="alert alert-danger">
+      <% errors.forEach(function(e) { %>
+        <div><%= e.msg %></div>
+      <% }) %>
+    </div>
+  <% } %>
+
+  <form action="/patients" method="POST">
+
+    <!-- PATIENT INFO -->
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input type="text" name="patient[name]" class="form-control" required
+        value="<%= (typeof patient !== 'undefined' && patient) ? patient.name : '' %>" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Age</label>
+      <input type="number" name="patient[age]" class="form-control"
+        value="<%= (typeof patient !== 'undefined' && patient) ? patient.age : '' %>" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Gender</label>
+      <select name="patient[gender]" class="form-select">
+        <option value="Male" <%= (typeof patient !== 'undefined' && patient && patient.gender === 'Male') ? 'selected' : '' %>>Male</option>
+        <option value="Female" <%= (typeof patient !== 'undefined' && patient && patient.gender === 'Female') ? 'selected' : '' %>>Female</option>
+        <option value="Other" <%= (typeof patient !== 'undefined' && patient && patient.gender === 'Other') ? 'selected' : '' %>>Other</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Phone</label>
+      <input type="text" name="patient[phone]" class="form-control"
+        value="<%= (typeof patient !== 'undefined' && patient) ? patient.phone : '' %>" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Treatment</label>
+      <input type="text" name="patient[treatment]" class="form-control"
+        value="<%= (typeof patient !== 'undefined' && patient) ? patient.treatment : '' %>" />
+    </div>
+
+    <!-- VISIT INFO -->
+    <div class="mb-3">
+      <label class="form-label">Next Visit Date</label>
+      <input type="date" name="visit[nextVisit]" class="form-control"
+        value="<%= (typeof visit !== 'undefined' && visit) ? visit.nextVisit : '' %>" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Notes</label>
+      <textarea name="visit[notes]" class="form-control"><%= (typeof visit !== 'undefined' && visit) ? visit.notes : '' %></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Price</label>
+      <input type="number" name="visit[price]" class="form-control"
+        value="<%= (typeof visit !== 'undefined' && visit) ? visit.price : '' %>" />
+    </div>
+
+    <button class="btn btn-primary">Save Patient</button>
+  </form>
+</div>
+

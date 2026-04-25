@@ -1,0 +1,150 @@
+
+<%- layout("./layout/boilerPlate.ejs") %>
+
+
+
+<div class="patient-header">
+
+  <div class="left">
+    <div class="avatar">
+      <%= patient.name.charAt(0).toUpperCase() %>
+    </div>
+
+    <div>
+      <h2><%= patient.name %></h2>
+      <p><%= patient.age %> yrs • <%= patient.gender %></p>
+      <p>📞 <%= patient.phone %></p>
+    </div>
+  </div>
+
+  <div class="right">
+    <% 
+      const today = new Date(); today.setHours(0,0,0,0);
+      const next = patient.nextVisit ? new Date(patient.nextVisit) : null;
+      if(next) next.setHours(0,0,0,0);
+    %>
+
+    <% if(!next){ %>
+      <span class="badge bg-secondary">No Visit</span>
+    <% } else if(next < today){ %>
+      <span class="badge bg-danger">Overdue</span>
+    <% } else if(next.getTime() === today.getTime()){ %>
+      <span class="badge bg-warning text-dark">Today</span>
+    <% } else { %>
+      <span class="badge bg-success">Upcoming</span>
+    <% } %>
+
+    <p class="mt-2">
+      Next Visit: 
+      <strong>
+        <%= next ? next.toDateString() : "Not Scheduled" %>
+      </strong>
+    </p>
+  </div>
+
+</div>
+
+<div class="action-bar">
+  <a href="/patients/<%= patient._id %>/visits/new" class="btn btn-primary">
+    ➕ Add Visit
+  </a>
+
+  <a href="/message/<%= patient._id %>" class="btn btn-success">
+    WhatsApp
+  </a>
+
+  <a href="/patients" class="btn btn-outline-secondary">
+    Back
+  </a>
+</div>
+
+<div class="visit-section">
+  <h4>Visit History</h4>
+
+  <% if (!patient.visits.length) { %>
+    <p class="text-muted">No visits yet</p>
+  <% } %>
+
+  <% patient.visits.slice().reverse().forEach(v => { %>
+
+    <div class="visit-card">
+
+      <div class="visit-top">
+        <strong><%= new Date(v.date).toDateString() %></strong>
+        <span class="price">₹<%= v.price || 0 %></span>
+      </div>
+
+      <p class="notes">
+        <%= v.notes || "No notes added" %>
+      </p>
+
+      <% if(v.nextVisit){ %>
+        <small class="text-muted">
+          Next Visit: <%= new Date(v.nextVisit).toDateString() %>
+        </small>
+      <% } %>
+
+    </div>
+
+  <% }) %>
+</div>
+<style>
+    .patient-header {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.patient-header .left {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  background: #0d6efd;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.action-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.visit-section {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.visit-card {
+  border-left: 4px solid #0d6efd;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.visit-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.price {
+  font-weight: bold;
+  color: #16a34a;
+}
+</style>

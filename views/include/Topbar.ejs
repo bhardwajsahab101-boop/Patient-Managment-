@@ -1,0 +1,156 @@
+<nav class="topbar" id="topbar">
+  <div class="topbar-container">
+    <!-- Left: Sidebar Toggle + Brand -->
+    <div class="topbar-left">
+      <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">
+        <i class="fas fa-bars toggle-icon"></i>
+      </button>
+
+      <a href="/" class="topbar-brand">
+        <div class="brand-icon">
+          <i class="fas fa-heart-pulse"></i>
+        </div>
+        <div class="brand-text">
+          <h4>Father Sahab Lifeline</h4>
+          <span class="tagline">Patient Care</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Center: Search -->
+    <div class="topbar-search">
+      <button class="search-toggle" id="searchToggle" type="button" aria-label="Toggle search">
+        <i class="fas fa-magnifying-glass"></i>
+      </button>
+      <form class="search-form" action="/patients" method="GET" id="searchForm">
+        <i class="fas fa-magnifying-glass search-icon"></i>
+        <input type="text" name="q" class="search-input" placeholder="Search patients, records..." autocomplete="off" />
+        <button type="button" class="search-close" id="searchClose" aria-label="Close search">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right: Actions + User -->
+    <div class="topbar-right">
+      <!-- Date/Time Display (Desktop) -->
+      <div class="topbar-datetime" id="topbarDatetime">
+        <span class="datetime-date" id="datetimeDate"></span>
+        <span class="datetime-time" id="datetimeTime"></span>
+      </div>
+
+      <% if (typeof currentUser !== 'undefined' && currentUser) { %>
+        <!-- Logged In: Notifications -->
+        <a href="/followup" class="topbar-btn" title="Follow-ups">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </a>
+
+        <!-- User Dropdown -->
+        <div class="topbar-user" id="userDropdown">
+          <button class="user-trigger" id="userTrigger" type="button" aria-label="User menu" aria-expanded="false">
+            <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(currentUser.name) %>&background=2563eb&color=fff&size=64" alt="<%= currentUser.name %>" class="user-avatar" />
+            <div class="user-info">
+              <span class="user-name"><%= currentUser.name %></span>
+              <span class="user-role"><%= currentUser.role || 'Doctor' %></span>
+            </div>
+            <i class="fas fa-chevron-down user-chevron"></i>
+          </button>
+          <div class="user-menu" id="userMenu">
+            <div class="user-menu-header">
+              <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(currentUser.name) %>&background=2563eb&color=fff&size=64" alt="<%= currentUser.name %>" class="user-menu-avatar" />
+              <div class="user-menu-details">
+                <span class="user-menu-name"><%= currentUser.name %></span>
+                <span class="user-menu-email"><%= currentUser.phone %></span>
+              </div>
+            <div class="user-menu-divider"></div>
+            <a href="#" class="user-menu-item">
+              <i class="fas fa-user"></i>
+              <span>My Profile</span>
+            </a>
+            <a href="#" class="user-menu-item">
+              <i class="fas fa-gear"></i>
+              <span>Settings</span>
+            </a>
+            <div class="user-menu-divider"></div>
+            <button type="button" class="user-menu-item user-menu-danger" onclick="document.getElementById('logoutForm').submit()">
+              <i class="fas fa-arrow-right-from-bracket"></i>
+              <span>Sign Out</span>
+            </button>
+            <form id="logoutForm" action="/logout" method="POST" style="display:none;"></form>
+          </div>
+      <% } else { %>
+        <!-- Not Logged In: Auth Buttons -->
+        <a href="/login" class="btn btn-outline-primary btn-sm me-2">
+          <i class="fas fa-sign-in-alt me-1"></i> Login
+        </a>
+        <a href="/signup" class="btn btn-primary btn-sm">
+          <i class="fas fa-user-plus me-1"></i> Sign Up
+        </a>
+      <% } %>
+    </div>
+</nav>
+
+<style>
+  /* Force dropdown visible when open */
+  #userDropdown.open #userMenu,
+  #userDropdown.active #userMenu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) scale(1) !important;
+    display: block !important;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // DateTime updater
+    function updateDateTime() {
+      const now = new Date();
+      const dateEl = document.getElementById("datetimeDate");
+      const timeEl = document.getElementById("datetimeTime");
+      if (!dateEl || !timeEl) return;
+      const dateOpts = { weekday: "short", month: "short", day: "numeric" };
+      const timeOpts = { hour: "2-digit", minute: "2-digit", hour12: true };
+      dateEl.textContent = now.toLocaleDateString("en-US", dateOpts);
+      timeEl.textContent = now.toLocaleTimeString("en-US", timeOpts);
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+
+    // User dropdown
+    const userDropdown = document.getElementById("userDropdown");
+    const userTrigger = document.getElementById("userTrigger");
+    if (userTrigger && userDropdown) {
+      userTrigger.addEventListener("click", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        userDropdown.classList.toggle("open");
+        this.setAttribute("aria-expanded", userDropdown.classList.contains("open"));
+      });
+      document.addEventListener("click", function(e) {
+        if (!userDropdown.contains(e.target)) {
+          userDropdown.classList.remove("open");
+          userTrigger.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
+
+    // Search toggle
+    const searchToggle = document.getElementById("searchToggle");
+    const searchForm = document.getElementById("searchForm");
+    const searchClose = document.getElementById("searchClose");
+    if (searchToggle && searchForm) {
+      searchToggle.addEventListener("click", function() {
+        searchForm.classList.add("active");
+        const input = searchForm.querySelector(".search-input");
+        if (input) input.focus();
+      });
+    }
+    if (searchClose && searchForm) {
+      searchClose.addEventListener("click", function() {
+        searchForm.classList.remove("active");
+      });
+    }
+  });
+</script>

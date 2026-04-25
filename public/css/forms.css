@@ -1,0 +1,16 @@
+/* ============================================
+   FORMS (New Patient, Edit, Add Visit, Delete)
+   ============================================ */
+
+.form-card .card {
+  border: none;
+  border-radius: 15px;
+}
+
+.form-card .card-header {
+  border-radius: 15px 15px 0 0 !important;
+}
+
+textarea.form-control {
+  resize: vertical;
+}

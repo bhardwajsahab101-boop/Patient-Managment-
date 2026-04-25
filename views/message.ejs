@@ -1,0 +1,92 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<div class="dashboard-hero mb-4">
+  <div class="container">
+    <h1>📨 Send Message</h1>
+    <p class="subtitle">Preview and send reminder to <%= patient.name %></p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+
+      <!-- Patient Info Card -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="patient-avatar-lg"><%= patient.name.charAt(0).toUpperCase() %></div>
+          <div>
+            <h5 class="mb-1"><%= patient.name %></h5>
+            <p class="text-muted mb-0">
+              📞 +91 <%= patient.phone %><br>
+              📅 Next Visit: <strong><%= nextDate %></strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Preview -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="mb-0">📝 Message Preview</h6>
+        </div>
+        <div class="card-body">
+          <pre id="messageText" class="message-preview"><%= message %></pre>
+          <button class="btn btn-sm btn-outline-secondary w-100 mt-2" onclick="copyMessage()">
+            <i class="fas fa-copy"></i> Copy Message
+          </button>
+        </div>
+      </div>
+
+      <!-- Send Actions -->
+      <div class="d-grid gap-3 mb-5">
+        <a href="<%= whatsappURL %>" target="_blank" class="btn btn-success btn-lg">
+          <i class="fab fa-whatsapp"></i> Send via WhatsApp
+        </a>
+        <a href="<%= smsURL %>" class="btn btn-primary btn-lg">
+          <i class="fas fa-sms"></i> Send via SMS
+        </a>
+        <a href="/patients" class="btn btn-outline-secondary">
+          ← Back to Patients
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyMessage() {
+    const text = document.getElementById("messageText").innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Message copied to clipboard!");
+    }).catch(() => {
+      alert("Failed to copy message.");
+    });
+  }
+</script>
+
+<style>
+  .patient-avatar-lg {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.5rem;
+  }
+  .message-preview {
+    background: #f8f9fa;
+    border: 1px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: inherit;
+    white-space: pre-wrap;
+    margin-bottom: 0;
+  }
+</style>
+
