@@ -1,7 +1,14 @@
-# Fix express-rate-limit ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
+# TODO: Rename "Father Sahab Lifeline" → "MediCare Hub"
 
-## Steps
-- [x] Edit `app.js` to add `app.set('trust proxy', 1)` before rate limiter
-- [x] Make trust proxy configurable via env var
-- [ ] Restart server and verify fix
+## Files to edit
 
+- [x] views/landing_page.ejs
+- [x] views/layout/boilerPlate.ejs
+- [x] views/layout/auth.ejs
+- [x] views/include/Topbar.ejs
+- [x] views/include/footer.ejs
+- [x] views/Dashboard.ejs
+- [x] controllers/message.controller.js
+- [x] package.json
+
+All done.

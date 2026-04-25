@@ -16,13 +16,17 @@
 }
 
 .dashboard-hero::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   right: -20%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
   border-radius: 50%;
 }
 
@@ -63,13 +67,13 @@
 }
 
 .stat-card::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--gradient-blue);
+  background: linear-gradient(90deg, #0d6efd, #2563eb);
   transform: scaleX(0);
   transition: transform 0.3s ease;
 }
@@ -97,11 +101,66 @@
 }
 
 .stat-label {
-  color: var(--text-secondary);
+  color: #64748b;
   font-size: 0.9rem;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* ---- Stats Row 2 (Enhanced) ---- */
+.stats-row-2 {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.stat-card-accent {
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.stat-card-header .stat-icon {
+  font-size: 1.4rem;
+  margin-bottom: 0;
+}
+
+.stat-badge {
+  background: #eff6ff;
+  color: #0d6efd;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.stat-trend {
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.trend-up {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.trend-down {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.stat-card-accent .stat-number {
+  font-size: 1.75rem;
 }
 
 /* ---- Quick Actions ---- */
@@ -129,7 +188,7 @@
 
 .action-btn i {
   font-size: 1.4rem;
-  color: var(--primary-blue);
+  color: #0d6efd;
   width: 40px;
   height: 40px;
   display: flex;
@@ -141,15 +200,185 @@
 }
 
 .action-btn:hover {
-  border-color: var(--primary-blue);
-  color: var(--primary-blue);
+  border-color: #0d6efd;
+  color: #0d6efd;
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(13, 110, 253, 0.12);
 }
 
 .action-btn:hover i {
-  background: var(--primary-blue);
+  background: #0d6efd;
   color: white;
+}
+
+/* ---- Insights Row ---- */
+.insights-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.insight-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.insight-header {
+  margin-bottom: 1.25rem;
+}
+
+.insight-header h3 {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+/* ---- Gender Chart ---- */
+.gender-bar {
+  display: flex;
+  height: 40px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.gender-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  position: relative;
+  min-width: 30px;
+}
+
+.gender-segment:hover {
+  filter: brightness(1.1);
+}
+
+.gender-male {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.gender-female {
+  background: linear-gradient(135deg, #ec4899, #db2777);
+}
+
+.gender-other {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.gender-label {
+  white-space: nowrap;
+  padding: 0 0.5rem;
+}
+
+.gender-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.gender-male-dot {
+  background: #3b82f6;
+}
+
+.gender-female-dot {
+  background: #ec4899;
+}
+
+.gender-other-dot {
+  background: #8b5cf6;
+}
+
+/* ---- Weekly Snapshot ---- */
+.weekly-snapshot {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.snapshot-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem;
+  background: #f8fafc;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.snapshot-item:hover {
+  background: #f1f5f9;
+  transform: translateX(4px);
+}
+
+.snapshot-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.bg-blue {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.bg-green {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.bg-red {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.bg-purple {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+}
+
+.snapshot-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.snapshot-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  font-family: "Poppins", sans-serif;
+}
+
+.snapshot-label {
+  font-size: 0.8rem;
+  color: #64748b;
 }
 
 /* ---- Attention Section ---- */
@@ -300,6 +529,20 @@
   border-color: #cbd5e1;
 }
 
+.patient-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d6efd, #2563eb);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
 .patient-info h6 {
   margin: 0 0 0.25rem;
   font-weight: 700;
@@ -346,7 +589,7 @@
 
 .about-icon {
   font-size: 1.75rem;
-  color: var(--primary-blue);
+  color: #0d6efd;
 }
 
 .about-item h4 {
@@ -382,6 +625,9 @@
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .insights-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 576px) {
@@ -394,7 +640,13 @@
   .stats-grid {
     grid-template-columns: 1fr;
   }
+  .stats-row-2 {
+    grid-template-columns: 1fr;
+  }
   .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  .weekly-snapshot {
     grid-template-columns: 1fr;
   }
   .attention-card {
@@ -409,5 +661,10 @@
   .recent-grid {
     grid-template-columns: 1fr;
   }
+  .gender-bar {
+    height: 32px;
+  }
+  .gender-label {
+    font-size: 0.7rem;
+  }
 }
-

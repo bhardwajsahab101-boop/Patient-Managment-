@@ -1,4 +1,5 @@
 import { patient } from "../models/patient.js";
+import Clinic from "../models/clinic.js";
 
 // GET /patients/new
 export function newPatientForm(req, res) {
@@ -19,6 +20,9 @@ export async function createPatient(req, res) {
       throw new Error("Invalid next visit date");
     }
 
+    // Fetch the clinic owned by this user
+    const userClinic = await Clinic.findOne({ ownerId: userId }).lean();
+
     const newPatient = new patient({
       name: name.trim(),
       age: parseInt(age) || undefined,
@@ -27,6 +31,7 @@ export async function createPatient(req, res) {
       treatment: treatment?.trim(),
       nextVisit: nextVisitDate,
       userId,
+      clinicId: userClinic?._id || undefined,
       visits: [
         {
           notes: notes?.trim(),

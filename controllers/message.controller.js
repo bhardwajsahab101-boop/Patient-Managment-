@@ -1,4 +1,5 @@
 import { patient } from "../models/patient.js";
+import Clinic from "../models/clinic.js";
 
 export async function getMessage(req, res) {
   try {
@@ -11,12 +12,27 @@ export async function getMessage(req, res) {
 
     if (!patientData) return res.status(404).send("Patient not found");
 
+    // Fetch clinic name if clinicId exists
+    let clinicName = "MediCare Hub";
+    if (patientData.clinicId) {
+      const clinic = await Clinic.findById(patientData.clinicId).lean();
+      if (clinic && clinic.name) {
+        clinicName = clinic.name;
+      }
+    } else {
+      // Fallback: fetch clinic by ownerId (user's default clinic)
+      const userClinic = await Clinic.findOne({ ownerId: req.user._id }).lean();
+      if (userClinic && userClinic.name) {
+        clinicName = userClinic.name;
+      }
+    }
+
     const latestVisit = patientData.visits.at(-1);
     const nextDate = latestVisit?.nextVisit
       ? new Date(latestVisit.nextVisit).toDateString()
       : "not scheduled";
 
-    const message = `Hello ${patientData.name},\nYour next visit is on ${nextDate}.\nPlease visit the clinic on time.\n\n- Father Sahab Lifeline`;
+    const message = `Hello ${patientData.name},\nYour next visit is on ${nextDate}.\nPlease visit the clinic on time.\n\n- ${clinicName}`;
 
     const encodedMessage = encodeURIComponent(message);
     const phone = `91${patientData.phone}`;
@@ -30,6 +46,7 @@ export async function getMessage(req, res) {
       smsURL,
       phone,
       nextDate,
+      clinicName,
     });
   } catch (err) {
     console.error(err);
