@@ -81,11 +81,11 @@
           </div>
       <% } else { %>
         <!-- Not Logged In: Auth Buttons -->
-        <a href="/login" class="btn btn-outline-primary btn-sm me-2">
+        <a href="/login" class="btn btn-outline-primary btn-sm me-2 d-none d-md-inline-flex align-items-center">
           <i class="fas fa-sign-in-alt me-1"></i> Login
         </a>
-        <a href="/signup" class="btn btn-primary btn-sm">
-          <i class="fas fa-user-plus me-1"></i> Sign Up
+        <a href="/signup" class="btn btn-primary btn-sm d-inline-flex align-items-center">
+          <i class="fas fa-user-plus me-1"></i> <span class="d-none d-sm-inline">Sign Up</span><span class="d-sm-none">Join</span>
         </a>
       <% } %>
     </div>

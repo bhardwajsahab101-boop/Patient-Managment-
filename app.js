@@ -44,13 +44,23 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+          "https://cdn.jsdelivr.net",
+          "https://cdnjs.cloudflare.com",
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdnjs.cloudflare.com",
+        ],
         imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
         connectSrc: ["'self'", "https://cdn.jsdelivr.net"],
       },
     },
-  })
+  }),
 );
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -123,10 +133,9 @@ app.get("/patient/:id", requireAuth, async (req, res, next) => {
   getPatientDetail(req, res, next);
 });
 
-
 app.get("/", (req, res) => {
   res.render("landing_page");
-})
+});
 
 // Error Handler
 app.use(errorHandler);
@@ -141,4 +150,3 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log("   • Env vars");
   console.log("AT FINAL EVERY THING IS FINE ");
 });
-

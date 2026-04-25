@@ -405,6 +405,17 @@ body.landing-page {
 @media (max-width: 768px) {
   .landing-navbar {
     height: 56px;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .landing-navbar .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .landing-navbar .nav-btn {
+    padding: 0.35rem 1rem;
+    font-size: 0.85rem;
   }
 
   .hero {

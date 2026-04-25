@@ -2,7 +2,8 @@ import User from "../models/User.js";
 
 export const requireAuth = async (req, res, next) => {
   if (!req.session || !req.session.userId) {
-    return res.status(401).send("Login required");
+    return res.redirect("/login")
+
   }
 
   try {
