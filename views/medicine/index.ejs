@@ -1,0 +1,74 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<body>
+
+    
+    <div class="container mt-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold">💊 Medicines</h3>
+    <a href="/medicines/new?clinicId=<%= medicines[0]?.clinicId || '' %>" class="btn btn-primary">
+      + Add Medicine
+    </a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Name</th>
+            <th>Stock</th>
+            <th>Buy Price</th>
+            <th>Sell Price</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <% medicines.forEach(med => { %>
+            <tr>
+              <td class="fw-semibold"><%= med.name %></td>
+
+              <td>
+                <% if (med.stock < 5) { %>
+                  <span class="badge bg-danger"><%= med.stock %></span>
+                <% } else { %>
+                  <span class="badge bg-success"><%= med.stock %></span>
+                <% } %>
+              </td>
+
+              <td>₹<%= med.buyPrice || 0 %></td>
+              <td>₹<%= med.sellPrice || 0 %></td>
+
+              <td>
+                <a href="/medicines/add/<%= med._id %>" class="btn btn-sm btn-success">+</a>
+                <a href="/medicines/remove/<%= med._id %>" class="btn btn-sm btn-warning">-</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+
+      </table>
+
+    </div>
+    
+  </div>
+  <% if (medicines.length === 0) { %>
+  <div class="text-center mt-5">
+    <h5>No medicines added yet</h5>
+    <a href="/medicines/new" class="btn btn-primary mt-2">Add First Medicine</a>
+  </div>
+<% } %>
+<style>
+    table td, table th {
+  vertical-align: middle;
+}
+
+.badge {
+  font-size: 0.9rem;
+}
+</style>
+</div>
+</body>
