@@ -1,6 +1,7 @@
-# Icon Fix TODO
+# Fix express-rate-limit ERR_ERL_UNEXPECTED_X_FORWARDED_FOR
 
-- [x] Update Font Awesome CDN in `views/layout/boilerPlate.ejs`
-- [x] Update Font Awesome CDN in `views/layout/auth.ejs`
-- [x] Update Font Awesome CDN in `views/landing_page.ejs`
-- [x] Verify icons load correctly
+## Steps
+- [x] Edit `app.js` to add `app.set('trust proxy', 1)` before rate limiter
+- [x] Make trust proxy configurable via env var
+- [ ] Restart server and verify fix
+

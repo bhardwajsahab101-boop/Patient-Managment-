@@ -34,6 +34,10 @@ main();
 
 const app = express();
 
+// Trust proxy for accurate client IP behind reverse proxies (Docker, Nginx, etc.)
+// Set TRUST_PROXY in .env or defaults to 1 (trust first proxy)
+app.set("trust proxy", process.env.TRUST_PROXY || 1);
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
