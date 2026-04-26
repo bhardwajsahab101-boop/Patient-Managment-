@@ -12,6 +12,11 @@ export async function getDashboard(req, res) {
     const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
 
+    const weekAgo = new Date(today);
+    weekAgo.setDate(today.getDate() - 7);
+
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
     const baseFilter = { userId };
 
     const [
@@ -21,6 +26,11 @@ export async function getDashboard(req, res) {
       recentPatients,
       urgentPatients,
       revenueResult,
+      todaysVisits,
+      weeklyNewPatients,
+      genderStats,
+      monthlyRevenueResult,
+      lastWeekPatients,
     ] = await Promise.all([
       patient.countDocuments(baseFilter),
       patient.countDocuments({
@@ -50,9 +60,79 @@ export async function getDashboard(req, res) {
           },
         },
       ]),
+      // Today's visits (patients with nextVisit today)
+      patient.countDocuments({
+        ...baseFilter,
+        nextVisit: { $gte: today, $lt: tomorrow },
+      }),
+      // New patients this week
+      patient.countDocuments({
+        ...baseFilter,
+        createdAt: { $gte: weekAgo },
+      }),
+      // Gender distribution
+      patient.aggregate([
+        { $match: baseFilter },
+        {
+          $group: {
+            _id: "$gender",
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+      // Monthly revenue
+      patient.aggregate([
+        { $match: baseFilter },
+        { $unwind: "$visits" },
+        {
+          $match: {
+            "visits.date": { $gte: monthStart },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$visits.price" },
+          },
+        },
+      ]),
+      // Patients added last week (for trend)
+      patient.countDocuments({
+        ...baseFilter,
+        createdAt: {
+          $gte: new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000),
+          $lt: weekAgo,
+        },
+      }),
     ]);
 
     const totalRevenue = revenueResult[0]?.total || 0;
+    const monthlyRevenue = monthlyRevenueResult[0]?.total || 0;
+
+    // Format gender stats
+    const genderMap = { Male: 0, Female: 0, Other: 0 };
+    genderStats.forEach((g) => {
+      if (g._id) genderMap[g._id] = g.count;
+    });
+    const totalGender =
+      genderMap.Male + genderMap.Female + genderMap.Other || 1;
+
+    const genderPercentages = {
+      Male: Math.round((genderMap.Male / totalGender) * 100),
+      Female: Math.round((genderMap.Female / totalGender) * 100),
+      Other: Math.round((genderMap.Other / totalGender) * 100),
+    };
+
+    // Weekly trend
+    const weeklyTrend = weeklyNewPatients >= lastWeekPatients ? "up" : "down";
+    const weeklyTrendPercent =
+      lastWeekPatients > 0
+        ? Math.round(
+            ((weeklyNewPatients - lastWeekPatients) / lastWeekPatients) * 100,
+          )
+        : weeklyNewPatients > 0
+          ? 100
+          : 0;
 
     res.render("Dashboard", {
       stats: {
@@ -60,7 +140,14 @@ export async function getDashboard(req, res) {
         followupsTodayTomorrow,
         followupsOverdue,
         totalRevenue: totalRevenue.toLocaleString(),
+        todaysVisits,
+        weeklyNewPatients,
+        monthlyRevenue: monthlyRevenue.toLocaleString(),
+        weeklyTrend,
+        weeklyTrendPercent,
       },
+      genderStats: genderPercentages,
+      genderCounts: genderMap,
       recentPatients,
       urgentPatients,
     });

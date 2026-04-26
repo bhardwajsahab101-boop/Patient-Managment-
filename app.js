@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import session from "express-session";
-
+import medicineRoutes from "./routes/medicine.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import patientRoutes from "./routes/patients.routes.js";
 import followupRoutes from "./routes/followup.routes.js";
@@ -33,6 +33,12 @@ async function main() {
 main();
 
 const app = express();
+
+
+app.set('trust proxy', 1);
+// Trust proxy for accurate client IP behind reverse proxies (Docker, Nginx, etc.)
+// Set TRUST_PROXY in .env or defaults to 1 (trust first proxy)
+app.set("trust proxy", process.env.TRUST_PROXY || 1);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -125,6 +131,8 @@ app.use("/patients", patientRoutes);
 app.use("/followup", followupRoutes);
 app.use("/reports", reportsRoutes);
 app.use("/message", messagesRoutes);
+app.use("/medicines", medicineRoutes);
+
 
 // Backward-compatible singular patient detail route (protected)
 app.get("/patient/:id", requireAuth, async (req, res, next) => {

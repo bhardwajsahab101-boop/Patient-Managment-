@@ -6,7 +6,7 @@
 <!-- Hero Header -->
 <div class="dashboard-hero">
   <div class="container">
-    <h1>Father Sahab Lifeline</h1>
+    <h1>MediCare Hub</h1>
     <p class="subtitle">Welcome back! Manage your patients with ease. Today: <%= new Date().toDateString() %></p>
   </div>
 </div>
@@ -30,8 +30,40 @@
   </div>
   <div class="stat-card">
     <i class="fas fa-rupee-sign stat-icon" style="color: #d97706;"></i>
-    <div class="stat-number" style="color: #d97706;">₹<%= stats.totalRevenue %></div>
+    <div class="stat-number" style="color: #d97706;">&#8377;<%= stats.totalRevenue %></div>
     <div class="stat-label">Revenue</div>
+  </div>
+</div>
+
+<!-- New Enhanced Stats Row -->
+<div class="stats-grid stats-row-2 mb-4">
+  <div class="stat-card stat-card-accent">
+    <div class="stat-card-header">
+      <i class="fas fa-calendar-day stat-icon" style="color: #0d6efd;"></i>
+      <span class="stat-badge">Today</span>
+    </div>
+    <div class="stat-number" style="color: #0d6efd;"><%= stats.todaysVisits %></div>
+    <div class="stat-label">Scheduled Visits</div>
+  </div>
+  <div class="stat-card stat-card-accent">
+    <div class="stat-card-header">
+      <i class="fas fa-user-plus stat-icon" style="color: #7c3aed;"></i>
+      <% if (stats.weeklyTrend === 'up') { %>
+        <span class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> <%= stats.weeklyTrendPercent %>%</span>
+      <% } else { %>
+        <span class="stat-trend trend-down"><i class="fas fa-arrow-down"></i> <%= Math.abs(stats.weeklyTrendPercent) %>%</span>
+      <% } %>
+    </div>
+    <div class="stat-number" style="color: #7c3aed;"><%= stats.weeklyNewPatients %></div>
+    <div class="stat-label">New This Week</div>
+  </div>
+  <div class="stat-card stat-card-accent">
+    <div class="stat-card-header">
+      <i class="fas fa-wallet stat-icon" style="color: #059669;"></i>
+      <span class="stat-badge">This Month</span>
+    </div>
+    <div class="stat-number" style="color: #059669;">&#8377;<%= stats.monthlyRevenue %></div>
+    <div class="stat-label">Monthly Revenue</div>
   </div>
 </div>
 
@@ -53,6 +85,88 @@
     <i class="fas fa-list"></i>
     <span>All Patients</span>
   </a>
+</div>
+
+<!-- Dashboard Insights Row -->
+<div class="insights-row mb-4">
+  <!-- Gender Distribution -->
+  <section class="insight-card gender-card">
+    <div class="insight-header">
+      <h3><i class="fas fa-venus-mars text-primary me-2"></i>Gender Distribution</h3>
+    </div>
+    <div class="gender-chart">
+      <div class="gender-bar">
+        <div class="gender-segment gender-male" style="width: <%= genderStats.Male %>%">
+          <span class="gender-label"><i class="fas fa-mars"></i> <%= genderStats.Male %>%</span>
+        </div>
+        <div class="gender-segment gender-female" style="width: <%= genderStats.Female %>%">
+          <span class="gender-label"><i class="fas fa-venus"></i> <%= genderStats.Female %>%</span>
+        </div>
+        <div class="gender-segment gender-other" style="width: <%= genderStats.Other %>%">
+          <span class="gender-label"><i class="fas fa-transgender"></i> <%= genderStats.Other %>%</span>
+        </div>
+      </div>
+      <div class="gender-legend">
+        <div class="legend-item">
+          <div class="legend-dot gender-male-dot"></div>
+          <span>Male <strong>(<%= genderCounts.Male %>)</strong></span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot gender-female-dot"></div>
+          <span>Female <strong>(<%= genderCounts.Female %>)</strong></span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot gender-other-dot"></div>
+          <span>Other <strong>(<%= genderCounts.Other %>)</strong></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Weekly Activity -->
+  <section class="insight-card activity-card">
+    <div class="insight-header">
+      <h3><i class="fas fa-chart-bar text-success me-2"></i>Weekly Snapshot</h3>
+    </div>
+    <div class="weekly-snapshot">
+      <div class="snapshot-item">
+        <div class="snapshot-icon bg-blue">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="snapshot-info">
+          <span class="snapshot-value"><%= stats.totalPatients %></span>
+          <span class="snapshot-label">Total Patients</span>
+        </div>
+      </div>
+      <div class="snapshot-item">
+        <div class="snapshot-icon bg-green">
+          <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="snapshot-info">
+          <span class="snapshot-value"><%= stats.followupsTodayTomorrow %></span>
+          <span class="snapshot-label">Upcoming Follow-ups</span>
+        </div>
+      </div>
+      <div class="snapshot-item">
+        <div class="snapshot-icon bg-red">
+          <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="snapshot-info">
+          <span class="snapshot-value"><%= stats.followupsOverdue %></span>
+          <span class="snapshot-label">Overdue Follow-ups</span>
+        </div>
+      </div>
+      <div class="snapshot-item">
+        <div class="snapshot-icon bg-purple">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="snapshot-info">
+          <span class="snapshot-value"><%= stats.weeklyNewPatients %></span>
+          <span class="snapshot-label">New This Week</span>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <!-- Needs Attention -->
@@ -125,9 +239,9 @@
           <div class="patient-info flex-grow-1">
             <h6><%= patient.name %></h6>
             <div class="patient-meta">
-              <%= patient.age %> yrs • <%= patient.phone %><br>
+              <%= patient.age %> yrs &bull; <%= patient.phone %><br>
               <small class="text-muted">
-                <%= latestVisit ? `Next: ${new Date(latestVisit.nextVisit).toDateString()}` : 'No visit scheduled' %>
+                <%= latestVisit ? 'Next: ' + new Date(latestVisit.nextVisit).toDateString() : 'No visit scheduled' %>
               </small>
             </div>
           </div>
@@ -150,7 +264,7 @@
       <div class="about-icon-wrapper">
         <i class="fas fa-heart about-icon"></i>
       </div>
-      <h4>About Father Sahab Lifeline</h4>
+      <h4>About MediCare Hub</h4>
       <p>Trusted healthcare management system providing compassionate care with modern technology. Efficient patient tracking and follow-ups.</p>
     </div>
     <div class="about-item">
@@ -159,8 +273,7 @@
       </div>
       <h4>Contact</h4>
       <p><i class="fas fa-phone me-2 text-primary"></i>+91 98765 43210</p>
-      <p><i class="fas fa-envelope me-2 text-primary"></i>info@fathersahablifeline.com</p>
+      <p><i class="fas fa-envelope me-2 text-primary"></i>info@medicarehub.com</p>
     </div>
   </div>
 </section>
-
