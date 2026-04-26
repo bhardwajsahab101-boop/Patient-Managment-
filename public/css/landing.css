@@ -49,6 +49,15 @@ body.landing-page {
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .landing-navbar .navbar-brand {
@@ -57,6 +66,13 @@ body.landing-page {
   font-size: 1.4rem;
   color: var(--white);
   letter-spacing: -0.5px;
+  white-space: nowrap;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .landing-navbar .nav-btn {
@@ -65,6 +81,9 @@ body.landing-page {
   font-weight: 500;
   font-size: 0.9rem;
   transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .landing-navbar .nav-btn:hover {
@@ -405,17 +424,17 @@ body.landing-page {
 @media (max-width: 768px) {
   .landing-navbar {
     height: 56px;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 
   .landing-navbar .navbar-brand {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .landing-navbar .nav-btn {
-    padding: 0.35rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
   }
 
   .hero {
@@ -435,5 +454,39 @@ body.landing-page {
 
   .feature-card {
     margin-bottom: 1rem;
+  }
+}
+
+/* ---- Small Mobile (<=480px) ---- */
+@media (max-width: 480px) {
+  .landing-navbar .navbar-brand {
+    font-size: 0.9rem;
+  }
+
+  .navbar-actions {
+    gap: 0.35rem;
+  }
+
+  .landing-navbar .nav-btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .nav-btn-text {
+    display: none;
+  }
+
+  .landing-navbar .nav-btn i {
+    margin: 0 !important;
+    font-size: 0.9rem;
+  }
+
+  .nav-btn-logout,
+  .nav-btn-dashboard {
+    width: 36px;
+    height: 36px;
+    padding: 0 !important;
+    justify-content: center;
+    align-items: center;
   }
 }
