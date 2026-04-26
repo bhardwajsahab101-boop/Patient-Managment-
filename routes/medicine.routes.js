@@ -63,7 +63,11 @@ router.get("/", requireAuth, async (req, res) => {
     }
 
     if (lowStock === "true") {
-      filter.stock = { $lte: 5 };
+      filter.$or = [
+        { stock: { $lte: 5 } },
+        { stock: { $exists: false } },
+        { stock: null },
+      ];
     }
 
     if (expiring === "true") {

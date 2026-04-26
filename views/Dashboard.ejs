@@ -38,16 +38,20 @@
     <div class="stat-number" style="color: #2563eb;"><%= stats.totalMedicines %></div>
     <div class="stat-label">Medicines</div>
   </div>
-  <div class="stat-card">
-    <i class="fas fa-exclamation-triangle stat-icon" style="color: #ea580c;"></i>
-    <div class="stat-number" style="color: #ea580c;"><%= stats.lowStockMedicines %></div>
-    <div class="stat-label">Low Stock</div>
-  </div>
-  <div class="stat-card">
-    <i class="fas fa-calendar-times stat-icon" style="color: #7c3aed;"></i>
-    <div class="stat-number" style="color: #7c3aed;"><%= stats.expiringMedicines %></div>
-    <div class="stat-label">Expiring Soon</div>
-  </div>
+  <a href="/medicines?lowStock=true" class="stat-card-link">
+    <div class="stat-card">
+      <i class="fas fa-exclamation-triangle stat-icon" style="color: #ea580c;"></i>
+      <div class="stat-number" style="color: #ea580c;"><%= stats.lowStockMedicines %></div>
+      <div class="stat-label">Low Stock</div>
+    </div>
+  </a>
+  <a href="/medicines?expiring=true" class="stat-card-link">
+    <div class="stat-card">
+      <i class="fas fa-calendar-times stat-icon" style="color: #7c3aed;"></i>
+      <div class="stat-number" style="color: #7c3aed;"><%= stats.expiringMedicines %></div>
+      <div class="stat-label">Expiring Soon</div>
+    </div>
+  </a>
 </div>
 
 <!-- Quick Actions -->

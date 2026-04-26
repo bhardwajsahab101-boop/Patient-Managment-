@@ -46,6 +46,17 @@
   position: relative;
 }
 
+.stat-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.stat-card-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
 /* ---- Stats Grid ---- */
 .stats-grid {
   display: grid;

@@ -67,7 +67,11 @@ export async function getDashboard(req, res) {
         ? Medicine.countDocuments({
             clinicId,
             isActive: true,
-            stock: { $lte: 5 },
+            $or: [
+              { stock: { $lte: 5 } },
+              { stock: { $exists: false } },
+              { stock: null },
+            ],
           })
         : 0,
       clinicId
