@@ -362,11 +362,11 @@
   position: absolute;
   top: calc(100% + 12px);
   right: 0;
-  width: 280px;
+  width: 260px;
   background: #1e293b;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  padding: 0;
+  padding: 6px 0;
   box-shadow:
     0 25px 60px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -377,6 +377,9 @@
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 1100;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /* Arrow pointer */
@@ -405,9 +408,10 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 20px;
+  padding: 16px 20px;
   background: rgba(37, 99, 235, 0.08);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
 }
 
 .user-menu-avatar {
@@ -446,17 +450,18 @@
 .user-menu-divider {
   height: 1px;
   background: rgba(255, 255, 255, 0.06);
-  margin: 8px 16px;
+  margin: 6px 16px;
+  flex-shrink: 0;
 }
 
-/* Menu Items */
+/* Menu Items - Stacked column layout */
 .user-menu-item {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 20px;
-  margin: 0 8px;
-  border-radius: 10px;
+  margin: 0;
+  border-radius: 0;
   color: #cbd5e1;
   text-decoration: none;
   font-size: 0.9rem;
@@ -465,13 +470,14 @@
   cursor: pointer;
   border: none;
   background: none;
-  width: calc(100% - 16px);
+  width: 100%;
   text-align: left;
   font-family: inherit;
+  flex-shrink: 0;
 }
 
 .user-menu-item:hover {
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(37, 99, 235, 0.12);
   color: #fff;
 }
 
@@ -493,7 +499,7 @@
 }
 
 .user-menu-danger:hover {
-  background: rgba(239, 68, 68, 0.1) !important;
+  background: rgba(239, 68, 68, 0.12) !important;
   color: #ef4444 !important;
 }
 

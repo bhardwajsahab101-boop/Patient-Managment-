@@ -35,7 +35,7 @@ router.post("/:id/visits", validateVisit, addVisit);
 router.get("/:id/edit", editForm);
 router.put("/:id", validatePatient, updatePatient);
 router.get("/:id/delete", deleteForm);
-router.delete("/:id", deletePatient);
+router.post("/:id/delete", deletePatient);
 
 // Patient detail (generic /:id goes LAST)
 router.get("/:id", getPatientDetail);

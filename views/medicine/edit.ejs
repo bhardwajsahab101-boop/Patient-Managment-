@@ -1,0 +1,70 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<div class="container mt-4">
+  <h3 class="fw-bold mb-4">✏️ Edit Medicine - <%= medicine.name %></h3>
+
+  <form action="/medicines/<%= medicine._id %>/edit" method="POST" class="card p-4 shadow-sm">
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Medicine Name *</label>
+        <input type="text" name="name" class="form-control" required minlength="2" value="<%= medicine.name %>">
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label class="form-label">Category</label>
+        <select name="category" class="form-select">
+          <% const cats = ['Tablet', 'Syrup', 'Injection', 'Cream', 'Capsule', 'Drop', 'Inhaler', 'Powder', 'Other']; %>
+          <% cats.forEach(cat => { %>
+            <option value="<%= cat %>" <%= medicine.category === cat ? 'selected' : '' %>><%= cat %></option>
+          <% }) %>
+        </select>
+      </div>
+
+      <div class="col-md-3 mb-3">
+        <label class="form-label">Dosage</label>
+        <input type="text" name="dosage" class="form-control" placeholder="e.g. 500mg, 10ml" value="<%= medicine.dosage || '' %>">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Manufacturer</label>
+        <input type="text" name="manufacturer" class="form-control" value="<%= medicine.manufacturer || '' %>">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Batch Number</label>
+        <input type="text" name="batchNumber" class="form-control" value="<%= medicine.batchNumber || '' %>">
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Expiry Date</label>
+        <input type="date" name="expiryDate" class="form-control" value="<%= medicine.expiryDate ? new Date(medicine.expiryDate).toISOString().split('T')[0] : '' %>">
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" rows="2"><%= medicine.description || '' %></textarea>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Buy Price (₹)</label>
+        <input type="number" name="buyPrice" class="form-control" min="0" step="0.01" value="<%= medicine.buyPrice || 0 %>">
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Sell Price (₹)</label>
+        <input type="number" name="sellPrice" class="form-control" min="0" step="0.01" value="<%= medicine.sellPrice || 0 %>">
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-primary">Save Changes</button>
+      <a href="/medicines/<%= medicine._id %>" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+

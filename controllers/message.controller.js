@@ -16,7 +16,7 @@ export async function getMessage(req, res) {
       ? new Date(latestVisit.nextVisit).toDateString()
       : "not scheduled";
 
-    const message = `Hello ${patientData.name},\nYour next visit is on ${nextDate}.\nPlease visit the clinic on time.\n\n- Father Sahab Lifeline`;
+    const message = `Hello ${patientData.name},\nYour next visit is on ${nextDate}.\nPlease visit the clinic on time.\n\n- MediCare Hub`;
 
     const encodedMessage = encodeURIComponent(message);
     const phone = `91${patientData.phone}`;

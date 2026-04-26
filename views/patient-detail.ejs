@@ -78,6 +78,21 @@
         <%= v.notes || "No notes added" %>
       </p>
 
+      <% if (v.medicines && v.medicines.length > 0) { %>
+        <div class="medicines-section">
+          <strong><i class="fas fa-pills text-primary"></i> Prescribed Medicines:</strong>
+          <div class="medicine-tags">
+            <% v.medicines.forEach(med => { %>
+              <span class="medicine-tag">
+                <%= med.name %> 
+                <% if (med.dosage) { %><small>(<%= med.dosage %>)</small><% } %>
+                <span class="qty">x<%= med.quantity %></span>
+              </span>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+
       <% if(v.nextVisit){ %>
         <small class="text-muted">
           Next Visit: <%= new Date(v.nextVisit).toDateString() %>
@@ -147,4 +162,35 @@
   font-weight: bold;
   color: #16a34a;
 }
+
+.medicines-section {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background: #e8f4fd;
+  border-radius: 8px;
+}
+
+.medicine-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.medicine-tag {
+  background: #0d6efd;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+}
+
+.medicine-tag .qty {
+  background: rgba(255,255,255,0.3);
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 4px;
+  font-weight: bold;
+}
 </style>
+

@@ -1,4 +1,5 @@
 import { patient } from "../models/patient.js";
+import Medicine from "../models/medicine.js";
 
 export async function getDashboard(req, res) {
   try {
@@ -14,6 +15,14 @@ export async function getDashboard(req, res) {
 
     const baseFilter = { userId };
 
+    // Get user's clinic for medicine queries
+    const Clinic = (await import("../models/clinic.js")).default;
+    const userClinic = await Clinic.findOne({ ownerId: userId }).lean();
+    const clinicId = userClinic?._id;
+
+    const thirtyDaysFromNow = new Date(today);
+    thirtyDaysFromNow.setDate(today.getDate() + 30);
+
     const [
       totalPatients,
       followupsTodayTomorrow,
@@ -21,6 +30,9 @@ export async function getDashboard(req, res) {
       recentPatients,
       urgentPatients,
       revenueResult,
+      totalMedicines,
+      lowStockMedicines,
+      expiringMedicines,
     ] = await Promise.all([
       patient.countDocuments(baseFilter),
       patient.countDocuments({
@@ -50,6 +62,21 @@ export async function getDashboard(req, res) {
           },
         },
       ]),
+      clinicId ? Medicine.countDocuments({ clinicId, isActive: true }) : 0,
+      clinicId
+        ? Medicine.countDocuments({
+            clinicId,
+            isActive: true,
+            stock: { $lte: 5 },
+          })
+        : 0,
+      clinicId
+        ? Medicine.countDocuments({
+            clinicId,
+            isActive: true,
+            expiryDate: { $lte: thirtyDaysFromNow, $gte: today },
+          })
+        : 0,
     ]);
 
     const totalRevenue = revenueResult[0]?.total || 0;
@@ -60,6 +87,9 @@ export async function getDashboard(req, res) {
         followupsTodayTomorrow,
         followupsOverdue,
         totalRevenue: totalRevenue.toLocaleString(),
+        totalMedicines,
+        lowStockMedicines,
+        expiringMedicines,
       },
       recentPatients,
       urgentPatients,

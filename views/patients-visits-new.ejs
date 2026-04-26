@@ -2,7 +2,7 @@
 
 <div class="container mt-5">
   <div class="row justify-content-center">
-    <div class="col-md-6">
+    <div class="col-md-8">
       <div class="card shadow">
         <div class="card-header bg-primary text-white">
           <h4 class="mb-0">➕ Add Visit for <%= patient.name %></h4>
@@ -55,6 +55,52 @@
                 />
               </div>
             </div>
+
+            <!-- MEDICINES -->
+            <h5 class="text-primary mb-3 mt-2">💊 Prescribe Medicines <small class="text-muted">(Optional)</small></h5>
+            
+            <% if (typeof medicines !== 'undefined' && medicines.length > 0) { %>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 40px;">Select</th>
+                      <th>Medicine</th>
+                      <th>Category</th>
+                      <th>Dosage</th>
+                      <th>Stock</th>
+                      <th style="width: 100px;">Qty</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% medicines.forEach((med, idx) => { %>
+                      <tr>
+                        <td class="text-center">
+                          <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" class="form-check-input med-check" data-index="<%= idx %>">
+                        </td>
+                        <td><strong><%= med.name %></strong></td>
+                        <td><span class="badge bg-info text-dark"><%= med.category || 'Tablet' %></span></td>
+                        <td><%= med.dosage || '-' %></td>
+                        <td>
+                          <% if (med.stock <= 5) { %>
+                            <span class="badge bg-danger"><%= med.stock %></span>
+                          <% } else { %>
+                            <span class="badge bg-success"><%= med.stock %></span>
+                          <% } %>
+                        </td>
+                        <td>
+                          <input type="number" name="medicineQuantities[]" class="form-control form-control-sm" min="1" max="<%= med.stock %>" value="1" disabled id="qty-<%= idx %>">
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } else { %>
+              <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> No medicines available in stock. <a href="/medicines/new">Add medicines first</a>.
+              </div>
+            <% } %>
           </div>
 
           <div class="card-footer bg-light">
@@ -86,3 +132,16 @@
     resize: vertical;
   }
 </style>
+
+<script>
+  // Enable/disable quantity inputs based on checkbox
+  document.querySelectorAll('.med-check').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const idx = this.dataset.index;
+      const qtyInput = document.getElementById('qty-' + idx);
+      qtyInput.disabled = !this.checked;
+      if (this.checked) qtyInput.focus();
+    });
+  });
+</script>
+

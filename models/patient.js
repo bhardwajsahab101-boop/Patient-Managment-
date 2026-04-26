@@ -64,6 +64,15 @@ const PatientData = new Schema({
       },
 
       nextVisit: Date,
+
+      medicines: [
+        {
+          medicineId: { type: Schema.Types.ObjectId, ref: "Medicine" },
+          name: String,
+          dosage: String,
+          quantity: { type: Number, default: 1 },
+        },
+      ],
     },
   ],
 });
