@@ -1,0 +1,345 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<style>
+  .admin-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .admin-header i {
+    font-size: 2rem;
+    color: #0d6efd;
+  }
+  .admin-header h2 {
+    margin: 0;
+    font-weight: 700;
+  }
+  .user-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+  .user-info {
+    flex: 1;
+    min-width: 220px;
+  }
+  .user-info h5 {
+    margin: 0 0 0.25rem 0;
+    font-weight: 600;
+  }
+  .user-meta {
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+  .user-meta span {
+    margin-right: 0.75rem;
+  }
+  .badge-status {
+    font-size: 0.8rem;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+  }
+  .badge-active {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  .badge-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .badge-expired {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .user-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  .sub-form {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .sub-form input {
+    width: 80px;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.875rem;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .stat-card h3 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #0d6efd;
+  }
+  .stat-card p {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+  .admin-nav-pills {
+    margin-bottom: 1.5rem;
+  }
+  .admin-nav-pills .nav-link {
+    border-radius: 8px;
+    font-weight: 500;
+    color: #495057;
+  }
+  .admin-nav-pills .nav-link.active {
+    background: #0d6efd;
+    color: #fff;
+  }
+</style>
+
+<div class="admin-header">
+  <i class="fa-solid fa-shield-halved"></i>
+  <h2>Admin Panel</h2>
+</div>
+
+<%
+  const totalUsers = users.length;
+  const activeUsers = users.filter(u => u.isActive && !u.isExpired).length;
+  const inactiveUsers = users.filter(u => !u.isActive).length;
+  const expiredUsers = users.filter(u => u.isActive && u.isExpired).length;
+%>
+
+<div class="stats-row">
+  <div class="stat-card">
+    <h3><%= totalUsers %></h3>
+    <p>Total Users</p>
+  </div>
+  <div class="stat-card">
+    <h3><%= activeUsers %></h3>
+    <p>Active Users</p>
+  </div>
+  <div class="stat-card">
+    <h3><%= inactiveUsers %></h3>
+    <p>Pending Approval</p>
+  </div>
+  <div class="stat-card">
+    <h3><%= expiredUsers %></h3>
+    <p>Expired Subscriptions</p>
+  </div>
+</div>
+
+<ul class="nav nav-pills admin-nav-pills" id="adminTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" type="button" role="tab">All Users</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="pending-tab" data-bs-toggle="pill" data-bs-target="#pending" type="button" role="tab">Pending</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="active-tab" data-bs-toggle="pill" data-bs-target="#active" type="button" role="tab">Active</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="expired-tab" data-bs-toggle="pill" data-bs-target="#expired" type="button" role="tab">Expired</button>
+  </li>
+</ul>
+
+<div class="tab-content" id="adminTabsContent">
+  <!-- All Users -->
+  <div class="tab-pane fade show active" id="all" role="tabpanel">
+    <% users.forEach(function(user) { %>
+      <div class="user-card">
+        <div class="user-info">
+          <h5>
+            <%= user.name %>
+            <% if (user.role === 'admin') { %>
+              <span class="badge bg-dark ms-1">Admin</span>
+            <% } %>
+          </h5>
+          <div class="user-meta">
+            <span><i class="fa-solid fa-phone me-1"></i><%= user.phone %></span>
+            <span><i class="fa-regular fa-calendar me-1"></i><%= new Date(user.createdAt).toLocaleDateString() %></span>
+            <% if (user.clinicName) { %>
+              <span><i class="fa-solid fa-hospital me-1"></i><%= user.clinicName %></span>
+            <% } %>
+          </div>
+          <div class="mt-1">
+            <% if (user.isActive && !user.isExpired) { %>
+              <span class="badge-status badge-active"><i class="fa-solid fa-check-circle me-1"></i>Active</span>
+            <% } else if (!user.isActive) { %>
+              <span class="badge-status badge-inactive"><i class="fa-solid fa-clock me-1"></i>Pending Approval</span>
+            <% } else { %>
+              <span class="badge-status badge-expired"><i class="fa-solid fa-triangle-exclamation me-1"></i>Subscription Expired</span>
+            <% } %>
+            <% if (user.subscriptionEndsAt) { %>
+              <small class="text-muted ms-2">Sub ends: <%= new Date(user.subscriptionEndsAt).toLocaleDateString() %></small>
+            <% } %>
+          </div>
+        </div>
+        <div class="user-actions">
+          <form action="/admin/users/<%= user._id %>/toggle" method="POST">
+            <% if (user.isActive) { %>
+              <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="fa-solid fa-ban me-1"></i>Deactivate
+              </button>
+            <% } else { %>
+              <button type="submit" class="btn btn-success btn-sm">
+                <i class="fa-solid fa-check me-1"></i>Activate
+              </button>
+            <% } %>
+          </form>
+          <form action="/admin/users/<%= user._id %>/subscription" method="POST" class="sub-form">
+            <input type="number" name="subscriptionDays" value="30" min="1" max="3650" title="Days" />
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-rotate me-1"></i>Renew
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Pending -->
+  <div class="tab-pane fade" id="pending" role="tabpanel">
+    <% users.filter(u => !u.isActive).forEach(function(user) { %>
+      <div class="user-card">
+        <div class="user-info">
+          <h5>
+            <%= user.name %>
+            <% if (user.role === 'admin') { %>
+              <span class="badge bg-dark ms-1">Admin</span>
+            <% } %>
+          </h5>
+          <div class="user-meta">
+            <span><i class="fa-solid fa-phone me-1"></i><%= user.phone %></span>
+            <span><i class="fa-regular fa-calendar me-1"></i><%= new Date(user.createdAt).toLocaleDateString() %></span>
+            <% if (user.clinicName) { %>
+              <span><i class="fa-solid fa-hospital me-1"></i><%= user.clinicName %></span>
+            <% } %>
+          </div>
+          <div class="mt-1">
+            <span class="badge-status badge-inactive"><i class="fa-solid fa-clock me-1"></i>Pending Approval</span>
+            <% if (user.subscriptionEndsAt) { %>
+              <small class="text-muted ms-2">Sub ends: <%= new Date(user.subscriptionEndsAt).toLocaleDateString() %></small>
+            <% } %>
+          </div>
+        </div>
+        <div class="user-actions">
+          <form action="/admin/users/<%= user._id %>/toggle" method="POST">
+            <button type="submit" class="btn btn-success btn-sm">
+              <i class="fa-solid fa-check me-1"></i>Activate
+            </button>
+          </form>
+          <form action="/admin/users/<%= user._id %>/subscription" method="POST" class="sub-form">
+            <input type="number" name="subscriptionDays" value="30" min="1" max="3650" title="Days" />
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-rotate me-1"></i>Renew
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Active -->
+  <div class="tab-pane fade" id="active" role="tabpanel">
+    <% users.filter(u => u.isActive && !u.isExpired).forEach(function(user) { %>
+      <div class="user-card">
+        <div class="user-info">
+          <h5>
+            <%= user.name %>
+            <% if (user.role === 'admin') { %>
+              <span class="badge bg-dark ms-1">Admin</span>
+            <% } %>
+          </h5>
+          <div class="user-meta">
+            <span><i class="fa-solid fa-phone me-1"></i><%= user.phone %></span>
+            <span><i class="fa-regular fa-calendar me-1"></i><%= new Date(user.createdAt).toLocaleDateString() %></span>
+            <% if (user.clinicName) { %>
+              <span><i class="fa-solid fa-hospital me-1"></i><%= user.clinicName %></span>
+            <% } %>
+          </div>
+          <div class="mt-1">
+            <span class="badge-status badge-active"><i class="fa-solid fa-check-circle me-1"></i>Active</span>
+            <% if (user.subscriptionEndsAt) { %>
+              <small class="text-muted ms-2">Sub ends: <%= new Date(user.subscriptionEndsAt).toLocaleDateString() %></small>
+            <% } %>
+          </div>
+        </div>
+        <div class="user-actions">
+          <form action="/admin/users/<%= user._id %>/toggle" method="POST">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+              <i class="fa-solid fa-ban me-1"></i>Deactivate
+            </button>
+          </form>
+          <form action="/admin/users/<%= user._id %>/subscription" method="POST" class="sub-form">
+            <input type="number" name="subscriptionDays" value="30" min="1" max="3650" title="Days" />
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-rotate me-1"></i>Renew
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <!-- Expired -->
+  <div class="tab-pane fade" id="expired" role="tabpanel">
+    <% users.filter(u => u.isActive && u.isExpired).forEach(function(user) { %>
+      <div class="user-card">
+        <div class="user-info">
+          <h5>
+            <%= user.name %>
+            <% if (user.role === 'admin') { %>
+              <span class="badge bg-dark ms-1">Admin</span>
+            <% } %>
+          </h5>
+          <div class="user-meta">
+            <span><i class="fa-solid fa-phone me-1"></i><%= user.phone %></span>
+            <span><i class="fa-regular fa-calendar me-1"></i><%= new Date(user.createdAt).toLocaleDateString() %></span>
+            <% if (user.clinicName) { %>
+              <span><i class="fa-solid fa-hospital me-1"></i><%= user.clinicName %></span>
+            <% } %>
+          </div>
+          <div class="mt-1">
+            <span class="badge-status badge-expired"><i class="fa-solid fa-triangle-exclamation me-1"></i>Subscription Expired</span>
+            <% if (user.subscriptionEndsAt) { %>
+              <small class="text-muted ms-2">Sub ends: <%= new Date(user.subscriptionEndsAt).toLocaleDateString() %></small>
+            <% } %>
+          </div>
+        </div>
+        <div class="user-actions">
+          <form action="/admin/users/<%= user._id %>/toggle" method="POST">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+              <i class="fa-solid fa-ban me-1"></i>Deactivate
+            </button>
+          </form>
+          <form action="/admin/users/<%= user._id %>/subscription" method="POST" class="sub-form">
+            <input type="number" name="subscriptionDays" value="30" min="1" max="3650" title="Days" />
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="fa-solid fa-rotate me-1"></i>Renew
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+</div>
+

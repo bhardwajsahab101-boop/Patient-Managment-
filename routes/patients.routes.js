@@ -12,11 +12,15 @@ import {
   deletePatient,
 } from "../controllers/patient.controller.js";
 import { validatePatient, validateVisit } from "../middleware/validation.js";
-import { requireAuth } from "../middleware/auth.js";
+import {
+  requireAuth,
+  requireActive,
+  requireClinic,
+} from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.use(requireAuth);
+router.use(requireAuth, requireActive, requireClinic);
 
 // New patient form (must be BEFORE /:id)
 router.get("/new", newPatientForm);

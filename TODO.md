@@ -1,36 +1,48 @@
-# Medicine Management Improvements - TODO
+# Implementation Plan: Account Activation + Clinic Onboarding Flow
 
-## Phase 1: Model Enhancements ✅
+## Completed
 
-- [x] Update `models/medicine.js` - Add category, dosage, manufacturer, expiryDate, batchNumber, description, isActive
-- [x] Update `models/stockTransaction.js` - Add patientId, previousStock, newStock
-- [x] Update `models/patient.js` - Add medicines array to visits
+- [x] **Step 1: Update User Schema**
+  - Added `isActive: { type: Boolean, default: false }`
+  - Added `subscriptionEndsAt: { type: Date }`
 
-## Phase 2: Route Enhancements ✅
+- [x] **Step 2: Update Auth Middleware**
+  - `requireAuth`: check session + user exists
+  - `requireActive`: check isActive + subscription expiry
+  - `requireClinic`: check clinic exists, redirect to /create-clinic
 
-- [x] Update `routes/medicine.routes.js` - Fix patient dropdown, add detail/edit/delete routes, search/filter
+- [x] **Step 3: Update Signup/Login Routes**
+  - Signup: create user with isActive=false, NO auto clinic creation
+  - Login: smart redirect based on activation + clinic status
 
-## Phase 3: View Enhancements ✅
+- [x] **Step 4: Create Views**
+  - `views/account-pending.ejs` — "Account under review" + WhatsApp support
+  - `views/create-clinic.ejs` — Clinic name/location form
 
-- [x] Update `views/medicine/index.ejs` - Search, filters, expiry warnings, edit/delete buttons
-- [x] Update `views/medicine/new.ejs` - Additional form fields
-- [x] Update `views/medicine/update.ejs` - Fix patient dropdown, show current stock
-- [x] Create `views/medicine/detail.ejs` - Medicine detail + stock history
-- [x] Create `views/medicine/edit.ejs` - Edit medicine form
+- [x] **Step 5: Create Clinic Controller**
+  - `controllers/clinic.controller.js` — getCreateClinicForm, createClinic
 
-## Phase 4: Dashboard Integration ✅
+- [x] **Step 6: Update App Routes**
+  - Added /account-pending GET route
+  - Added /create-clinic GET/POST routes
+  - Added admin activation route
+  - Updated dashboard route with requireClinic
 
-- [x] Update `controllers/dashboard.controller.js` - Add medicine stats queries
-- [x] Update `views/Dashboard.ejs` - Display medicine stats cards + quick action
+- [x] **Step 7: Admin Activation**
+  - `routes/admin.routes.js` — PATCH /admin/users/:id/activate
 
-## Phase 5: Patient-Medicine Integration ✅
+- [x] **Step 8: Update All Protected Routes**
+  - `routes/medicine.routes.js` — router.use(requireAuth, requireActive, requireClinic)
+  - `routes/patients.routes.js` — router.use(requireAuth, requireActive, requireClinic)
+  - `routes/dashboard.routes.js` — router.use(requireAuth, requireActive, requireClinic)
+  - `routes/followup.routes.js` — router.use(requireAuth, requireActive, requireClinic)
+  - `routes/reports.routes.js` — router.use(requireAuth, requireActive, requireClinic)
+  - `routes/messages.routes.js` — router.use(requireAuth, requireActive, requireClinic)
+  - `routes/support.routes.js` — router.use(requireAuth, requireActive, requireClinic)
 
-- [x] Update `controllers/patient.controller.js` - Fetch medicines for forms, process prescriptions, reduce stock, create transactions
-- [x] Update `views/NewPatients.ejs` - Medicine selection table with checkboxes and quantities
-- [x] Update `views/patients-visits-new.ejs` - Medicine selection when adding visits
-- [x] Update `views/patient-detail.ejs` - Show prescribed medicines in visit history
+## Completed
 
-## Phase 6: Testing
-
-- [ ] Test all routes
-- [ ] Verify UI rendering
+- [x] Admin Panel UI (`/admin`) with stats, tabs, activate/deactivate, subscription renewal
+- [x] Secret Key signup — enter `medicarenew` during signup to become admin
+- [x] Sidebar admin link (visible only to admins)
+- [x] `.env` stores `SECRET_KEY=medicarenew`

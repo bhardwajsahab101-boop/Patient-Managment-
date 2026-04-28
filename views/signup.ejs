@@ -39,7 +39,7 @@
     />
   </div>
 
-  <div class="mb-3">
+<div class="mb-3">
     <label class="form-label fw-semibold">Password</label>
     <input
       type="password"
@@ -51,31 +51,20 @@
     />
   </div>
 
-  <hr class="my-3" />
-
-  <h6 class="fw-bold text-muted mb-3">Clinic Info</h6>
-
   <div class="mb-3">
-    <label class="form-label fw-semibold">Clinic Name</label>
+    <label class="form-label fw-semibold">
+      Secret Key <small class="text-muted fw-normal">(Optional — for admin signup)</small>
+    </label>
     <input
-      type="text"
-      name="clinicName"
+      type="password"
+      name="secretKey"
       class="form-control"
-      placeholder="Your Clinic Name"
-      required
+      placeholder="Enter secret key if you have one"
     />
   </div>
 
-  <div class="mb-4">
-    <label class="form-label fw-semibold">Clinic Location</label>
-    <input
-      type="text"
-      name="clinicLocation"
-      class="form-control"
-      placeholder="City, Address"
-    />
-  </div>
 
+ 
   <button type="submit" class="btn btn-auth">Create Account</button>
 </form>
 

@@ -27,6 +27,15 @@ const UserSchema = new Schema({
     default: "doctor",
   },
 
+  isActive: {
+    type: Boolean,
+    default: false,
+  },
+
+  subscriptionEndsAt: {
+    type: Date,
+  },
+
   createdAt: {
     type: Date,
     default: Date.now,

@@ -48,10 +48,11 @@
   <a href="/patients/<%= patient._id %>/visits/new" class="btn btn-primary">
     ➕ Add Visit
   </a>
-
   <a href="/message/<%= patient._id %>" class="btn btn-success">
     WhatsApp
   </a>
+  <a href="/patients/<%= patient._id %>/delete" class="btn btn-sm btn-outline-danger "><i class="fas fa-trash me-1"></i>Delete</a>
+<a href="/patients/<%= patient._id %>/edit" class="btn btn-sm btn-outline-warning "><i class="fas fa-edit me-1"></i>Edit</a>
 
   <a href="/patients" class="btn btn-outline-secondary">
     Back

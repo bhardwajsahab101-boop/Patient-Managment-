@@ -1,5 +1,8 @@
 import express from "express";
-import { getReports } from "../controllers/reports.controller.js";
+import {
+  getSupportPage,
+  postSupportMessage,
+} from "../controllers/support.controller.js";
 import {
   requireAuth,
   requireActive,
@@ -9,6 +12,7 @@ import {
 const router = express.Router();
 
 router.use(requireAuth, requireActive, requireClinic);
-router.get("/", getReports);
+router.get("/", getSupportPage);
+router.post("/", postSupportMessage);
 
 export default router;
