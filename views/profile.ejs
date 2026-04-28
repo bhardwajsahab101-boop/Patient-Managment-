@@ -1,17 +1,17 @@
 <%- layout("./layout/boilerPlate.ejs") %>
 
 <style>
-  /* ===== PROFILE PAGE STYLES ===== */
+  /* ===== PROFILE PAGE STYLES — Site Color Compatible ===== */
 
-  /* Hero Banner */
+  /* Hero Banner — Primary Blue */
   .profile-hero-banner {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 50%, #0dcaf0 100%);
     border-radius: 20px;
     padding: 2.5rem 2rem;
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(102,126,234,0.3);
+    box-shadow: 0 10px 40px rgba(13,110,253,0.3);
   }
   .profile-hero-banner::before {
     content: '';
@@ -78,7 +78,7 @@
     border: 1px solid rgba(255,255,255,0.15);
   }
 
-  /* Cards */
+  /* Cards — White with primary accent */
   .profile-card {
     background: #fff;
     border-radius: 20px;
@@ -101,7 +101,7 @@
     left: 0;
     width: 100%;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: #0d6efd;
   }
 
   /* Section Headers */
@@ -121,11 +121,11 @@
     font-size: 1rem;
     color: #fff;
   }
-  .section-icon.blue { background: linear-gradient(135deg, #667eea, #764ba2); }
-  .section-icon.teal { background: linear-gradient(135deg, #11998e, #38ef7d); }
-  .section-icon.orange { background: linear-gradient(135deg, #f093fb, #f5576c); }
-  .section-icon.purple { background: linear-gradient(135deg, #a18cd1, #fbc2eb); }
-  .section-icon.green { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .section-icon.primary { background: linear-gradient(135deg, #0d6efd, #0b5ed7); }
+  .section-icon.teal { background: linear-gradient(135deg, #20c997, #0dcaf0); }
+  .section-icon.orange { background: linear-gradient(135deg, #fd7e14, #ffc107); }
+  .section-icon.purple { background: linear-gradient(135deg, #6f42c1, #a18cd1); }
+  .section-icon.green { background: linear-gradient(135deg, #059669, #20c997); }
   .section-title-text {
     font-weight: 700;
     font-size: 1.1rem;
@@ -164,9 +164,9 @@
     border-radius: 8px;
     font-size: 0.85rem;
   }
-  .info-left i.blue-icon { background: rgba(102,126,234,0.1); color: #667eea; }
-  .info-left i.teal-icon { background: rgba(17,153,142,0.1); color: #11998e; }
-  .info-left i.orange-icon { background: rgba(240,147,251,0.1); color: #f093fb; }
+  .info-left i.primary-icon { background: rgba(13,110,253,0.1); color: #0d6efd; }
+  .info-left i.teal-icon { background: rgba(32,201,151,0.1); color: #20c997; }
+  .info-left i.orange-icon { background: rgba(253,126,20,0.1); color: #fd7e14; }
   .info-label-text {
     font-weight: 500;
     color: #6c757d;
@@ -189,11 +189,11 @@
     font-weight: 700;
   }
   .plan-status.active {
-    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    background: #d1fae5;
     color: #065f46;
   }
   .plan-status.expired {
-    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    background: #fee2e2;
     color: #991b1b;
   }
   .plan-status i {
@@ -205,7 +205,7 @@
     50% { opacity: 0.5; transform: scale(1.2); }
   }
 
-  /* Stats Row */
+  /* Stats Row — Primary Blue accent */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -234,7 +234,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: #0d6efd;
     border-radius: 0 0 20px 20px;
   }
   .stat-icon {
@@ -248,9 +248,9 @@
     font-size: 1.25rem;
     color: #fff;
   }
-  .stat-icon.patients { background: linear-gradient(135deg, #667eea, #764ba2); }
-  .stat-icon.medicines { background: linear-gradient(135deg, #f093fb, #f5576c); }
-  .stat-icon.visits { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+  .stat-icon.patients { background: linear-gradient(135deg, #0d6efd, #0b5ed7); }
+  .stat-icon.medicines { background: linear-gradient(135deg, #fd7e14, #ffc107); }
+  .stat-icon.visits { background: linear-gradient(135deg, #20c997, #0dcaf0); }
   .stat-number {
     margin: 0;
     font-weight: 800;
@@ -290,10 +290,10 @@
     overflow: hidden;
   }
   .action-item:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #0d6efd;
+    color: #0d6efd;
     transform: translateX(5px);
-    box-shadow: 0 4px 15px rgba(102,126,234,0.1);
+    box-shadow: 0 4px 15px rgba(13,110,253,0.1);
   }
   .action-item i {
     width: 36px;
@@ -303,8 +303,8 @@
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-    background: rgba(102,126,234,0.1);
-    color: #667eea;
+    background: rgba(13,110,253,0.1);
+    color: #0d6efd;
   }
   .action-item.danger {
     color: #dc3545;
@@ -319,7 +319,7 @@
     color: #dc3545;
   }
 
-  /* Support Card */
+  /* Support Card — Site Green */
   .support-card {
     background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 50%, #6ee7b7 100%);
     border-radius: 20px;
@@ -393,7 +393,7 @@
 
   /* No Clinic Alert */
   .no-clinic-alert {
-    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    background: #fffbeb;
     border: 2px dashed #f59e0b;
     border-radius: 16px;
     padding: 1.5rem;
@@ -466,7 +466,7 @@
   <!-- ===== HERO BANNER ===== -->
   <div class="profile-hero-banner">
     <div class="hero-content">
-      <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.name) %>&background=fff&color=667eea&size=128&bold=true" 
+      <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(user.name) %>&background=fff&color=0d6efd&size=128&bold=true" 
            alt="<%= user.name %>" class="hero-avatar" />
       <div class="hero-text">
         <h2>Dr. <%= user.name %></h2>
@@ -504,13 +504,13 @@
       <!-- ===== SECTION 1: User Info ===== -->
       <div class="profile-card">
         <div class="section-header">
-          <div class="section-icon blue"><i class="fa-solid fa-user"></i></div>
+          <div class="section-icon primary"><i class="fa-solid fa-user"></i></div>
           <span class="section-title-text">Profile Details</span>
         </div>
         <div class="info-list">
           <div class="info-item">
             <div class="info-left">
-              <i class="fa-solid fa-user-tag blue-icon"></i>
+              <i class="fa-solid fa-user-tag primary-icon"></i>
               <span class="info-label-text">Role</span>
             </div>
             <span class="info-value-text">
@@ -523,14 +523,14 @@
           </div>
           <div class="info-item">
             <div class="info-left">
-              <i class="fa-solid fa-phone blue-icon"></i>
+              <i class="fa-solid fa-phone primary-icon"></i>
               <span class="info-label-text">Phone</span>
             </div>
             <span class="info-value-text"><%= user.phone %></span>
           </div>
           <div class="info-item">
             <div class="info-left">
-              <i class="fa-regular fa-calendar blue-icon"></i>
+              <i class="fa-regular fa-calendar primary-icon"></i>
               <span class="info-label-text">Member Since</span>
             </div>
             <span class="info-value-text"><%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %></span>
@@ -597,96 +597,4 @@
         <% if (clinic) { %>
           <div class="info-list">
             <div class="info-item">
-              <div class="info-left">
-                <i class="fa-solid fa-hospital teal-icon"></i>
-                <span class="info-label-text">Clinic Name</span>
-              </div>
-              <span class="info-value-text"><%= clinic.name %></span>
-            </div>
-            <% if (clinic.location) { %>
-              <div class="info-item">
-                <div class="info-left">
-                  <i class="fa-solid fa-location-dot teal-icon"></i>
-                  <span class="info-label-text">Location</span>
-                </div>
-                <span class="info-value-text"><%= clinic.location %></span>
-              </div>
-            <% } %>
-            <div class="info-item">
-              <div class="info-left">
-                <i class="fa-solid fa-users teal-icon"></i>
-                <span class="info-label-text">Total Patients</span>
-              </div>
-              <span class="info-value-text"><%= patientCount %></span>
-            </div>
-            <div class="info-item">
-              <div class="info-left">
-                <i class="fa-solid fa-pills teal-icon"></i>
-                <span class="info-label-text">Medicines Stock</span>
-              </div>
-              <span class="info-value-text"><%= medicineCount %></span>
-            </div>
-            <div class="info-item">
-              <div class="info-left">
-                <i class="fa-solid fa-circle-check teal-icon"></i>
-                <span class="info-label-text">Status</span>
-              </div>
-              <span class="info-value-text">
-                <span class="badge bg-success"><i class="fa-solid fa-circle me-1" style="font-size:0.5rem;"></i>Active</span>
-              </span>
-            </div>
-          </div>
-        <% } else { %>
-          <div class="no-clinic-alert">
-            <i class="fa-solid fa-hospital-user"></i>
-            <p>No clinic registered yet.<br><a href="/create-clinic">Create your clinic now</a></p>
-          </div>
-        <% } %>
-      </div>
-
-      <!-- ===== SECTION 4: Quick Actions ===== -->
-      <div class="profile-card">
-        <div class="section-header">
-          <div class="section-icon purple"><i class="fa-solid fa-bolt"></i></div>
-          <span class="section-title-text">Quick Actions</span>
-        </div>
-        <div class="actions-flex">
-          <% if (clinic) { %>
-            <a href="/medicines" class="action-item">
-              <i class="fa-solid fa-pen-to-square"></i>Edit Clinic
-            </a>
-          <% } else { %>
-            <a href="/create-clinic" class="action-item">
-              <i class="fa-solid fa-plus"></i>Create Clinic
-            </a>
-          <% } %>
-          <a href="/support" class="action-item">
-            <i class="fa-solid fa-lock"></i>Change Password
-          </a>
-          <a href="/support" class="action-item">
-            <i class="fa-solid fa-headset"></i>Contact Support
-          </a>
-          <form id="logoutFormProfile" action="/logout" method="POST" style="margin:0;">
-            <button type="submit" class="action-item danger w-100">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
-            </button>
-          </form>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ===== SECTION 6: Support ===== -->
-  <div class="support-card">
-    <div class="support-icon"><i class="fa-brands fa-whatsapp"></i></div>
-    <div class="support-text">
-      <h5>Need Help?</h5>
-      <p>Quick support available on WhatsApp</p>
-    </div>
-    <a href="https://wa.me/918950817515" target="_blank" rel="noopener noreferrer" class="support-btn">
-      <i class="fa-brands fa-whatsapp me-2"></i>Chat Now
-    </a>
-  </div>
-
-</div>
+              <div class
