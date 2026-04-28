@@ -65,20 +65,18 @@
               </div>
             </div>
             <div class="user-menu-divider"></div>
-            <a href="#" class="user-menu-item">
+            <a href="/dashboard" class="user-menu-item">
               <i class="fas fa-user"></i>
               <span>My Profile</span>
             </a>
-            <a href="#" class="user-menu-item">
-              <i class="fas fa-gear"></i>
-              <span>Settings</span>
-            </a>
+
             <div class="user-menu-divider"></div>
-            <button type="button" class="user-menu-item user-menu-danger" onclick="document.getElementById('logoutForm').submit()">
-              <i class="fas fa-arrow-right-from-bracket"></i>
-              <span>Sign Out</span>
-            </button>
-            <form id="logoutForm" action="/logout" method="POST" style="display:none;"></form>
+            <form id="logoutForm" action="/logout" method="POST" style="margin:0;">
+              <button type="submit" class="user-menu-item user-menu-danger">
+                <i class="fas fa-arrow-right-from-bracket"></i>
+                <span>Sign Out</span>
+              </button>
+            </form>
           </div>
       <% } else { %>
         <!-- Not Logged In: Auth Buttons -->

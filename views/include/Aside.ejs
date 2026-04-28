@@ -28,9 +28,13 @@
 
   <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
   <a
-    class="<%= currentRoute.startsWith('/admin') ? 'active' : '' %>"
+    class="<%= currentRoute === '/admin' ? 'active' : '' %>"
     href="/admin"
     ><i class="fa-solid fa-shield-halved me-2"></i>Admin Panel</a>
+  <a
+    class="<%= currentRoute.startsWith('/admin/clinics') ? 'active' : '' %>"
+    href="/admin/clinics"
+    ><i class="fa-solid fa-hospital me-2"></i>Clinics</a>
   <% } %>
 
   <section class="bottom">

@@ -48,6 +48,100 @@ router.get("/", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// GET /admin/clinics — List all clinics with doctor info
+router.get("/clinics", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const clinics = await Clinic.find({})
+      .populate("ownerId", "name phone role isActive")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.render("admin-clinics", {
+      title: "Manage Clinics",
+      clinics,
+    });
+  } catch (err) {
+    console.error("Clinics list error:", err);
+    res.status(500).render("error", { message: "Unable to load clinics" });
+  }
+});
+
+// GET /admin/users/:id — View user details
+router.get("/users/:id", requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).lean();
+    if (!user) {
+      return res.status(404).render("error", { message: "User not found" });
+    }
+
+    const clinic = await Clinic.findOne({ ownerId: id }).lean();
+
+    res.render("admin-user-detail", {
+      title: `User Details - ${user.name}`,
+      user,
+      clinic,
+    });
+  } catch (err) {
+    console.error("User detail error:", err);
+    res.status(500).render("error", { message: "Unable to load user details" });
+  }
+});
+
+// POST /admin/users/:id/delete — Delete user (with optional clinic deletion)
+router.post(
+  "/users/:id/delete",
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { deleteClinic } = req.body;
+
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).render("error", { message: "User not found" });
+      }
+
+      // Delete associated clinic if requested
+      if (deleteClinic === "true") {
+        await Clinic.findOneAndDelete({ ownerId: id });
+      }
+
+      // Delete user
+      await User.findByIdAndDelete(id);
+
+      res.redirect("/admin");
+    } catch (err) {
+      console.error("Delete user error:", err);
+      res.status(500).render("error", { message: "Failed to delete user" });
+    }
+  },
+);
+
+// POST /admin/clinics/:id/delete — Delete clinic
+router.post(
+  "/clinics/:id/delete",
+  requireAuth,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const clinic = await Clinic.findById(id);
+      if (!clinic) {
+        return res.status(404).render("error", { message: "Clinic not found" });
+      }
+
+      await Clinic.findByIdAndDelete(id);
+      res.redirect("/admin/clinics");
+    } catch (err) {
+      console.error("Delete clinic error:", err);
+      res.status(500).render("error", { message: "Failed to delete clinic" });
+    }
+  },
+);
+
 // POST /admin/users/:id/toggle — Toggle isActive (Activate/Deactivate)
 router.post(
   "/users/:id/toggle",
