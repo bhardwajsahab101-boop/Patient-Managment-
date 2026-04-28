@@ -1,0 +1,298 @@
+<%- layout("./layout/auth.ejs") %>
+
+<style>
+  /* Override auth card for wider pending page */
+  .pending-wrapper .auth-card {
+    max-width: 520px;
+    padding: 2.5rem 2rem;
+  }
+
+  /* Value statement */
+  .value-statement {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+
+  /* Pricing comparison */
+  .pricing-comparison {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .plan-card {
+    flex: 1;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+  }
+  .plan-card.active {
+    border-color: #0d6efd;
+    opacity: 1;
+    background: #eff6ff;
+    position: relative;
+  }
+  .plan-card .plan-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0d6efd;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .plan-card h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 0.25rem;
+  }
+  .plan-card .plan-price {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1f2937;
+  }
+
+  /* Main pricing card */
+  .pricing-card {
+    border: 2px solid #0d6efd;
+    border-radius: 16px;
+    padding: 1.75rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  }
+  .pricing-card h3 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin-bottom: 0.25rem;
+  }
+  .pricing-card .price {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+  }
+  .pricing-card .price span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b7280;
+  }
+  .feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem;
+    text-align: left;
+  }
+  .feature-list li {
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .feature-list li i {
+    color: #10b981;
+    font-size: 1rem;
+  }
+  .btn-activate {
+    background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-activate:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+  }
+
+  /* WhatsApp CTA */
+  .whatsapp-section {
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  .whatsapp-section p {
+    color: #065f46;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+  }
+  .btn-whatsapp {
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn-whatsapp:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+  }
+
+  /* Why choose us */
+  .why-section {
+    margin-bottom: 1.5rem;
+  }
+  .why-section h4 {
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 0.75rem;
+  }
+  .why-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .why-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0;
+    font-size: 0.9rem;
+    color: #4b5563;
+  }
+  .why-list li i {
+    color: #f59e0b;
+    font-size: 0.9rem;
+  }
+
+  /* Support & logout */
+  .support-note {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin-bottom: 1.25rem;
+  }
+  .logout-link {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #9ca3af;
+  }
+  .logout-link button {
+    background: none;
+    border: none;
+    color: #6b7280;
+    text-decoration: underline;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .logout-link button:hover {
+    color: #374151;
+  }
+</style>
+
+<div class="pending-wrapper">
+  <!-- 1. Value first -->
+  <p class="value-statement">
+    Manage patients, medicines, and clinic records in one place.
+  </p>
+
+  <!-- Comparison feel -->
+  <div class="pricing-comparison">
+    <div class="plan-card">
+      <h4>Basic</h4>
+      <div class="plan-price">₹0</div>
+      <small class="text-muted">Coming Soon</small>
+    </div>
+    <div class="plan-card active">
+      <div class="plan-badge">Recommended</div>
+      <h4>Pro</h4>
+      <div class="plan-price">₹700</div>
+      <small class="text-muted">per month</small>
+    </div>
+  </div>
+
+  <!-- 2. Pricing card -->
+  <div class="pricing-card">
+    <h3>Starter Plan</h3>
+    <div class="price">₹700 <span>/ month</span></div>
+    <ul class="feature-list">
+      <li><i class="fa-solid fa-check"></i> Patient management</li>
+      <li><i class="fa-solid fa-check"></i> Medicine tracking</li>
+      <li><i class="fa-solid fa-check"></i> Reports</li>
+      <li><i class="fa-solid fa-check"></i> Support</li>
+    </ul>
+    <a
+      href="https://wa.me/918950817515?text=Hi%20MediCare%20Hub%2C%20I%20just%20signed%20up%20and%20want%20to%20activate%20my%20account.%20My%20name%20is%20<%= encodeURIComponent(userName || '') %>."
+      target="_blank"
+      class="btn-activate"
+    >
+      <i class="fa-brands fa-whatsapp"></i>
+      Activate Now
+    </a>
+  </div>
+
+  <!-- 3. WhatsApp CTA -->
+  <div class="whatsapp-section">
+    <p>👋 Prefer to chat? Activate via WhatsApp directly</p>
+    <a
+      href="https://wa.me/918950817515?text=Hi%20MediCare%20Hub%2C%20I%20just%20signed%20up%20and%20want%20to%20activate%20my%20account.%20My%20name%20is%20<%= encodeURIComponent(userName || '') %>."
+      target="_blank"
+      class="btn-whatsapp"
+    >
+      <i class="fa-brands fa-whatsapp"></i>
+      Activate via WhatsApp
+    </a>
+  </div>
+
+  <!-- Why choose us -->
+  <div class="why-section">
+    <h4>Why choose us?</h4>
+    <ul class="why-list">
+      <li><i class="fa-solid fa-star"></i> Trusted by 500+ clinics</li>
+      <li><i class="fa-solid fa-star"></i> Simple & secure</li>
+      <li><i class="fa-solid fa-star"></i> No setup hassle</li>
+      <li><i class="fa-solid fa-star"></i> Instant activation</li>
+    </ul>
+  </div>
+
+  <p class="support-note">
+    📧 Prefer email? <a href="/support">Send us a message</a>
+  </p>
+
+  <form action="/logout" method="POST" class="logout-link">
+    <button type="submit">
+      <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Logout
+    </button>
+  </form>
+</div>

@@ -1,11 +1,17 @@
 import express from "express";
 import Medicine from "../models/medicine.js";
-import { requireAuth } from "../middleware/auth.js";
+import {
+  requireAuth,
+  requireActive,
+  requireClinic,
+} from "../middleware/auth.js";
 import Clinic from "../models/clinic.js";
 import StockTransaction from "../models/stockTransaction.js";
 import { patient } from "../models/patient.js";
 
 const router = express.Router();
+
+router.use(requireAuth, requireActive, requireClinic);
 
 // Helper: get user's default clinic
 async function getUserClinic(userId) {
@@ -21,7 +27,7 @@ async function getUserPatients(userId, clinicId) {
 }
 
 // GET all medicines with search/filter
-router.get("/", requireAuth, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     let { clinicId, q, category, lowStock, expiring } = req.query;
     const userId = req.user._id;
@@ -97,7 +103,7 @@ router.get("/", requireAuth, async (req, res) => {
 });
 
 // GET new medicine form
-router.get("/new", requireAuth, async (req, res) => {
+router.get("/new", async (req, res) => {
   try {
     let { clinicId } = req.query;
     const userId = req.user._id;
@@ -125,7 +131,7 @@ router.get("/new", requireAuth, async (req, res) => {
 });
 
 // POST create medicine
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     let {
       name,
@@ -206,7 +212,7 @@ router.post("/", requireAuth, async (req, res) => {
 });
 
 // GET medicine detail
-router.get("/:id", requireAuth, async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
     const userId = req.user._id;
     const medicine = await Medicine.findById(req.params.id).lean();
@@ -254,7 +260,7 @@ router.get("/:id", requireAuth, async (req, res) => {
 });
 
 // GET edit medicine form
-router.get("/:id/edit", requireAuth, async (req, res) => {
+router.get("/:id/edit", async (req, res) => {
   try {
     const userId = req.user._id;
     const medicine = await Medicine.findById(req.params.id).lean();
@@ -276,7 +282,7 @@ router.get("/:id/edit", requireAuth, async (req, res) => {
 });
 
 // POST update medicine details
-router.post("/:id/edit", requireAuth, async (req, res) => {
+router.post("/:id/edit", async (req, res) => {
   try {
     const userId = req.user._id;
     const {
@@ -321,7 +327,7 @@ router.post("/:id/edit", requireAuth, async (req, res) => {
 });
 
 // POST soft delete medicine
-router.post("/:id/delete", requireAuth, async (req, res) => {
+router.post("/:id/delete", async (req, res) => {
   try {
     const userId = req.user._id;
     const medicine = await Medicine.findById(req.params.id);
@@ -346,7 +352,7 @@ router.post("/:id/delete", requireAuth, async (req, res) => {
 });
 
 // GET add stock (+1)
-router.get("/add/:id", requireAuth, async (req, res) => {
+router.get("/add/:id", async (req, res) => {
   try {
     const userId = req.user._id;
     const medicine = await Medicine.findById(req.params.id);
@@ -382,7 +388,7 @@ router.get("/add/:id", requireAuth, async (req, res) => {
 });
 
 // GET remove stock (-1)
-router.get("/remove/:id", requireAuth, async (req, res) => {
+router.get("/remove/:id", async (req, res) => {
   try {
     const userId = req.user._id;
     const medicine = await Medicine.findById(req.params.id);
@@ -420,7 +426,7 @@ router.get("/remove/:id", requireAuth, async (req, res) => {
 });
 
 // GET update stock form
-router.get("/:id/update", requireAuth, async (req, res) => {
+router.get("/:id/update", async (req, res) => {
   try {
     const userId = req.user._id;
     const medicine = await Medicine.findById(req.params.id).lean();
@@ -444,7 +450,7 @@ router.get("/:id/update", requireAuth, async (req, res) => {
 });
 
 // POST update stock
-router.post("/:id/update", requireAuth, async (req, res) => {
+router.post("/:id/update", async (req, res) => {
   try {
     const { type, quantity, note, patientId } = req.body;
     const userId = req.user._id;

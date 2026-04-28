@@ -13,10 +13,20 @@ import patientRoutes from "./routes/patients.routes.js";
 import followupRoutes from "./routes/followup.routes.js";
 import reportsRoutes from "./routes/reports.routes.js";
 import messagesRoutes from "./routes/messages.routes.js";
+import supportRoutes from "./routes/support.routes.js";
 import signupRoutes from "./routes/signup.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
-import { requireAuth } from "./middleware/auth.js";
+import {
+  requireAuth,
+  requireActive,
+  requireClinic,
+} from "./middleware/auth.js";
 import User from "./models/User.js";
+import {
+  getCreateClinicForm,
+  createClinic,
+} from "./controllers/clinic.controller.js";
 
 dotenv.config();
 
@@ -34,8 +44,7 @@ main();
 
 const app = express();
 
-
-app.set('trust proxy', 1);
+app.set("trust proxy", 1);
 // Trust proxy for accurate client IP behind reverse proxies (Docker, Nginx, etc.)
 // Set TRUST_PROXY in .env or defaults to 1 (trust first proxy)
 app.set("trust proxy", process.env.TRUST_PROXY || 1);
@@ -131,15 +140,26 @@ app.use("/patients", patientRoutes);
 app.use("/followup", followupRoutes);
 app.use("/reports", reportsRoutes);
 app.use("/message", messagesRoutes);
+app.use("/support", supportRoutes);
 app.use("/medicines", medicineRoutes);
+app.use("/admin", adminRoutes);
 
+// Create clinic routes (must be active but no clinic yet)
+app.get("/create-clinic", requireAuth, requireActive, getCreateClinicForm);
+app.post("/create-clinic", requireAuth, requireActive, createClinic);
 
 // Backward-compatible singular patient detail route (protected)
-app.get("/patient/:id", requireAuth, async (req, res, next) => {
-  const { getPatientDetail } =
-    await import("./controllers/patient.controller.js");
-  getPatientDetail(req, res, next);
-});
+app.get(
+  "/patient/:id",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  async (req, res, next) => {
+    const { getPatientDetail } =
+      await import("./controllers/patient.controller.js");
+    getPatientDetail(req, res, next);
+  },
+);
 
 app.get("/", (req, res) => {
   res.render("landing_page");
