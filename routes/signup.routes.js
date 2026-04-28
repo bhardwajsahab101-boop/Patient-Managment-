@@ -144,4 +144,70 @@ router.get("/account-pending", async (req, res) => {
   }
 });
 
+// GET /profile — User profile page
+router.get("/profile", async (req, res) => {
+  if (!req.session.userId) return res.redirect("/login");
+
+  try {
+    const { patient } = await import("../models/patient.js");
+    const Medicine = (await import("../models/medicine.js")).default;
+
+    const user = await User.findById(req.session.userId).lean();
+    if (!user) return res.redirect("/login");
+
+    const clinic = await Clinic.findOne({ ownerId: user._id }).lean();
+
+    // Counts
+    const patientCount = clinic
+      ? await patient.countDocuments({ clinicId: clinic._id })
+      : 0;
+    const medicineCount = clinic
+      ? await Medicine.countDocuments({ clinicId: clinic._id, isActive: true })
+      : 0;
+
+    // Visits this month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    );
+
+    let visitsThisMonth = 0;
+    if (clinic) {
+      const patientsWithVisits = await patient
+        .find({ clinicId: clinic._id })
+        .lean();
+      visitsThisMonth = patientsWithVisits.reduce((total, p) => {
+        const monthVisits = (p.visits || []).filter(
+          (v) => v.date >= startOfMonth && v.date <= endOfMonth,
+        );
+        return total + monthVisits.length;
+      }, 0);
+    }
+
+    // Subscription status
+    const isExpired = user.subscriptionEndsAt
+      ? new Date() > new Date(user.subscriptionEndsAt)
+      : false;
+
+    res.render("profile", {
+      title: "My Profile",
+      user,
+      clinic,
+      patientCount,
+      medicineCount,
+      visitsThisMonth,
+      isExpired,
+    });
+  } catch (err) {
+    console.error("Profile error:", err);
+    res.status(500).render("error", { message: "Unable to load profile" });
+  }
+});
+
 export default router;
