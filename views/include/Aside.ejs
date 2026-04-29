@@ -3,8 +3,8 @@
     <h3>Patient Care Management System</h3>
   </div>
 
-  <a class="<%= currentRoute === '/' ? 'active' : '' %>" href="/dashboard"
-    >Dashboard</a>
+<a class="<%= currentRoute === '/' ? 'active' : '' %>" href="/dashboard"
+    ><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
 
   <a
     class="<%= currentRoute === '/profile' ? 'active' : '' %>"
@@ -14,22 +14,22 @@
   <a
     class="<%= currentRoute.startsWith('/patients') ? 'active' : '' %>"
     href="/patients"
-    >Patients</a>
+    ><i class="fas fa-user-injured me-2"></i>Patients</a>
 
   <a
     class="<%= currentRoute.startsWith('/followup') ? 'active' : '' %>"
     href="/followup"
-    >Follow-ups</a>
+    ><i class="fas fa-calendar-check me-2"></i>Follow-ups</a>
 
   <a
     class="<%= currentRoute.startsWith('/reports') ? 'active' : '' %>"
     href="/reports"
-    >Reports</a>
+    ><i class="fas fa-chart-bar me-2"></i>Reports</a>
 
   <a
     class="<%= currentRoute.startsWith('/medicines') ? 'active' : '' %>"
     href="/medicines"
-    >medicines</a>
+    ><i class="fas fa-pills me-2"></i>Medicines</a>
 
   <% if (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') { %>
   <a
