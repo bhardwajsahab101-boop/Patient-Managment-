@@ -66,12 +66,12 @@
     <p class="text-muted">No visits yet</p>
   <% } %>
 
-  <% patient.visits.slice().reverse().forEach(v => { %>
+  <% patient.visits.slice().reverse().forEach((v, visitIndex) => { %>
 
     <div class="visit-card">
 
       <div class="visit-top">
-        <strong><%= new Date(v.date).toDateString() %></strong>
+        <strong><%= new Date(v.date).toDateString() %> (Visit #<%= visitIndex + 1 %>)</strong>
         <span class="price">₹<%= v.price || 0 %></span>
       </div>
 
@@ -92,6 +92,19 @@
             <% }) %>
           </div>
         </div>
+        <div class="visit-actions">
+          <a href="/prescription/<%= patient._id %>/<%= visitIndex %>" 
+             class="btn btn-sm btn-outline-primary" title="View Prescription">
+            📋 View Prescription
+          </a>
+          <a  href="/prescription/<%= patient._id %>/<%= visitIndex %>?print=true" 
+              
+            class="btn btn-sm btn-primary" target="_blank" title="Print">
+            🖨️ Print
+          </a>
+        </div>
+      <% } else { %>
+        <div class="no-medicines">No medicines prescribed this visit</div>
       <% } %>
 
       <% if(v.nextVisit){ %>

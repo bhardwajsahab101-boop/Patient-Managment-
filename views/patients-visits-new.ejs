@@ -76,11 +76,17 @@
                     <% medicines.forEach((med, idx) => { %>
                       <tr>
                         <td class="text-center">
-                          <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" class="form-check-input med-check" data-index="<%= idx %>">
+                        <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" class="form-check-input med-check" data-index="<%= idx %>">
                         </td>
                         <td><strong><%= med.name %></strong></td>
                         <td><span class="badge bg-info text-dark"><%= med.category || 'Tablet' %></span></td>
                         <td><%= med.dosage || '-' %></td>
+                        <td>
+                          <input type="text" name="medicineDurations[]" class="form-control form-control-sm duration-input" placeholder="Duration" maxlength="20" disabled style="width:80px;">
+                        </td>
+                        <td>
+                          <input type="text" name="medicineInstructions[]" class="form-control form-control-sm instructions-input" placeholder="Instructions" disabled style="width:120px;">
+                        </td>
                         <td>
                           <% if (med.stock <= 5) { %>
                             <span class="badge bg-danger"><%= med.stock %></span>

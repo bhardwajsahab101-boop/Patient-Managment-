@@ -16,6 +16,7 @@ import messagesRoutes from "./routes/messages.routes.js";
 import supportRoutes from "./routes/support.routes.js";
 import signupRoutes from "./routes/signup.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import prescriptionRoutes from "./routes/prescription.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import {
   requireAuth,
@@ -58,7 +59,14 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.jsdelivr.net",
+          "https://html2canvas.hertzen.com",
+          "'unsafe-eval'",
+        ],
+        scriptSrcAttr: ["'self'", "'unsafe-inline'"],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -142,6 +150,7 @@ app.use("/reports", reportsRoutes);
 app.use("/message", messagesRoutes);
 app.use("/support", supportRoutes);
 app.use("/medicines", medicineRoutes);
+app.use("/prescription", prescriptionRoutes);
 app.use("/admin", adminRoutes);
 
 // Create clinic routes (must be active but no clinic yet)

@@ -101,13 +101,23 @@ export async function createPatient(req, res) {
     }
 
     // Process prescribed medicines
+    // Handle new duration/instructions fields
+    const medicineDurations = req.body.medicineDurations || [];
+    const medicineInstructions = req.body.medicineInstructions || [];
+
     const prescribedMedicines = await processPrescribedMedicines(
       medicineIds,
       medicineQuantities,
       clinicId,
-      null, // patient not created yet, will update after
+      null,
       notes?.trim(),
     );
+
+    // Add duration/instructions
+    prescribedMedicines.forEach((med, index) => {
+      med.duration = medicineDurations[index] || "";
+      med.instructions = medicineInstructions[index] || "";
+    });
 
     const newPatient = new patient({
       name: name.trim(),
@@ -250,6 +260,10 @@ export async function addVisit(req, res) {
     const clinicId = await getUserClinic(userId);
 
     // Process prescribed medicines
+    // Handle new duration/instructions fields
+    const medicineDurations = req.body.medicineDurations || [];
+    const medicineInstructions = req.body.medicineInstructions || [];
+
     const prescribedMedicines = await processPrescribedMedicines(
       medicineIds,
       medicineQuantities,
@@ -257,6 +271,12 @@ export async function addVisit(req, res) {
       foundPatient._id,
       notes?.trim(),
     );
+
+    // Add duration/instructions to prescribed medicines
+    prescribedMedicines.forEach((med, index) => {
+      med.duration = medicineDurations[index] || "";
+      med.instructions = medicineInstructions[index] || "";
+    });
 
     foundPatient.visits.push({
       notes: notes?.trim(),

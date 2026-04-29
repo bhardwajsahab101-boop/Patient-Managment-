@@ -71,6 +71,8 @@ const PatientData = new Schema({
           name: String,
           dosage: String,
           quantity: { type: Number, default: 1 },
+          duration: String,
+          instructions: String,
         },
       ],
     },

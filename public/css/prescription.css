@@ -1,0 +1,162 @@
+/* Prescription Print Styles - Professional Medical Format */
+
+/* Base Styles */
+.print-container {
+  max-width: 8.5in;
+  margin: 20px auto;
+  padding: 30px 25px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.4;
+  color: #333;
+  background: white;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.clinic-name {
+  font-size: 32px !important;
+  font-weight: bold !important;
+  color: #1e3a8a !important;
+  margin-bottom: 8px !important;
+  text-align: center;
+}
+
+.clinic-address, .clinic-location, .clinic-phone {
+  text-align: center;
+  margin: 4px 0 !important;
+}
+
+/* Tables */
+.patient-table td:first-child {
+  font-weight: bold;
+  padding-right: 20px;
+  width: 35%;
+}
+
+.prescription-table {
+  border: 2px solid #1e3a8a;
+  margin-top: 15px;
+}
+
+.prescription-table th {
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6) !important;
+  color: white !important;
+  padding: 12px 8px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  font-size: 14px;
+}
+
+.prescription-table td {
+  padding: 10px 8px !important;
+  text-align: center;
+  border-right: 1px solid #dee2e6;
+}
+
+.prescription-table td:first-child {
+  text-align: left !important;
+  font-weight: 500;
+  border-right: 1px solid #dee2e6;
+}
+
+.prescription-table tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.prescription-table tr:hover {
+  background: #e3f2fd;
+}
+
+/* Footer */
+.prescription-footer {
+  margin-top: 40px !important;
+  padding-top: 25px !important;
+  border-top: 3px solid #1e3a8a !important;
+}
+
+.signature-space {
+  border-bottom: 2px solid #333 !important;
+  min-height: 40px !important;
+  width: 250px;
+}
+
+/* Screen vs Print */
+.action-buttons {
+  margin-top: 40px;
+  padding: 20px;
+  text-align: center;
+  border-top: 2px dashed #dee2e6;
+}
+
+/* CRITICAL PRINT CSS */
+@media print {
+  body { 
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  * { 
+    visibility: hidden !important; 
+  }
+  
+  .print-container, .print-container * { 
+    visibility: visible !important; 
+  }
+  
+  .print-container { 
+    position: absolute !important;
+    left: 0 !important; 
+    top: 0 !important; 
+    width: 100% !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    padding: 0.75in 0.5in !important;
+    margin: 0 !important;
+  }
+  
+  /* Hide ALL non-prescription UI */
+  nav, header:not(.prescription-header), 
+  .topbar, .sidebar, .action-bar,
+  .action-buttons, button, a.btn,
+  footer:not(.prescription-footer) { 
+    display: none !important; 
+  }
+  
+  /* Page breaks */
+  .prescription-header,
+  .medicines-section,
+  .prescription-footer {
+    page-break-inside: avoid !important;
+  }
+  
+  @page {
+    size: A4;
+    margin: 0.75in 0.5in !important;
+    @bottom-center {
+      content: "Page " counter(page);
+      font-size: 10px;
+    }
+  }
+  
+  /* Ensure table fits page */
+  .prescription-table {
+    font-size: 12px !important;
+    width: 100% !important;
+  }
+}
+
+/* Responsive for screen */
+@media (max-width: 768px) {
+  .print-container {
+    padding: 15px;
+  }
+  
+  .prescription-table {
+    font-size: 13px;
+  }
+  
+  .clinic-name {
+    font-size: 24px !important;
+  }
+}
+

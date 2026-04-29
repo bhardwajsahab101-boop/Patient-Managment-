@@ -11,6 +11,13 @@ const ClinicSchema = new Schema({
   location: {
     type: String,
   },
+  address: {
+    type: String,
+  },
+  phone: {
+    type: String,
+    match: [/^\d{10}$/, "Invalid phone number"],
+  },
 
   ownerId: {
     type: Schema.Types.ObjectId,

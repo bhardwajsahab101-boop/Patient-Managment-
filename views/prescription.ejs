@@ -1,0 +1,278 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+<link rel="stylesheet" href="/css/prescription.css">
+
+<div class="print-container <%= isPrintMode ? 'print-mode' : '' %>">
+  
+  <!-- HEADER -->
+  <header class="prescription-header">
+    <% if (clinic) { %>
+      <div class="clinic-info">
+        <h1 class="clinic-name"><%= clinic.name %></h1>
+        <% if (clinic.address) { %><p class="clinic-address"><%= clinic.address %></p><% } %>
+        <% if (clinic.location) { %><p class="clinic-location"><%= clinic.location %></p><% } %>
+        <% if (clinic.phone) { %><p class="clinic-phone">📞 <%= clinic.phone %></p><% } %>
+      </div>
+    <% } else { %>
+      <h1 class="clinic-name">Your Clinic</h1>
+      <p>Add clinic details in Profile for custom header</p>
+    <% } %>
+    <div class="header-right">
+      <p><strong>Prescription</strong></p>
+      <p>Date: <%= new Date(visit.date).toLocaleDateString('en-IN') %></p>
+    </div>
+  </header>
+
+  <!-- PATIENT INFO -->
+  <section class="patient-info">
+    <table class="patient-table">
+      <tr>
+        <td><strong>Patient:</strong></td>
+        <td><%= patient.name %></td>
+      </tr>
+      <tr>
+        <td><strong>Age/Gender:</strong></td>
+        <td><%= patient.age %> / <%= patient.gender %></td>
+      </tr>
+      <tr>
+        <td><strong>Phone:</strong></td>
+        <td><%= patient.phone %></td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- MEDICINES TABLE -->
+  <section class="medicines-section">
+    <h3>Medicines Prescribed:</h3>
+    <table class="prescription-table">
+      <thead>
+        <tr>
+          <th>Medicine</th>
+          <th>Dosage</th>
+          <th>Duration</th>
+          <th>Instructions</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (medicines && medicines.length > 0) { %>
+          <% medicines.forEach(med => { %>
+            <tr>
+              <td><strong><%= med.name %></strong></td>
+              <td><%= med.dosage || '-' %></td>
+              <td><%= med.duration || '-' %></td>
+              <td><%= med.instructions || '-' %></td>
+              <td><%= med.quantity %> units</td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr><td colspan="5">No medicines prescribed</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- NOTES -->
+  <% if (visit.notes) { %>
+    <section class="notes-section">
+      <h4>Notes:</h4>
+      <p><%= visit.notes %></p>
+    </section>
+  <% } %>
+
+  <!-- FOOTER -->
+  <footer class="prescription-footer">
+    <div class="footer-left">
+      <p><strong>Next Visit:</strong> <%= visit.nextVisit ? new Date(visit.nextVisit).toLocaleDateString('en-IN') : 'Not scheduled' %></p>
+    </div>
+    <div class="footer-right">
+      <p>Dr. <%= currentUser?.name || 'Doctor' %></p>
+      <p class="signature-space">_______________________</p>
+      <p>Doctor Signature</p>
+    </div>
+  </footer>
+
+  <!-- ACTION BUTTONS (screen only) -->
+  <% if (!isPrintMode) { %>
+    <div class="action-buttons">
+      <a href="/patients/<%= patient._id %>" class="btn btn-secondary">← Back to Patient</a>
+      <button type="button" onclick="window.print()" class="btn btn-primary">🖨️ Print Prescription</button>
+      <button onclick="sendWhatsAppScreenshot()" class="btn btn-success">
+        📱 WhatsApp Screenshot
+      </button>
+    </div>
+  <% } %>
+</div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script>
+async function sendWhatsAppScreenshot() {
+  const phone = '<%= patient.phone.replace(/[^0-9]/g, "") %>';
+  const patientName = '<%= patient.name %>';
+  const visitDate = new Date('<%= visit.date %>').toLocaleDateString("en-IN");
+  
+  try {
+    const canvas = await html2canvas(document.querySelector(".print-container"), {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      width: 794,
+      height: 1123
+    });
+    
+    canvas.toBlob((blob) => {
+      const imgData = canvas.toDataURL("image/png");
+      const message = encodeURIComponent("Prescription for " + patientName + " (" + visitDate + ") 📋");
+      const whatsappUrl = "https://wa.me/91" + phone + "?text=" + message;
+      
+      window.open(whatsappUrl, "_blank");
+      
+      navigator.clipboard.write([new ClipboardItem({"image/png": blob})])
+        .then(() => alert("Screenshot copied! Open WhatsApp & paste Ctrl+V"))
+        .catch(() => alert("Screenshot ready! Open WhatsApp"));
+    }, "image/png");
+  } catch (err) {
+    console.error(err);
+    alert("Screenshot failed. Use Print instead.");
+  }
+}
+</script>
+
+<style>
+.action-buttons {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+.btn {
+  padding: 12px 24px;
+  margin: 0 8px;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+}
+.btn-primary { background: #0d6efd; color: white; }
+.btn-secondary { background: #6c757d; color: white; }
+.btn-success { background: #198754; color: white; }
+</style>
+
+<style>
+.print-container {
+  max-width: 8.5in;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Times New Roman', serif;
+}
+
+.prescription-header {
+  border-bottom: 3px solid #0d6efd;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.clinic-name {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  color: #0d6efd;
+}
+
+.patient-table, .prescription-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.patient-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.patient-table td:first-child {
+  width: 30%;
+  font-weight: bold;
+}
+
+.prescription-table th {
+  background: #f8f9fa;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #0d6efd;
+  font-weight: bold;
+}
+
+.prescription-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.prescription-footer {
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 2px solid #333;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.signature-space {
+  border-bottom: 1px solid #333;
+  min-height: 30px;
+  margin: 10px 0;
+}
+
+.action-buttons {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.btn {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary { background: #0d6efd; color: white; }
+.btn-secondary { background: #6c757d; color: white; }
+.btn-success { background: #198754; color: white; }
+
+@media print {
+  body * { visibility: hidden; }
+  .print-container, .print-container * { visibility: visible; }
+  .print-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  nav, .sidebar, .topbar, .action-buttons, .action-bar { 
+    display: none !important; 
+  }
+  
+  .prescription-header, .patient-info, .medicines-section, .notes-section, .prescription-footer {
+    page-break-inside: avoid;
+  }
+  
+  @page {
+    margin: 0.5in;
+    size: A4;
+  }
+}
+</style>
+
