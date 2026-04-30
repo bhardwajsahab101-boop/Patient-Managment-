@@ -31,10 +31,28 @@
 
 /* Logo / Title */
 .sidebar .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 30px;
   color: white;
+}
+
+.sidebar .logo .logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: white;
+  padding: 4px;
+}
+
+.sidebar .logo h3 {
+  margin: 0;
+  font-size: 16px;
+  white-space: nowrap;
 }
 
 /* Nav Links */
