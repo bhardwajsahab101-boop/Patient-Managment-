@@ -43,7 +43,11 @@
       <% }) %>
     <% } %>
 
-    <title><%= typeof title !== 'undefined' ? title : 'MediCare Hub' %></title>
+<title><%= typeof title !== 'undefined' ? title : 'DentaCore' %></title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0d6efd">
   </head>
 
   <body>
@@ -64,7 +68,16 @@
       <div class="container-fluid"><%- body %></div>
     </main>
 
-    <!-- Footer -->
+<!-- Footer -->
     <%- include("../include/footer.ejs") %>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js")
+          .then(() => console.log("SW registered"))
+          .catch((err) => console.log("SW registration failed", err));
+      }
+    </script>
   </body>
 </html>
