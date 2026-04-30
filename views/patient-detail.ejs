@@ -44,18 +44,21 @@
 
 </div>
 
-<div class="action-bar">
-  <a href="/patients/<%= patient._id %>/visits/new" class="btn btn-primary">
-    ➕ Add Visit
+<div class="action-bar btn-action-bar">
+  <a href="/patients/<%= patient._id %>/visits/new" class="btn btn-action btn-primary-action">
+    <i class="fas fa-plus-circle"></i> Add Visit
   </a>
-  <a href="/message/<%= patient._id %>" class="btn btn-success">
-    WhatsApp
+  <a href="/message/<%= patient._id %>" class="btn btn-action btn-whatsapp-action">
+    <i class="fab fa-whatsapp"></i> WhatsApp
   </a>
-  <a href="/patients/<%= patient._id %>/delete" class="btn btn-sm btn-outline-danger "><i class="fas fa-trash me-1"></i>Delete</a>
-<a href="/patients/<%= patient._id %>/edit" class="btn btn-sm btn-outline-warning "><i class="fas fa-edit me-1"></i>Edit</a>
-
-  <a href="/patients" class="btn btn-outline-secondary">
-    Back
+  <a href="/patients/<%= patient._id %>/edit" class="btn btn-action btn-edit-action">
+    <i class="fas fa-edit"></i> Edit
+  </a>
+  <a href="/patients/<%= patient._id %>/delete" class="btn btn-action btn-delete-action">
+    <i class="fas fa-trash-alt"></i> Delete
+  </a>
+  <a href="/patients" class="btn btn-action btn-back-action">
+    <i class="fas fa-arrow-left"></i> Back
   </a>
 </div>
 
@@ -147,10 +150,125 @@
   font-weight: bold;
 }
 
-.action-bar {
+/* === Beautiful Action Bar Styles === */
+.btn-action-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  border: none;
+  cursor: pointer;
+}
+
+.btn-action i {
+  font-size: 1rem;
+}
+
+/* Primary - Add Visit */
+.btn-primary-action {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  color: white;
+}
+.btn-primary-action:hover {
+  background: linear-gradient(135deg, #0b5ed7, #0954c4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.35);
+}
+
+/* WhatsApp */
+.btn-whatsapp-action {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+}
+.btn-whatsapp-action:hover {
+  background: linear-gradient(135deg, #128C7E, #075e54);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(37, 211, 102, 0.35);
+}
+
+/* Edit */
+.btn-edit-action {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1e293b;
+}
+.btn-edit-action:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(251, 191, 36, 0.4);
+}
+
+/* Delete */
+.btn-delete-action {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+}
+.btn-delete-action:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* Back */
+.btn-back-action {
+  background: white;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+}
+.btn-back-action:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Visit Actions */
+.visit-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.visit-actions .btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+  .btn-action-bar {
+    flex-direction: column;
+    width: 100%;
+  }
+  .btn-action {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+  .btn-action-bar .btn-action:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .visit-section {
