@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="MediCare Hub - Manage your clinic without paperwork. Store patient records, track visits, and manage follow-ups."
+content="DentaCore - Manage your clinic without paperwork. Store patient records, track visits, and manage follow-ups."
     />
 
     <!-- Preconnect for performance -->
@@ -39,14 +39,14 @@
     <!-- Landing Page Styles -->
     <link rel="stylesheet" href="/css/landing.css" />
 
-    <title>MediCare Hub</title>
+<title>DentaCore</title>
   </head>
 
   <body class="landing-page">
     <!-- Navbar -->
     <nav class="landing-navbar d-flex align-items-center px-4">
       <div class="container d-flex align-items-center justify-content-between">
-        <a class="navbar-brand" href="/">MediCare Hub</a>
+<a class="navbar-brand" href="/">DentaCore</a>
 
         <div class="d-flex align-items-center gap-2">
           <% if (currentUser) { %>
@@ -216,7 +216,7 @@
           <%= currentUser ? 'Welcome Back, ' + currentUser.name : 'Start Managing Your Clinic Today' %>
         </h2>
         <p class="fade-in-up delay-1">
-          <%= currentUser ? 'Jump back into your dashboard and continue managing your clinic seamlessly.' : 'Join hundreds of clinics already using MediCare Hub to simplify their workflow.' %>
+<%= currentUser ? 'Jump back into your dashboard and continue managing your clinic seamlessly.' : 'Join hundreds of clinics already using DentaCore to simplify their workflow.' %>
         </p>
 
         <div class="fade-in-up delay-2">
@@ -236,7 +236,7 @@
     <!-- Footer -->
     <footer class="landing-footer">
       <p class="mb-0">
-        &copy; <%= new Date().getFullYear() %> MediCare Hub. All rights
+&copy; <%= new Date().getFullYear() %> DentaCore. All rights
         reserved.
       </p>
     </footer>

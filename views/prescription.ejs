@@ -22,8 +22,9 @@
     </div>
   </header>
 
-  <!-- PATIENT INFO -->
+<!-- PATIENT INFO -->
   <section class="patient-info">
+    <div class="table-responsive">
     <table class="patient-table">
       <tr>
         <td><strong>Patient:</strong></td>
@@ -36,13 +37,15 @@
       <tr>
         <td><strong>Phone:</strong></td>
         <td><%= patient.phone %></td>
-      </tr>
+</tr>
     </table>
+    </div>
   </section>
 
-  <!-- MEDICINES TABLE -->
+<!-- MEDICINES TABLE -->
   <section class="medicines-section">
     <h3>Medicines Prescribed:</h3>
+    <div class="table-responsive">
     <table class="prescription-table">
       <thead>
         <tr>
@@ -67,8 +70,9 @@
         <% } else { %>
           <tr><td colspan="5">No medicines prescribed</td></tr>
         <% } %>
-      </tbody>
+</tbody>
     </table>
+    </div>
   </section>
 
   <!-- NOTES -->
@@ -232,6 +236,10 @@ async function sendWhatsAppScreenshot() {
   margin-top: 30px;
   padding-top: 20px;
   border-top: 1px solid #dee2e6;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .btn {
@@ -247,6 +255,17 @@ async function sendWhatsAppScreenshot() {
 .btn-primary { background: #0d6efd; color: white; }
 .btn-secondary { background: #6c757d; color: white; }
 .btn-success { background: #198754; color: white; }
+
+/* Mobile responsive */
+@media (max-width: 576px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+  .action-buttons .btn {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}
 
 @media print {
   body * { visibility: hidden; }

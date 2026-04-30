@@ -2,65 +2,222 @@
 
 <div class="container mt-5">
   <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="card shadow">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">📨 Send Message</h4>
-          <small class="text-white-50">
-            <%= patient.name %> • <%= patient.phone %>
-          </small>
-        </div>
-
-        <div class="card-body">
-          <!-- Patient Info -->
-          <div class="d-flex align-items-center gap-3 mb-4"> 
+    <div class="col-lg-10 col-xl-8">
+      <div
+        class="card shadow-lg border-0"
+        style="border-radius: 20px; overflow: hidden"
+      >
+        <div class="card-header bg-gradient-primary text-white py-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h3 class="mb-1 fw-bold">📨 Send Reminder Message</h3>
+              <small><%= patient.name %> • <%= patient.phone %></small>
+            </div>
             <div class="patient-avatar-lg">
               <%= patient.name.charAt(0).toUpperCase() %>
             </div>
-            <div>
-              <h5 class="mb-1"><%= patient.name %></h5>
-              <p class="text-muted mb-0">
-                📅 Next Visit: <strong><%= nextDate %></strong><br />
-                🏥 Clinic: <strong><%= clinicName %></strong>
-              </p>
-            </div>
           </div>
+          <p class="mb-0 mt-2 opacity-75">
+            📅 Next Visit: <strong><%= nextDate %></strong> | 🏥
+            <strong><%= clinicName %></strong>
+          </p>
+        </div>
 
-          <!-- Message Preview -->
-          <div class="mb-4">
-            <label class="form-label fw-semibold">📝 Message Preview</label>
-            <pre id="messageText" class="message-preview"><%= message %></pre>
-            <button
-              class="btn btn-sm btn-outline-secondary w-100 mt-2"
-              onclick="copyMessage()"
-            >
-              <i class="fas fa-copy"></i> Copy Message
-            </button>
+        <div class="card-body p-4">
+          <!-- Custom Message Editor -->
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label fw-bold mb-3"
+                >✏️ Customize Message</label
+              >
+              <textarea
+                class="form-control"
+                id="customMessage"
+                rows="8"
+                placeholder="Type your custom message here..."
+              >
+<%= message %></textarea
+              >
+              <div class="d-flex justify-content-between mt-2">
+                <small class="text-muted">Supports line breaks</small>
+                <small id="charCount" class="text-muted">0 / 1000 chars</small>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-bold mb-3">📱 Live Preview</label>
+              <div id="messagePreview" class="message-preview h-100">
+                <%= message %>
+              </div>
+              <button
+                class="btn btn-outline-secondary w-100 mt-3"
+                onclick="copyMessage()"
+              >
+                <i class="fas fa-copy me-2"></i>Copy to Clipboard
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Send Actions -->
-        <div class="card-footer bg-light">
+        <!-- Action Buttons -->
+        <div class="card-footer bg-light p-4 border-top-0">
           <div class="d-grid gap-2">
             <a
+              id="whatsappBtn"
               href="<%= whatsappURL %>"
               target="_blank"
-              class="btn btn-success"
+              class="btn btn-success btn-lg"
             >
-              <i class="fab fa-whatsapp"></i> Send via WhatsApp
+              <i class="fab fa-whatsapp me-2"></i>Send via WhatsApp
             </a>
-            <a href="<%= smsURL %>" class="btn btn-primary">
-              <i class="fas fa-sms"></i> Send via SMS
+            <a id="smsBtn" href="<%= smsURL %>" class="btn btn-primary btn-lg">
+              <i class="fas fa-sms me-2"></i>Send via SMS
             </a>
-            <a href="/patients" class="btn btn-outline-secondary">
-              ← Back to Patients
-            </a>
+            <div class="d-md-flex gap-2 mt-2">
+              <a href="/patients" class="btn btn-outline-secondary flex-fill">
+                ← Back to Patients
+              </a>
+              <button onclick="resetMessage()" class="btn btn-outline-info">
+                🔄 Reset to Template
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  const phoneNum = `91<%= patient.phone %>`;
+  let originalMessage = `<%= message.replace(/\\n/g, '\\n') %>`;
+
+  // Initialize
+  document.addEventListener("DOMContentLoaded", function () {
+    updatePreview();
+    updateLinks();
+    updateCharCount();
+
+    document
+      .getElementById("customMessage")
+      .addEventListener("input", function () {
+        updatePreview();
+        updateLinks();
+        updateCharCount();
+      });
+  });
+
+  function updatePreview() {
+    const customMsg = document.getElementById("customMessage").value;
+    document.getElementById("messagePreview").textContent = customMsg;
+  }
+
+  function updateLinks() {
+    const customMsg = encodeURIComponent(
+      document.getElementById("customMessage").value,
+    );
+    const phone = phoneNum;
+
+    document.getElementById("whatsappBtn").href =
+      `https://wa.me/${phone}?text=${customMsg}`;
+    document.getElementById("smsBtn").href = `sms:${phone}?body=${customMsg}`;
+  }
+
+  function updateCharCount() {
+    const length = document.getElementById("customMessage").value.length;
+    document.getElementById("charCount").textContent = `${length} / 1000 chars`;
+  }
+
+  function copyMessage() {
+    const text = document.getElementById("messagePreview").textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = event.target.closest("button");
+      const original = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+      btn.classList.add("btn-success");
+      setTimeout(() => {
+        btn.innerHTML = original;
+        btn.classList.remove("btn-success");
+      }, 2000);
+    });
+  }
+
+  function resetMessage() {
+    document.getElementById("customMessage").value = originalMessage;
+    updatePreview();
+    updateLinks();
+    updateCharCount();
+  }
+</script>
+
+<style>
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #0d6efd 0%, #2563eb 50%, #1e40af 100%);
+  }
+  .patient-avatar-lg {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .message-preview {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 1.75rem;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    min-height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+  }
+  .message-preview:not(:empty)::before {
+
+    position: absolute;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+  #messagePreview:empty::before {
+    content: "Start typing to see live preview...";
+  }
+  #customMessage {
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    padding: 1.25rem;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 250px;
+    transition: border-color 0.2s ease;
+  }
+  #customMessage:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+    outline: none;
+  }
+  .card {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  }
+  .btn-lg {
+    border-radius: 16px;
+    padding: 1rem 2rem;
+    font-weight: 600;
+  }
+</style>
 
 <script>
   function copyMessage() {

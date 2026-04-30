@@ -78,6 +78,7 @@ app.use(
           "'self'",
           "https://fonts.gstatic.com",
           "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
         ],
         imgSrc: ["'self'", "data:", "https://ui-avatars.com"],
         connectSrc: ["'self'", "https://cdn.jsdelivr.net"],

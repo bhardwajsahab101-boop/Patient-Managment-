@@ -14,7 +14,7 @@ export async function getMessage(req, res) {
 
     // Get user's clinic
     const userClinic = await Clinic.findOne({ ownerId: req.user._id }).lean();
-    const clinicName = userClinic?.name || "MediCare Hub";
+const clinicName = userClinic?.name || "DentaCore";
 
     const latestVisit = patientData.visits.at(-1);
     const nextDate = latestVisit?.nextVisit

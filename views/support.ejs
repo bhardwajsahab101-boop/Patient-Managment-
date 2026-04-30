@@ -1,172 +1,1185 @@
-<% title = 'Support' %>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help & Support Center - DentaCore</title>
 
-<%- layout("./layout/boilerPlate.ejs") %>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-<div class="container mt-5 mb-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      
-      <!-- Header -->
-      <div class="text-center mb-4">
-        <div class="support-icon mb-3">💬</div>
-        <h2 class="fw-bold">Need Help?</h2>
-        <p class="text-muted">We're here to assist you. Choose the fastest way to reach us.</p>
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+
+    <!-- Project CSS -->
+    <link rel="stylesheet" href="/css/base.css" />
+    <link rel="stylesheet" href="/css/components.css" />
+    <link rel="stylesheet" href="/css/forms.css" />
+    <link rel="stylesheet" href="/css/topbar.css" />
+    <link rel="stylesheet" href="/css/sidebar.css" />
+    <link rel="stylesheet" href="/css/footer.css" />
+
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-light: #3b82f6;
+        --secondary: #0ea5e9;
+        --success: #10b981;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        min-height: 100vh;
+      }
+
+      .support-hero {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        color: white;
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+      }
+      .support-hero h1 {
+        font-family: "Poppins", sans-serif;
+        font-weight: 700;
+        font-size: clamp(2.5rem, 5vw, 4rem);
+      }
+
+      .card-hover {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: var(--shadow-sm);
+      }
+      .card-hover:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .step-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 2rem;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 0.5rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(
+          to bottom,
+          var(--primary),
+          var(--secondary)
+        );
+      }
+      .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+      }
+
+      .accordion-button {
+        font-weight: 500;
+      }
+      .whatsapp-btn {
+        background: #25d366 !important;
+        border-color: #25d366 !important;
+        font-size: 1.1rem;
+        padding: 1rem 2rem;
+      }
+      .whatsapp-btn:hover {
+        background: #128c7e !important;
+        transform: translateY(-2px);
+      }
+
+      .back-to-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: white;
+        border: none;
+        opacity: 0;
+        transition: all 0.3s;
+        z-index: 1000;
+      }
+      .back-to-top.show {
+        opacity: 1;
+      }
+
+      .sticky-toc {
+        position: sticky;
+        top: 100px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+
+      @media (max-width: 768px) {
+        .support-hero {
+          padding: 2rem 0;
+        }
+        .timeline {
+          padding-left: 1rem;
+        }
+        .timeline::before {
+          left: 0.25rem;
+        }
+      }
+
+      .screenshot-placeholder {
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e0e0e0 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        height: 200px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 0.9rem;
+      }
+      @keyframes loading {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* Fullscreen Image Viewer Styles */
+      .img-viewer-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.95);
+        animation: fadeIn 0.3s ease-in;
+      }
+
+      .img-viewer-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .img-viewer-content {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .img-viewer-content img {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 8px;
+      }
+
+      .img-viewer-close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+        z-index: 2001;
+      }
+
+      .img-viewer-close:hover,
+      .img-viewer-close:focus {
+        color: #bbb;
+      }
+
+      .img-viewer-prev,
+      .img-viewer-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #f1f1f1;
+        font-size: 36px;
+        font-weight: bold;
+        cursor: pointer;
+        user-select: none;
+        padding: 10px 20px;
+        transition: color 0.3s ease;
+        z-index: 2001;
+      }
+
+      .img-viewer-prev:hover,
+      .img-viewer-next:hover {
+        color: #bbb;
+      }
+
+      .img-viewer-prev {
+        left: 20px;
+      }
+
+      .img-viewer-next {
+        right: 20px;
+      }
+
+      .img-viewer-caption {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #f1f1f1;
+        text-align: center;
+        font-size: 18px;
+        max-width: 80%;
+        z-index: 2001;
+      }
+
+      .clickable-image {
+        cursor: zoom-in;
+        transition: transform 0.3s ease;
+      }
+
+      .clickable-image:hover {
+        transform: scale(1.02);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Fullscreen Image Viewer Modal -->
+    <div id="imgViewerModal" class="img-viewer-modal">
+      <span class="img-viewer-close" onclick="closeImageViewer()">&times;</span>
+      <span class="img-viewer-prev" onclick="changeImage(-1)">&#10094;</span>
+      <div class="img-viewer-content">
+        <img id="imgViewerImage" src="" alt="Fullscreen view" />
       </div>
-
-      <!-- Success Alert -->
-      <% if (typeof success !== 'undefined' && success) { %>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-          <i class="fas fa-check-circle me-2"></i><%= success %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      <% } %>
-
-      <!-- Error Alert -->
-      <% if (typeof error !== 'undefined' && error) { %>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-          <i class="fas fa-exclamation-circle me-2"></i><%= error %>
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      <% } %>
-
-      <!-- WhatsApp Card: Main CTA -->
-      <div class="card shadow-sm border-success mb-4">
-        <div class="card-body text-center p-4">
-          <h5 class="card-title mb-3">
-            <i class="fab fa-whatsapp text-success fa-lg me-2"></i>Chat on WhatsApp
-          </h5>
-          <p class="text-muted mb-3">
-            Get instant help via WhatsApp. Tap the button below to start a chat.
-          </p>
-          <a 
-            href="https://wa.me/<%= supportNumber %>" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="btn btn-success btn-lg w-100"
-          >
-            <i class="fab fa-whatsapp me-2"></i>Contact Support on WhatsApp
-          </a>
-          <small class="text-muted d-block mt-2">
-            <i class="fas fa-bolt text-warning me-1"></i>Fastest response time
-          </small>
-        </div>
-
-      <!-- Divider -->
-      <div class="d-flex align-items-center my-4">
-        <div class="flex-grow-1 border-top"></div>
-        <span class="mx-3 text-muted text-uppercase small fw-semibold">or</span>
-        <div class="flex-grow-1 border-top"></div>
-
-      <!-- Support Form Card: Fallback -->
-      <div class="card shadow-sm">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">
-            <i class="fas fa-envelope me-2 text-primary"></i>Send a Message
-          </h5>
-          <small class="text-muted">Describe your issue and we'll get back to you.</small>
-        </div>
-        <div class="card-body">
-          <form action="/support" method="POST" novalidate>
-            <div class="mb-3">
-              <label for="subject" class="form-label fw-semibold">Subject</label>
-              <input 
-                type="text" 
-                class="form-control" 
-                id="subject" 
-                name="subject" 
-                placeholder="e.g., Login issue, Feature request..."
-                value="<%= typeof formData !== 'undefined' && formData.subject ? formData.subject : '' %>"
-                maxlength="200"
-                required
-              >
-            </div>
-            <div class="mb-3">
-              <label for="message" class="form-label fw-semibold">Message</label>
-              <textarea 
-                class="form-control" 
-                id="message" 
-                name="message" 
-                rows="5" 
-                placeholder="Describe your issue in detail..."
-                maxlength="2000"
-                required
-              ><%= typeof formData !== 'undefined' && formData.message ? formData.message : '' %></textarea>
-              <div class="form-text text-end">
-                <span id="charCount">0</span> / 2000
-              </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-paper-plane me-2"></i>Send Message
-              </button>
-            </div>
-          </form>
-        </div>
-
-      <!-- Past Messages -->
-      <% if (typeof pastMessages !== 'undefined' && pastMessages.length > 0) { %>
-        <div class="mt-5">
-          <h5 class="fw-bold mb-3">
-            <i class="fas fa-history me-2 text-secondary"></i>Your Past Messages
-          </h5>
-          <div class="list-group">
-            <% pastMessages.forEach(msg => { %>
-              <div class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                  <h6 class="mb-1"><%= msg.subject %></h6>
-                  <span class="badge <%= msg.status === 'open' ? 'bg-warning text-dark' : 'bg-success' %>">
-                    <%= msg.status === 'open' ? 'Open' : 'Resolved' %>
-                  </span>
-                </div>
-                <p class="mb-1 text-muted small"><%= msg.message %></p>
-                <small class="text-muted">
-                  <i class="far fa-clock me-1"></i><%= new Date(msg.createdAt).toLocaleString() %>
-                </small>
-              </div>
-            <% }) %>
-          </div>
-      <% } %>
-
+      <span class="img-viewer-next" onclick="changeImage(1)">&#10095;</span>
+      <div class="img-viewer-caption" id="imgViewerCaption"></div>
     </div>
-</div>
 
-<script>
-  // Character counter for message textarea
-  const messageTextarea = document.getElementById('message');
-  const charCount = document.getElementById('charCount');
-  
-  if (messageTextarea && charCount) {
-    function updateCount() {
-      charCount.textContent = messageTextarea.value.length;
-    }
-    messageTextarea.addEventListener('input', updateCount);
-    updateCount(); // initial count
-  }
-</script>
+    <!-- Topbar & Sidebar - Reuse existing includes -->
+    <%- include('./include/Topbar.ejs') %> <%- include('./include/Aside.ejs') %>
 
-<style>
-  .support-icon {
-    font-size: 3.5rem;
-    line-height: 1;
-  }
-  .card {
-    border-radius: 12px;
-    border: none;
-  }
-  .card-header {
-    border-radius: 12px 12px 0 0 !important;
-    background: #f8f9fa;
-  }
-  .btn-success {
-    background-color: #25D366;
-    border-color: #25D366;
-  }
-  .btn-success:hover {
-    background-color: #128C7E;
-    border-color: #128C7E;
-  }
-  .list-group-item {
-    border-radius: 10px !important;
-    margin-bottom: 8px;
-    border: 1px solid rgba(0,0,0,0.05);
-  }
-</style>
+    <main class="main-content">
+      <!-- Hero Section -->
+      <section class="support-hero text-center">
+        <div class="container">
+          <h1>Help & Support Center</h1>
+          <p class="lead mb-4">Learn how to use DentaCore efficiently</p>
+          <div class="search-bar mx-auto" style="max-width: 500px">
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-search"></i
+              ></span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search help topics..."
+              />
+            </div>
+          </div>
+          <div class="mt-4">
+            <i class="fas fa-headset display-1 opacity-75"></i>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <!-- Quick Action Cards -->
+        <section id="quick-actions" class="mb-5">
+          <h2 class="text-center mb-5">Quick Actions</h2>
+          <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#add-patient"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-user-plus fs-1 text-primary mb-3"></i>
+                  <h5>Add Patient</h5>
+                  <p class="text-muted small">Register new patients quickly</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#medicines"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-pills fs-1 text-success mb-3"></i>
+                  <h5>Manage Medicines</h5>
+                  <p class="text-muted small">Update stock & expiry</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#notifications"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-bell fs-1 text-warning mb-3"></i>
+                  <h5>Send Notifications</h5>
+                  <p class="text-muted small">Remind patients instantly</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#prescription"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-file-medical fs-1 text-info mb-3"></i>
+                  <h5>Print Prescription</h5>
+                  <p class="text-muted small">Generate & print easily</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#dashboard"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-tachometer-alt fs-1 text-info mb-3"></i>
+                  <h5>Dashboard</h5>
+                  <p class="text-muted small">View clinic overview & stats</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#followup"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-calendar-check fs-1 text-success mb-3"></i>
+                  <h5>Follow-ups</h5>
+                  <p class="text-muted small">Schedule & track visits</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#stock"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-warehouse fs-1 text-secondary mb-3"></i>
+                  <h5>Manage Stock</h5>
+                  <p class="text-muted small">Track inventory levels</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#reports"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-chart-bar fs-1 text-primary mb-3"></i>
+                  <h5>Reports</h5>
+                  <p class="text-muted small">View analytics & insights</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#clinics"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-hospital fs-1 text-warning mb-3"></i>
+                  <h5>Clinic Setup</h5>
+                  <p class="text-muted small">Configure clinic details</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#admin"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-user-shield fs-1 text-danger mb-3"></i>
+                  <h5>Admin Panel</h5>
+                  <p class="text-muted small">Manage users & clinics</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#settings"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-cog fs-1 text-warning mb-3"></i>
+                  <h5>Profile Settings</h5>
+                  <p class="text-muted small">Update personal info</p>
+                </div>
+              </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="#contact"
+                class="card card-hover text-decoration-none text-dark"
+              >
+                <div class="card-body text-center p-4">
+                  <i class="fas fa-headset fs-1 text-success mb-3"></i>
+                  <h5>Contact Support</h5>
+                  <p class="text-muted small">Get help instantly</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- Table of Contents (Sticky) -->
+        <div class="row">
+          <div class="col-lg-3 sticky-toc">
+            <div class="card step-card p-3 mb-4">
+              <h6 class="fw-bold mb-3">On this page</h6>
+              <nav class="toc-nav">
+                <a
+                  href="#dashboard"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Dashboard Overview</a
+                >
+                <a
+                  href="#add-patient"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Add Patient</a
+                >
+                <a
+                  href="#medicines"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Medicines</a
+                >
+                <a
+                  href="#notifications"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Notifications</a
+                >
+                <a
+                  href="#prescription"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Prescriptions</a
+                >
+                <a
+                  href="#followup"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Follow-ups</a
+                >
+                <a
+                  href="#reports"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Reports</a
+                >
+                <a
+                  href="#stock"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Stock Management</a
+                >
+                <a
+                  href="#clinics"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Clinic Setup</a
+                >
+                <a
+                  href="#admin"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Admin Panel</a
+                >
+                <a
+                  href="#profile"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Profile</a
+                >
+                <a
+                  href="#faq"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ FAQ</a
+                >
+                <a
+                  href="#contact"
+                  class="d-block text-muted small py-1 mb-1 text-decoration-none"
+                  >→ Contact</a
+                >
+              </nav>
+            </div>
+          </div>
+          <div class="col-lg-9">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="mb-5">
+              <h3 class="mb-4">Dashboard Overview</h3>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>1. Access Dashboard</h6>
+                    <p>
+                      Click <strong>Dashboard</strong> from sidebar to view
+                      clinic stats, recent patients, upcoming appointments, and
+                      quick actions.
+                    </p>
+                    <img
+                      src="/image/dashboard.jpeg"
+                      alt="Dashboard"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4">
+                    <h6>2. Quick Stats & Actions</h6>
+                    <p>
+                      Monitor today's patients, low stock alerts, and recent
+                      prescriptions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Step-by-Step Guides -->
+            <section id="add-patient" class="mb-5">
+              <h3 class="mb-4">How to Manage Patients (Add, View, Visits)</h3>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>1. Open Dashboard</h6>
+                    <p>
+                      Click <strong>Patients</strong> in sidebar →
+                      <strong>New Patient</strong>
+                    </p>
+                    <img
+                      src="/image/dashboard.jpeg"
+                      alt="Patient Dashboard"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>2. Fill Patient Details</h6>
+                    <p>Enter name, phone, age, and medical history</p>
+                    <img
+                      src="/image/Patient_form.jpeg"
+                      alt="Patient Form"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4">
+                    <h6>3. Save Patient</h6>
+                    <p>
+                      Click <strong>Save Patient</strong> → Patient added
+                      successfully!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="medicines" class="mb-5">
+              <h3 class="mb-4">How to Add Medicines</h3>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>1. Medicines Inventory</h6>
+                    <p>Navigate to <strong>Medicines</strong> section</p>
+                    <img
+                      src="/image/Medicines.jpeg"
+                      alt="Medicines Page"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>2. Add New Medicine</h6>
+                    <p>Fill medicine name, stock quantity, expiry date</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4">
+                    <h6>3. Save Medicine</h6>
+                    <p>Click save to add to inventory</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="notifications" class="mb-5">
+              <h3 class="mb-4">How to Send Notifications</h3>
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <div class="step-card p-4 text-center">
+                    <h6>1. Open Messages</h6>
+                    <img
+                      src="/image/Message.jpeg"
+                      alt="Messages Screen"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="step-card p-4 text-center">
+                    <h6>2. Select Patients</h6>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="step-card p-4 text-center">
+                    <h6>3. Send Reminder</h6>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="prescription" class="mb-5">
+              <h3 class="mb-4">How to Print Prescription</h3>
+              <div class="row g-3">
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>1. Open Patient Detail</h6>
+                    <img
+                      src="/image/Medicines_form.jpeg"
+                      alt="Prescription Form"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>2. Add Prescription Items</h6>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>3. Print/Download PDF</h6>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Follow-up Section -->
+            <section id="followup" class="mb-5">
+              <h3 class="mb-4">How to Manage Follow-ups</h3>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>1. Go to Follow-ups</h6>
+                    <p>Navigate to <strong>Follow-ups</strong> in sidebar.</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>2. Schedule New Follow-up</h6>
+                    <p>Select patient, set date/time, add notes.</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4">
+                    <h6>3. Track & Complete</h6>
+                    <p>Mark as completed or reschedule as needed.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="mb-5">
+              <h3 class="mb-4">How to Generate Reports</h3>
+              <div class="row g-3">
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>1. Access Reports</h6>
+                    <p>Click <strong>Reports</strong> from sidebar.</p>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>2. Select Report Type</h6>
+                    <p>Patient stats, prescription summary, stock report.</p>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>3. Filter & Export</h6>
+                    <p>Apply date range, export to PDF/Excel.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Stock Management Section -->
+            <section id="stock" class="mb-5">
+              <h3 class="mb-4">Stock Management</h3>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>1. View Inventory</h6>
+                    <p>
+                      In Medicines section, check current stock levels and
+                      expiry dates.
+                    </p>
+                    <img
+                      src="/image/Medicines.jpeg"
+                      alt="Stock"
+                      class="img-fluid rounded shadow-sm w-100 clickable-image"
+                      style="height: 200px; object-fit: cover"
+                      onclick="openImageViewer(this)"
+                    />
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4">
+                    <h6>2. Update Stock</h6>
+                    <p>Add incoming stock or deduct on prescription.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Clinic Setup Section -->
+            <section id="clinics" class="mb-5">
+              <h3 class="mb-4">Clinic Setup & Management</h3>
+              <div class="row g-3">
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>1. Create Clinic</h6>
+                    <p>Admin → Create Clinic → Fill details.</p>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>2. Update Info</h6>
+                    <p>Edit clinic address, timings, doctors.</p>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="step-card p-4">
+                    <h6>3. Manage Clinics</h6>
+                    <p>View all clinics and assign users.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Admin Panel Section -->
+            <section id="admin" class="mb-5">
+              <h3 class="mb-4">Admin Panel (Admin Only)</h3>
+              <div class="row g-3">
+                <div class="col-lg-6">
+                  <div class="step-card p-4">
+                    <h6>User Management</h6>
+                    <p>View users, approve accounts, manage roles.</p>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="step-card p-4">
+                    <h6>Clinic Oversight</h6>
+                    <p>Monitor all clinics and user activities.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="mb-5">
+              <h3 class="mb-4">Profile & Settings</h3>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="step-card p-4 mb-3">
+                    <h6>1. Access Profile</h6>
+                    <p>Click profile icon → Profile page.</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="step-card p-4">
+                    <h6>2. Update Details</h6>
+                    <p>Change password, email, clinic preferences.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section id="faq" class="mb-5">
+              <h2 class="mb-4">Frequently Asked Questions</h2>
+              <div class="accordion" id="faqAccordion">
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq1"
+                    >
+                      How do I login or signup?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq1"
+                    class="accordion-collapse collapse show"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Visit landing page → Login/Signup → Fill credentials or
+                      register new account.
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq2"
+                    >
+                      How to reset my password?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq2"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Go to profile → Settings → Change Password. Enter old
+                      password and new password.
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq2"
+                    >
+                      How to update clinic information?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq2"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Admin → Clinic Settings → Update details and save.
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq3"
+                    >
+                      Why is stock not updating?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq3"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Check if medicine stock transactions are properly recorded
+                      in Stock Management.
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq5"
+                    >
+                      How to approve pending accounts? (Admin)
+                    </button>
+                  </h2>
+                  <div
+                    id="faq5"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Admin panel → Pending accounts → Approve or reject users.
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq6"
+                    >
+                      What if a patient visit needs editing?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq6"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">
+                      Patient detail → Edit visit → Update details and save
+                      changes.
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item step-card">
+                  <h2 class="accordion-header">
+                    <button
+                      class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#faq7"
+                    >
+                      How to contact support?
+                    </button>
+                  </h2>
+                  <div
+                    id="faq7"
+                    class="accordion-collapse collapse"
+                    data-bs-parent="#faqAccordion"
+                  >
+                    <div class="accordion-body">support@dentacore.com.</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="text-center mb-5">
+              <h2 class="mb-4">Need Personal Help?</h2>
+              <p class="lead text-muted mb-5">
+                Our support team is ready to help you 24/7
+              </p>
+              <a
+                href="https://wa.me/918950817515"
+                class="btn whatsapp-btn mb-4 d-block mx-auto"
+                style="max-width: 300px"
+              >
+                <i class="fab fa-whatsapp me-2"></i> Chat on WhatsApp
+              </a>
+              <div class="row g-4 justify-content-center">
+                <div class="col-md-5">
+                  <div class="step-card p-4">
+                    <i class="fas fa-envelope fs-2 text-primary mb-3"></i>
+                    <h5>Email Support</h5>
+                    <p>support@dentacore.com</p>
+                  </div>
+                </div>
+                <div class="col-md-5">
+                  <div class="step-card p-4">
+                    <i class="fas fa-clock fs-2 text-info mb-3"></i>
+                    <h5>Response Time</h5>
+                    <p>< 2 hours on weekdays</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('./include/footer.ejs') %>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" onclick="scrollToTop()" title="Back to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target)
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+
+      // Back to top
+      window.onscroll = function () {
+        const btn = document.querySelector(".back-to-top");
+        if (btn) btn.classList.toggle("show", window.scrollY > 300);
+      };
+      function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      // Search functionality (basic)
+      const searchInput = document.querySelector(
+        '.form-control[placeholder*="Search"]',
+      );
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          const term = this.value.toLowerCase();
+          document.querySelectorAll("h3, h2").forEach((el) => {
+            el.style.display = el.textContent.toLowerCase().includes(term)
+              ? "block"
+              : "none";
+          });
+        });
+      }
+
+      // Fullscreen Image Viewer Functionality
+      let currentImageIndex = 0;
+      let allImages = [];
+
+      function initImageViewer() {
+        // Get all clickable images
+        allImages = Array.from(document.querySelectorAll(".clickable-image"));
+      }
+
+      function openImageViewer(img) {
+        const modal = document.getElementById("imgViewerModal");
+        const imgElement = document.getElementById("imgViewerImage");
+        const caption = document.getElementById("imgViewerCaption");
+
+        imgElement.src = img.src;
+        caption.textContent = img.alt || "Image";
+        modal.classList.add("active");
+
+        // Find current image index
+        currentImageIndex = allImages.indexOf(img);
+
+        // Close modal when clicking outside the image
+        modal.addEventListener("click", function (e) {
+          if (e.target === modal) {
+            closeImageViewer();
+          }
+        });
+
+        // Handle keyboard navigation
+        document.addEventListener("keydown", handleKeyboardNavigation);
+      }
+
+      function closeImageViewer() {
+        const modal = document.getElementById("imgViewerModal");
+        modal.classList.remove("active");
+        document.removeEventListener("keydown", handleKeyboardNavigation);
+      }
+
+      function changeImage(direction) {
+        if (allImages.length === 0) return;
+
+        currentImageIndex += direction;
+
+        // Wrap around
+        if (currentImageIndex >= allImages.length) {
+          currentImageIndex = 0;
+        } else if (currentImageIndex < 0) {
+          currentImageIndex = allImages.length - 1;
+        }
+
+        const img = allImages[currentImageIndex];
+        const imgElement = document.getElementById("imgViewerImage");
+        const caption = document.getElementById("imgViewerCaption");
+
+        imgElement.src = img.src;
+        caption.textContent = img.alt || "Image";
+      }
+
+      function handleKeyboardNavigation(e) {
+        switch (e.key) {
+          case "ArrowLeft":
+            changeImage(-1);
+            break;
+          case "ArrowRight":
+            changeImage(1);
+            break;
+          case "Escape":
+            closeImageViewer();
+            break;
+        }
+      }
+
+      // Initialize image viewer when DOM is ready
+      document.addEventListener("DOMContentLoaded", initImageViewer);
+    </script>
+  </body>
+</html>

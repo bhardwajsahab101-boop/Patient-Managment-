@@ -175,3 +175,48 @@
   padding: 2rem;
   color: var(--text-secondary);
 }
+
+/* ---- Responsive Button Wrapper ---- */
+.btn-responsive-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Mobile-friendly button adjustments */
+@media (max-width: 576px) {
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+/* Ensure buttons stack on small screens */
+@media (max-width: 480px) {
+  .btn-stack-mobile {
+    display: flex !important;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-stack-mobile .btn,
+  .btn-stack-mobile a,
+  .btn-stack-mobile button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn-stack-mobile .btn:last-child {
+    margin-bottom: 0;
+  }
+}
