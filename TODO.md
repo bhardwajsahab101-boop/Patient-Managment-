@@ -1,23 +1,27 @@
-# Responsive Tables and Buttons - Implementation COMPLETE
+# Settings.ejs Implementation Plan
 
-## Completed Tasks
+## Files to Create/Edit
 
-### Patient Detail Page (views/patient-detail.ejs)
+### 1. Create views/settings.ejs
 
-- [x] Enhanced action bar buttons with beautiful gradient styling
-- [x] Added hover animations with lift effect
-- [x] Color-coded buttons:
-  - Blue gradient for Add Visit
-  - Green gradient for WhatsApp
-  - Yellow gradient for Edit
-  - Red gradient for Delete
-  - Gray outline for Back
+- Clinic Settings (primary)
+- Account Settings
+- Prescription/Print Settings
+- Notification Settings
+- Inventory Settings
+- Billing & Plan
+- Support Section
 
-### Patients List Page (views/patients.ejs & public/css/patients.css)
+### 2. Update views/include/Aside.ejs
 
-- [x] Added beautiful header "Add Patient" button with gradient
-- [x] Enhanced card footer action buttons (View, WhatsApp, Add Visit)
-- [x] Added hover animations with lift effect
-- [x] Responsive design for mobile
+- Add Settings link to sidebar
 
-## Status: COMPLETE
+## Implementation Order
+
+1. Create settings.ejs with full layout
+2. Update sidebar for settings navigation
+
+## Status
+
+- [ ] Create settings.ejs
+- [ ] Update sidebar

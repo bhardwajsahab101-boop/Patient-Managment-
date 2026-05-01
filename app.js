@@ -17,6 +17,7 @@ import supportRoutes from "./routes/support.routes.js";
 import signupRoutes from "./routes/signup.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import prescriptionRoutes from "./routes/prescription.routes.js";
+import settingsRoutes from "./routes/settings.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import {
   requireAuth,
@@ -165,6 +166,7 @@ app.use("/message", messagesRoutes);
 app.use("/support", supportRoutes);
 app.use("/medicines", medicineRoutes);
 app.use("/prescription", prescriptionRoutes);
+app.use("/settings", settingsRoutes);
 app.use("/admin", adminRoutes);
 
 // Create clinic routes (must be active but no clinic yet)

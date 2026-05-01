@@ -24,6 +24,7 @@
       class="form-control"
       placeholder="Dr. Your Name"
       required
+      value="<%= formData?.name || '' %>"
     />
   </div>
 
@@ -36,6 +37,7 @@
       placeholder="10-digit phone number"
       pattern="[0-9]{10}"
       required
+      value="<%= formData?.phone || '' %>"
     />
   </div>
 
@@ -60,14 +62,4 @@
       name="secretKey"
       class="form-control"
       placeholder="Enter secret key if you have one"
-    />
-  </div>
-
-
- 
-  <button type="submit" class="btn btn-auth">Create Account</button>
-</form>
-
-<div class="auth-footer">
-  Already have an account? <a href="/login">Login</a>
-</div>
+      value="<%= formData?.secretKey || '' %>"

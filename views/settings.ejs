@@ -1,0 +1,450 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+<% const section = currentSection || 'clinic'; %>
+<% const printSettings = clinic.printSettings || {}; %>
+<% const notificationSettings = clinic.notificationSettings || {}; %>
+<% const inventorySettings = clinic.inventorySettings || {}; %>
+<% const subscriptionStatus = clinic.subscriptionStatus || 'Active'; %>
+<% const planName = clinic.plan || 'Starter'; %>
+<% const expiryDate = clinic.subscriptionEndsAt ? new Date(clinic.subscriptionEndsAt).toLocaleDateString() : 'Not set'; %>
+<% const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Unknown'; %>
+
+<div class="settings-page py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="h3 mb-1">Settings</h1>
+      <p class="text-muted mb-0">Manage your clinic, prescription, notifications, inventory, billing and support from one place.</p>
+    </div>
+    <div class="text-end">
+      <span class="badge bg-primary">Current plan: <%= planName %></span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-3">
+      <div class="card shadow-sm sidebar-card sticky-top" style="top: 80px;">
+        <div class="card-body">
+          <h6 class="text-uppercase text-muted small mb-3">Sections</h6>
+          <div class="list-group list-group-flush">
+            <a href="/settings?section=clinic#clinic" class="list-group-item list-group-item-action <%= section === 'clinic' ? 'active' : '' %>">
+              <i class="fas fa-clinic-medical me-2"></i> Clinic
+            </a>
+            <a href="/settings?section=account#account" class="list-group-item list-group-item-action <%= section === 'account' ? 'active' : '' %>">
+              <i class="fas fa-user-circle me-2"></i> Account
+            </a>
+            <a href="/settings?section=prescription#print" class="list-group-item list-group-item-action <%= section === 'prescription' ? 'active' : '' %>">
+              <i class="fas fa-file-prescription me-2"></i> Prescription
+            </a>
+            <a href="/settings?section=notifications#notifications" class="list-group-item list-group-item-action <%= section === 'notifications' ? 'active' : '' %>">
+              <i class="fas fa-bell me-2"></i> Notifications
+            </a>
+            <a href="/settings?section=inventory#inventory" class="list-group-item list-group-item-action <%= section === 'inventory' ? 'active' : '' %>">
+              <i class="fas fa-pills me-2"></i> Inventory
+            </a>
+            <a href="/settings?section=billing#billing" class="list-group-item list-group-item-action <%= section === 'billing' ? 'active' : '' %>">
+              <i class="fas fa-credit-card me-2"></i> Billing
+            </a>
+            <a href="/settings?section=security#security" class="list-group-item list-group-item-action <%= section === 'security' ? 'active' : '' %>">
+              <i class="fas fa-lock me-2"></i> Security
+            </a>
+            <a href="/settings?section=support#support" class="list-group-item list-group-item-action <%= section === 'support' ? 'active' : '' %>">
+              <i class="fas fa-headset me-2"></i> Support
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-9">
+      <div class="mb-4">
+        <div class="alert alert-info d-flex align-items-start gap-3">
+          <div><i class="fas fa-star fa-lg mt-1"></i></div>
+          <div>
+            <strong>Clinic branding matters.</strong> Your clinic information automatically fills prescriptions, invoices, reports and print headers. Keep these details up to date to make the system feel customized for your practice.
+          </div>
+        </div>
+      </div>
+
+      <section id="clinic" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Clinic Settings</h2>
+            <p class="text-muted mb-0">Core clinic details used across printouts and reports.</p>
+          </div>
+          <span class="badge bg-secondary">MOST IMPORTANT</span>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+          <div class="card-body">
+            <form action="/settings/clinic?_method=PUT" method="POST">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Clinic name</label>
+                  <input type="text" name="name" class="form-control" value="<%= clinic.name || '' %>" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Doctor name</label>
+                  <input type="text" name="doctorName" class="form-control" value="<%= clinic.doctorName || '' %>">
+                </div>
+                <div class="col-md-12">
+                  <label class="form-label">Address</label>
+                  <textarea name="address" class="form-control" rows="2"><%= clinic.address || '' %></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Phone number</label>
+                  <input type="text" name="phone" class="form-control" value="<%= clinic.phone || '' %>">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input type="email" name="email" class="form-control" value="<%= clinic.email || '' %>">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Clinic logo URL</label>
+                  <input type="text" name="logo" class="form-control" value="<%= clinic.logo || '' %>">
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">GST number</label>
+                  <input type="text" class="form-control" placeholder="Coming soon" disabled>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-4">
+                <div class="text-muted small">Auto-fill: prescriptions · invoices · reports · print headers</div>
+                <button type="submit" class="btn btn-primary">Save clinic details</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="account" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Account Settings</h2>
+            <p class="text-muted mb-0">Basic user management for your login and role.</p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Name</label>
+                <input type="text" class="form-control" value="<%= user.name || '' %>" disabled>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Phone</label>
+                <input type="text" class="form-control" value="<%= user.phone || '' %>" disabled>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Role</label>
+                <input type="text" class="form-control" value="<%= user.role || 'doctor' %>" disabled>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Logout all sessions</label>
+                <button type="button" class="btn btn-outline-secondary w-100" disabled>Coming soon</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h6 class="mb-3">Password change</h6>
+            <form action="/settings/password?_method=PUT" method="POST">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Current password</label>
+                  <input type="password" name="currentPassword" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">New password</label>
+                  <input type="password" name="newPassword" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Confirm password</label>
+                  <input type="password" name="confirmPassword" class="form-control" required>
+                </div>
+              </div>
+              <div class="mt-3 text-end">
+                <button type="submit" class="btn btn-primary">Update password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="prescription" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Prescription / Print Settings</h2>
+            <p class="text-muted mb-0">Optimize dental prescriptions and print formatting.</p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form action="/settings/print?_method=PUT" method="POST">
+              <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="showLogo" value="true" <%= printSettings.showLogo ? 'checked' : '' %>>
+                    <label class="form-check-label">Show clinic logo on prescription</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="showSignature" value="true" <%= printSettings.showSignature ? 'checked' : '' %>>
+                    <label class="form-check-label">Show signature area</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="showAddress" value="true" <%= printSettings.showAddress ? 'checked' : '' %>>
+                    <label class="form-check-label">Show clinic address</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="showNextVisitDate" value="true" <%= printSettings.showNextVisitDate ? 'checked' : '' %>>
+                    <label class="form-check-label">Show next visit date</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="showMedicineInstructions" value="true" <%= printSettings.showMedicineInstructions ? 'checked' : '' %>>
+                    <label class="form-check-label">Include medicine instructions</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="autoPrint" value="true" <%= printSettings.autoPrint ? 'checked' : '' %>>
+                    <label class="form-check-label">Auto-print after save</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Paper size</label>
+                  <select name="paperSize" class="form-select">
+                    <option value="A5" <%= printSettings.paperSize === 'A5' ? 'selected' : '' %>>A5</option>
+                    <option value="A4" <%= printSettings.paperSize === 'A4' ? 'selected' : '' %>>A4</option>
+                    <option value="Letter" <%= printSettings.paperSize === 'Letter' ? 'selected' : '' %>>Letter</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Default footer message</label>
+                  <input type="text" name="defaultFooterMessage" class="form-control" value="<%= printSettings.defaultFooterMessage || 'Get well soon!' %>">
+                </div>
+              </div>
+              <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary">Save prescription settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="notifications" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Notification Settings</h2>
+            <p class="text-muted mb-0">Set reminders for WhatsApp, appointments and follow-ups.</p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form action="/settings/notifications?_method=PUT" method="POST">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="whatsappReminders" value="true" <%= notificationSettings.whatsappReminders ? 'checked' : '' %>>
+                    <label class="form-check-label">WhatsApp reminders ON</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="followupReminders" value="true" <%= notificationSettings.followupReminders ? 'checked' : '' %>>
+                    <label class="form-check-label">Follow-up reminders</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Appointment reminder timing</label>
+                  <input type="number" min="1" name="appointmentReminderHours" class="form-control" value="<%= notificationSettings.appointmentReminderHours || 24 %>">
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" name="smsReminders" value="true" <%= notificationSettings.smsReminders ? 'checked' : '' %>>
+                    <label class="form-check-label">SMS reminders later</label>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary">Save notification settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="inventory" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Inventory Settings</h2>
+            <p class="text-muted mb-0">Medicine alerts and stock handling for your clinic.</p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <form action="/settings/inventory?_method=PUT" method="POST">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label class="form-label">Low stock threshold</label>
+                  <input type="number" min="1" name="lowStockThreshold" class="form-control" value="<%= inventorySettings.lowStockThreshold || 10 %>">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Expiry alert days</label>
+                  <input type="number" min="1" name="expiryAlertDays" class="form-control" value="<%= inventorySettings.expiryAlertDays || 30 %>">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                  <div class="form-check w-100">
+                    <input class="form-check-input" type="checkbox" name="autoStockDeduction" value="true" <%= inventorySettings.autoStockDeduction ? 'checked' : '' %>>
+                    <label class="form-check-label">Auto stock deduction from prescriptions</label>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 text-end">
+                <button type="submit" class="btn btn-primary">Save inventory settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section id="billing" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Subscription / Billing</h2>
+            <p class="text-muted mb-0">Plan details and renewal information.</p>
+          </div>
+          <button type="button" class="btn btn-outline-primary">Upgrade plan</button>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body row g-3">
+            <div class="col-md-4">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small mb-2">Current plan</div>
+                <div class="h5 mb-0"><%= planName %></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small mb-2">Expiry date</div>
+                <div class="h5 mb-0"><%= expiryDate %></div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="border rounded p-3 h-100">
+                <div class="text-muted small mb-2">Payment status</div>
+                <div class="h5 mb-0"><%= subscriptionStatus %></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="security" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Security Settings</h2>
+            <p class="text-muted mb-0">Simple security details for your account.</p>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Last login</label>
+              <input type="text" class="form-control" value="<%= lastLogin %>" disabled>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Active device/session</label>
+              <input type="text" class="form-control" value="Coming soon" disabled>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <button type="button" class="btn btn-outline-secondary w-100" disabled>Manage devices</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <p class="mb-0 text-muted">For stronger security, keep your password updated and log out from shared devices after every session.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="support" class="settings-section mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div>
+            <h2 class="h5 mb-1">Support</h2>
+            <p class="text-muted mb-0">Quick access to help and documentation.</p>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body d-flex flex-column">
+                <h6 class="mb-3">WhatsApp support</h6>
+                <p class="text-muted small flex-grow-1">Contact support directly for urgent issues.</p>
+                <a href="https://wa.me/918950817515" target="_blank" class="btn btn-success w-100">Open WhatsApp</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body d-flex flex-column">
+                <h6 class="mb-3">Documentation</h6>
+                <p class="text-muted small flex-grow-1">Read more about features and best practices.</p>
+                <a href="/support" class="btn btn-outline-primary w-100">Open guide</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body d-flex flex-column">
+                <h6 class="mb-3">Report issue</h6>
+                <p class="text-muted small flex-grow-1">Report bugs, send feedback, or request improvements.</p>
+                <a href="/support" class="btn btn-outline-secondary w-100">Report issue</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<style>
+  .settings-page .sidebar-card {
+    border: 1px solid rgba(13, 110, 253, 0.1);
+  }
+  .settings-page .list-group-item.active {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+  }
+  .settings-page .settings-section .card {
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  .settings-page .settings-section h2 {
+    font-size: 1.05rem;
+  }
+  @media (max-width: 991px) {
+    .sidebar-card {
+      position: static !important;
+      top: auto !important;
+    }
+  }
+</style>

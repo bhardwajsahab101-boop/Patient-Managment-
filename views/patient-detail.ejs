@@ -14,6 +14,9 @@
       <h2><%= patient.name %></h2>
       <p><%= patient.age %> yrs • <%= patient.gender %></p>
       <p>📞 <%= patient.phone %></p>
+      <% if (patient.address) { %>
+        <p>📍 <%= patient.address %></p>
+      <% } %>
     </div>
   </div>
 

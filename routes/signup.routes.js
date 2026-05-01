@@ -8,7 +8,7 @@ const router = express.Router();
 // GET /signup — render signup form
 router.get("/signup", (req, res) => {
   if (req.session.userId) return res.redirect("/");
-  res.render("signup", { title: "Sign Up", error: null });
+  res.render("signup", { title: "Sign Up", error: null, formData: {} });
 });
 
 // POST /signup — create user (NO clinic yet, isActive: false)
@@ -21,6 +21,7 @@ router.post("/signup", async (req, res) => {
       return res.status(400).render("signup", {
         title: "Sign Up",
         error: "Phone number already registered",
+        formData: { name, phone, secretKey },
       });
     }
 
@@ -53,6 +54,11 @@ router.post("/signup", async (req, res) => {
     res.status(500).render("signup", {
       title: "Sign Up",
       error: err.message,
+      formData: {
+        name: req.body?.name || "",
+        phone: req.body?.phone || "",
+        secretKey: req.body?.secretKey || "",
+      },
     });
   }
 });
@@ -60,7 +66,7 @@ router.post("/signup", async (req, res) => {
 // GET /login — render login form
 router.get("/login", (req, res) => {
   if (req.session.userId) return res.redirect("/");
-  res.render("login", { title: "Login", error: null });
+  res.render("login", { title: "Login", error: null, formData: {} });
 });
 
 // POST /login — smart redirect based on activation + clinic status
@@ -73,6 +79,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).render("login", {
         title: "Login",
         error: "User not found",
+        formData: { phone },
       });
     }
 
@@ -81,6 +88,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).render("login", {
         title: "Login",
         error: "Invalid credentials",
+        formData: { phone },
       });
     }
 

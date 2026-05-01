@@ -6,6 +6,13 @@
 <h3 class="fw-bold mb-4">Edit Patient</h3>
 
 <div class="card p-4 shadow-sm">
+  <% if (typeof errors !== 'undefined' && errors && errors.length) { %>
+    <div class="alert alert-danger mb-4">
+      <% errors.forEach(function(e) { %>
+        <div><%= e.msg %></div>
+      <% }) %>
+    </div>
+  <% } %>
   <form action="/patients/<%= patient._id %>?_method=PUT" method="POST">
     
     <!-- PATIENT INFO -->
@@ -36,6 +43,12 @@
     <div class="mb-3">
       <label class="form-label">Treatment</label>
       <input type="text" name="patient[treatment]" value="<%= patient.treatment %>" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Address</label>
+      <textarea name="patient[address]" class="form-control" rows="2"
+        placeholder="Enter patient's full address"><%= patient.address || '' %></textarea>
     </div>
 
     <div class="mb-3">

@@ -87,7 +87,38 @@ export async function newPatientForm(req, res) {
 // POST /patients
 export async function createPatient(req, res) {
   try {
-    const { name, age, gender, phone, treatment } = req.body.patient;
+    if (req.validationErrors && req.validationErrors.length) {
+      const clinicId = await getUserClinic(req.user._id);
+      const medicines = await getClinicMedicines(clinicId);
+      const selectedMedicineIds = Array.isArray(req.body.medicineIds)
+        ? req.body.medicineIds.map(String)
+        : req.body.medicineIds
+          ? [String(req.body.medicineIds)]
+          : [];
+      const medicineQuantities = Array.isArray(req.body.medicineQuantities)
+        ? req.body.medicineQuantities
+        : req.body.medicineQuantities
+          ? [req.body.medicineQuantities]
+          : [];
+      const selectedMedicineQuantities = selectedMedicineIds.reduce(
+        (map, medId, idx) => ({
+          ...map,
+          [medId]: medicineQuantities[idx] || "1",
+        }),
+        {},
+      );
+
+      return res.status(400).render("NewPatients", {
+        errors: req.validationErrors,
+        patient: req.body.patient || {},
+        visit: req.body.visit || {},
+        medicines,
+        selectedMedicineIds,
+        selectedMedicineQuantities,
+      });
+    }
+
+    const { name, age, gender, phone, treatment, address } = req.body.patient;
     const { notes, price, nextVisit } = req.body.visit;
     const { medicineIds, medicineQuantities } = req.body;
     const userId = req.user._id;
@@ -125,6 +156,7 @@ export async function createPatient(req, res) {
       gender,
       phone: sanitizedPhone,
       treatment: treatment?.trim(),
+      address: address?.trim(),
       nextVisit: nextVisitDate,
       userId,
       clinicId,
@@ -325,6 +357,17 @@ export async function deleteForm(req, res) {
 // PUT /patients/:id
 export async function updatePatient(req, res) {
   try {
+    if (req.validationErrors && req.validationErrors.length) {
+      return res.status(400).render("edit", {
+        patient: {
+          _id: req.params.id,
+          ...req.body.patient,
+          nextVisit: req.body.visit?.nextVisit,
+        },
+        errors: req.validationErrors,
+      });
+    }
+
     const { id } = req.params;
     const userId = req.user._id;
 
@@ -341,6 +384,7 @@ export async function updatePatient(req, res) {
       gender: req.body.patient?.gender,
       phone: req.body.patient?.phone?.replace(/\D/g, ""),
       treatment: req.body.patient?.treatment?.trim(),
+      address: req.body.patient?.address?.trim(),
       nextVisit: req.body.visit?.nextVisit
         ? new Date(req.body.visit.nextVisit)
         : undefined,

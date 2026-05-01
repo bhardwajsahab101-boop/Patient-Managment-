@@ -11,6 +11,13 @@
     </div>
   <% } %>
 
+  <% 
+    const selectedIds = (typeof selectedMedicineIds !== 'undefined' && selectedMedicineIds)
+      ? (Array.isArray(selectedMedicineIds) ? selectedMedicineIds.map(String) : [String(selectedMedicineIds)])
+      : [];
+    const quantityMap = (typeof selectedMedicineQuantities !== 'undefined') ? selectedMedicineQuantities : {};
+  %>
+
   <form action="/patients" method="POST">
 
     <!-- PATIENT INFO -->
@@ -51,6 +58,12 @@
         <input type="text" name="patient[treatment]" class="form-control"
           value="<%= (typeof patient !== 'undefined' && patient) ? patient.treatment : '' %>" />
       </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Address</label>
+      <textarea name="patient[address]" class="form-control" rows="2"
+        placeholder="Enter patient's full address"><%= (typeof patient !== 'undefined' && patient) ? patient.address : '' %></textarea>
     </div>
 
     <!-- VISIT INFO -->
@@ -95,7 +108,8 @@
             <% medicines.forEach((med, idx) => { %>
               <tr>
                 <td class="text-center">
-                  <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" class="form-check-input med-check" data-index="<%= idx %>">
+                  <% const isSelected = selectedIds.includes(String(med._id)); %>
+                  <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" class="form-check-input med-check" data-index="<%= idx %>" <%= isSelected ? 'checked' : '' %>>
                 </td>
                 <td><strong><%= med.name %></strong></td>
                 <td><span class="badge bg-info text-dark"><%= med.category || 'Tablet' %></span></td>
@@ -108,7 +122,8 @@
                   <% } %>
                 </td>
                 <td>
-                  <input type="number" name="medicineQuantities[]" class="form-control form-control-sm" min="1" max="<%= med.stock %>" value="1" disabled id="qty-<%= idx %>">
+                  <% const selectedQty = quantityMap[String(med._id)] || "1"; %>
+                  <input type="number" name="medicineQuantities[]" class="form-control form-control-sm" min="1" max="<%= med.stock %>" value="<%= selectedQty %>" <%= selectedIds.includes(String(med._id)) ? '' : 'disabled' %> id="qty-<%= idx %>">
                 </td>
               </tr>
             <% }) %>

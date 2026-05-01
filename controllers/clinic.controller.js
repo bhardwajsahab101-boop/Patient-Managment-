@@ -5,6 +5,7 @@ export async function getCreateClinicForm(req, res) {
   res.render("create-clinic", {
     title: "Create Clinic",
     error: null,
+    formData: {},
   });
 }
 
@@ -18,6 +19,7 @@ export async function createClinic(req, res) {
       return res.status(400).render("create-clinic", {
         title: "Create Clinic",
         error: "Clinic name must be at least 2 characters",
+        formData: { name, location },
       });
     }
 
@@ -42,6 +44,10 @@ export async function createClinic(req, res) {
     res.status(500).render("create-clinic", {
       title: "Create Clinic",
       error: "Failed to create clinic. Please try again.",
+      formData: {
+        name: req.body?.name || "",
+        location: req.body?.location || "",
+      },
     });
   }
 }

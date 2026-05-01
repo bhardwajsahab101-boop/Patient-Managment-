@@ -26,6 +26,12 @@ const PatientData = new Schema({
     match: [/^\d{10}$/, "Enter valid 10-digit phone number"],
   },
 
+  address: {
+    type: String,
+    trim: true,
+    maxlength: 500,
+  },
+
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
