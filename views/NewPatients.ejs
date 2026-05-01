@@ -12,10 +12,12 @@
   <% } %>
 
   <% 
-    const selectedIds = (typeof selectedMedicineIds !== 'undefined' && selectedMedicineIds)
-      ? (Array.isArray(selectedMedicineIds) ? selectedMedicineIds.map(String) : [String(selectedMedicineIds)])
+    const selectedIds = Array.isArray(selectedMedicineIds)
+      ? selectedMedicineIds.map(String)
+      : selectedMedicineIds
+      ? [String(selectedMedicineIds)]
       : [];
-    const quantityMap = (typeof selectedMedicineQuantities !== 'undefined') ? selectedMedicineQuantities : {};
+    const quantityMap = selectedMedicineQuantities || {};
   %>
 
   <form action="/patients" method="POST">
@@ -56,14 +58,8 @@
       <div class="col-md-6 mb-3">
         <label class="form-label">Treatment</label>
         <input type="text" name="patient[treatment]" class="form-control"
-          value="<%= (typeof patient !== 'undefined' && patient) ? patient.treatment : '' %>" />
+          value
       </div>
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Address</label>
-      <textarea name="patient[address]" class="form-control" rows="2"
-        placeholder="Enter patient's full address"><%= (typeof patient !== 'undefined' && patient) ? patient.address : '' %></textarea>
     </div>
 
     <!-- VISIT INFO -->
