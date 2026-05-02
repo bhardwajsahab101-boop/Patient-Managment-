@@ -28,21 +28,47 @@
               ></textarea>
             </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="visit-price" class="form-label">Amount (₹)</label>
+<div class="row">
+ 
+
+              <div class="col-md-4 mb-3">
+                <label for="visit-totalPayment" class="form-label">Visit Charge (₹)</label>
                 <input
                   type="number"
                   class="form-control"
-                  id="visit-price"
-                  name="visit[price]"
+                  id="visit-totalPayment"
+                  name="visit[totalPayment]"
                   min="0"
                   step="0.01"
                   placeholder="0"
-                  required
                 />
               </div>
 
+              <div class="col-md-4 mb-3">
+                <label for="visit-paidPayment" class="form-label">Paid for this Visit (₹)</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="visit-paidPayment"
+                  name="visit[paidPayment]"
+                  min="0"
+                  step="0.01"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <!-- Payment Summary Display -->
+            <div class="row mb-3">
+              <div class="col-md-12">
+                <div class="alert alert-info mb-0 py-2">
+                  <strong>Pending Amount:</strong> ₹<span id="pendingAmount">0.00</span>
+                  <small class="text-muted ms-2">(Auto-calculated: Total - Paid)</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="visit-nextVisit" class="form-label"
                   >Next Visit</label
@@ -149,5 +175,22 @@
       if (this.checked) qtyInput.focus();
     });
   });
+
+  // Auto-calculate pending amount
+  const totalInput = document.getElementById('visit-totalPayment');
+  const paidInput = document.getElementById('visit-paidPayment');
+  const pendingSpan = document.getElementById('pendingAmount');
+
+  function calculatePending() {
+    const total = parseFloat(totalInput.value) || 0;
+    const paid = parseFloat(paidInput.value) || 0;
+    const pending = Math.max(0, total - paid);
+    pendingSpan.textContent = pending.toFixed(2);
+  }
+
+  if (totalInput && paidInput) {
+    totalInput.addEventListener('input', calculatePending);
+    paidInput.addEventListener('input', calculatePending);
+  }
 </script>
 

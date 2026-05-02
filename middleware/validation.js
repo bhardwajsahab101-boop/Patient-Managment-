@@ -25,6 +25,7 @@ export const validatePatient = [
 
 export const validateVisit = [
   body("visit.notes").optional().trim().escape(),
-  body("visit.price").optional().isFloat({ min: 0 }),
+  body("visit.totalPayment").optional().isFloat({ min: 0 }),
+  body("visit.paidPayment").optional().isFloat({ min: 0 }),
   body("visit.nextVisit").optional().isISO8601().toDate(),
 ];

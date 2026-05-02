@@ -21,6 +21,20 @@ export const requireAuth = async (req, res, next) => {
   }
 };
 
+// 🏥 Fetch clinic for current user and attach to req (reduces duplicate DB calls)
+export const attachClinic = async (req, res, next) => {
+  try {
+    if (req.user?._id) {
+      const clinic = await Clinic.findOne({ ownerId: req.user._id }).lean();
+      req.clinic = clinic;
+    }
+    next();
+  } catch (err) {
+    console.error("Clinic attach error:", err);
+    next();
+  }
+};
+
 // 🟢 Require active account + valid subscription
 export const requireActive = async (req, res, next) => {
   try {

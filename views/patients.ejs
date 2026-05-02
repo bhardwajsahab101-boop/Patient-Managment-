@@ -14,6 +14,38 @@
   </a>
 </div>
 
+<!-- Payment Summary -->
+<% 
+  let grandTotal = 0, grandPaid = 0, grandPending = 0;
+  patients.forEach(p => {
+    let pTotal = 0;
+    if (p.visits) { p.visits.forEach(v => { pTotal += (v.price || 0); }); }
+    const total = p.totalPayment || pTotal;
+    const paid = p.paidPayment || 0;
+    grandTotal += total;
+    grandPaid += paid;
+    grandPending += Math.max(0, total - paid);
+  });
+%>
+<% if (patients.length > 0) { %>
+<div class="alert alert-info mb-4">
+  <div class="row text-center">
+    <div class="col-4">
+      <small class="text-dark">Total All Time</small>
+      <div class="h4 mb-0 text-primary">₹<%= grandTotal.toFixed(0) %></div>
+    </div>
+    <div class="col-4">
+      <small class="text-dark">Paid All Time</small>
+      <div class="h4 mb-0 text-success">₹<%= grandPaid.toFixed(0) %></div>
+    </div>
+    <div class="col-4">
+      <small class="text-dark">Pending All Time</small>
+      <div class="h4 mb-0 text-danger">₹<%= grandPending.toFixed(0) %></div>
+    </div>
+  </div>
+</div>
+<% } %>
+
 <!-- Search & Filter Toolbar -->
 <div class="toolbar-card mb-4">
   <form action="/patients" method="GET" class="row g-3 align-items-center">
@@ -101,11 +133,37 @@
                 <% if (status) { %><span class="badge <%= statusBadge %> status-pill"><%= status %></span><% } %>
               </div>
             </div>
-            <div class="patient-card-body">
+<div class="patient-card-body">
               <div class="info-row"><i class="fas fa-phone text-primary"></i><span><%= patient.phone %></span></div>
               <div class="info-row"><i class="fas fa-stethoscope text-primary"></i><span><%= patient.treatment || 'General Checkup' %></span></div>
               <div class="info-row"><i class="far fa-calendar text-primary"></i><span>Last Visit: <%= latestVisit && latestVisit.date ? new Date(latestVisit.date).toDateString() : 'N/A' %></span></div>
               <div class="info-row"><i class="far fa-calendar-check text-primary"></i><span>Next Visit: <% if (latestVisit && latestVisit.nextVisit) { %><strong class="<%= statusClass %>"><%= new Date(latestVisit.nextVisit).toDateString() %></strong><% } else { %><span class="text-muted">Not Scheduled</span><% } %></span></div>
+              <!-- Payment Info -->
+              <% 
+                let totalFromVisits = 0;
+                if (patient.visits) {
+                  patient.visits.forEach(v => { totalFromVisits += (v.price || 0); });
+                }
+                const totalAll = patient.totalPayment || totalFromVisits;
+                const paidAll = patient.paidPayment || 0;
+                const pendingAll = Math.max(0, totalAll - paidAll);
+              %>
+              <div class="info-row mt-2 pt-2 border-top">
+                <div class="row text-center">
+                  <div class="col-4">
+                    <small class="text-muted">Total</small>
+                    <div class="fw-bold text-primary">₹<%= totalAll.toFixed(0) %></div>
+                  </div>
+                  <div class="col-4">
+                    <small class="text-muted">Paid</small>
+                    <div class="fw-bold text-success">₹<%= paidAll.toFixed(0) %></div>
+                  </div>
+                  <div class="col-4">
+                    <small class="text-muted">Pending</small>
+                    <div class="fw-bold text-danger">₹<%= pendingAll.toFixed(0) %></div>
+                  </div>
+                </div>
+              </div>
             </div>
 <div class="patient-card-footer btn-action-group">
               <a href="/patient/<%= patient._id %>" class="btn-action-card btn-view-card font-weight-bold">

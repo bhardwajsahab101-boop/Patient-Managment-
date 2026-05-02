@@ -10,6 +10,7 @@ import {
   deleteForm,
   updatePatient,
   deletePatient,
+  payVisit,
 } from "../controllers/patient.controller.js";
 import { validatePatient, validateVisit } from "../middleware/validation.js";
 import {
@@ -34,6 +35,9 @@ router.get("/", listPatients);
 // Visit form & add visit (must be BEFORE /:id)
 router.get("/:id/visits/new", newVisitForm);
 router.post("/:id/visits", validateVisit, addVisit);
+
+// Pay for a specific visit
+router.get("/:id/visit/:visitIndex/pay", payVisit);
 
 // Edit, update, delete (must be BEFORE /:id)
 router.get("/:id/edit", editForm);

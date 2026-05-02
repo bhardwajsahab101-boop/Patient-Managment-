@@ -51,9 +51,25 @@
         placeholder="Enter patient's full address"><%= patient.address || '' %></textarea>
     </div>
 
-    <div class="mb-3">
+<div class="mb-3">
       <label class="form-label">Next Visit Date</label>
       <input type="date" name="visit[nextVisit]" value="<%= patient.nextVisit ? new Date(patient.nextVisit).toISOString().split('T')[0] : '' %>" class="form-control" />
+    </div>
+
+    <!-- Payment Fields -->
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Total Payment (₹)</label>
+        <input type="number" name="patient[totalPayment]" value="<%= patient.totalPayment || 0 %>" class="form-control" min="0" step="0.01" />
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Paid Amount (₹)</label>
+        <input type="number" name="patient[paidPayment]" value="<%= patient.paidPayment || 0 %>" class="form-control" min="0" step="0.01" />
+      </div>
+      <div class="col-md-4 mb-3">
+        <label class="form-label">Pending Amount (₹)</label>
+        <input type="text" class="form-control" value="<%= typeof patient.pendingPayment !== 'undefined' ? patient.pendingPayment.toFixed(2) : '0.00' %>" readonly />
+      </div>
     </div>
 
     <div class="mt-4 d-flex gap-2">

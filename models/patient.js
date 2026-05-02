@@ -58,6 +58,30 @@ const PatientData = new Schema({
     default: true,
   },
 
+  // Payment tracking fields
+  totalPayment: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+
+  paidPayment: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+
+  pendingPayment: {
+    type: Number,
+    default: 0,
+  },
+
+  paymentStatus: {
+    type: String,
+    enum: ["Paid", "Pending", "Partial"],
+    default: "Paid",
+  },
+
   visits: [
     {
       date: { type: Date, default: Date.now },
@@ -67,6 +91,22 @@ const PatientData = new Schema({
       price: {
         type: Number,
         min: 0,
+      },
+
+      // Per-visit payment tracking
+      paidAmount: {
+        type: Number,
+        default: 0,
+        min: 0,
+      },
+
+      paymentDate: {
+        type: Date,
+      },
+
+      paymentMethod: {
+        type: String,
+        enum: ["Cash", "Card", "UPI", "Online", "Other"],
       },
 
       nextVisit: Date,
@@ -84,9 +124,14 @@ const PatientData = new Schema({
     },
   ],
 });
+
 const patient = mongoose.model("patient", PatientData);
 
+// Indexes for faster queries
 PatientData.index({ userId: 1, clinicId: 1 });
 PatientData.index({ userId: 1, clinicId: 1, nextVisit: 1 });
 PatientData.index({ userId: 1, phone: 1 });
+PatientData.index({ userId: 1, nextVisit: 1, isActive: 1 });
+PatientData.index({ userId: 1, createdAt: -1 });
+
 export { patient };

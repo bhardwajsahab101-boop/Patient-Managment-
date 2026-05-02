@@ -2,6 +2,10 @@ import { patient } from "../models/patient.js";
 import Medicine from "../models/medicine.js";
 import StockTransaction from "../models/stockTransaction.js";
 import Clinic from "../models/clinic.js";
+import {
+  processPrescribedMedicines,
+  enrichPrescribedMedicines,
+} from "../middleware/medicineHelpers.js";
 
 // Helper: get user's default clinic
 async function getUserClinic(userId) {
@@ -15,54 +19,6 @@ async function getClinicMedicines(clinicId) {
   return await Medicine.find({ clinicId, isActive: true, stock: { $gt: 0 } })
     .sort({ name: 1 })
     .lean();
-}
-
-// Helper: process prescribed medicines
-async function processPrescribedMedicines(
-  medicineIds,
-  quantities,
-  clinicId,
-  patientId,
-  visitNote,
-) {
-  const prescribedMedicines = [];
-
-  if (!medicineIds || !Array.isArray(medicineIds)) return prescribedMedicines;
-
-  for (let i = 0; i < medicineIds.length; i++) {
-    const medId = medicineIds[i];
-    if (!medId) continue;
-
-    const qty = parseInt(quantities?.[i]) || 1;
-    const medicine = await Medicine.findById(medId);
-
-    if (!medicine || medicine.stock < qty) continue;
-
-    const previousStock = medicine.stock;
-    medicine.stock -= qty;
-    await medicine.save();
-
-    // Create stock transaction
-    await StockTransaction.create({
-      medicineId: medicine._id,
-      clinicId,
-      patientId,
-      type: "OUT",
-      quantity: qty,
-      previousStock,
-      newStock: medicine.stock,
-      note: visitNote || `Prescribed to patient`,
-    });
-
-    prescribedMedicines.push({
-      medicineId: medicine._id,
-      name: medicine.name,
-      dosage: medicine.dosage,
-      quantity: qty,
-    });
-  }
-
-  return prescribedMedicines;
 }
 
 // GET /patients/new
@@ -124,6 +80,12 @@ export async function createPatient(req, res) {
     const userId = req.user._id;
     const clinicId = await getUserClinic(userId);
 
+    // Payment fields - calculate pending automatically
+    const totalPayment =
+      parseFloat(req.body.patient?.totalPayment || price) || 0;
+    const paidPayment = parseFloat(req.body.patient?.paidPayment) || 0;
+    const pendingPayment = Math.max(0, totalPayment - paidPayment);
+
     const sanitizedPhone = phone.replace(/\D/g, "");
 
     const nextVisitDate = nextVisit ? new Date(nextVisit) : null;
@@ -144,11 +106,15 @@ export async function createPatient(req, res) {
       notes?.trim(),
     );
 
-    // Add duration/instructions
-    prescribedMedicines.forEach((med, index) => {
-      med.duration = medicineDurations[index] || "";
-      med.instructions = medicineInstructions[index] || "";
-    });
+    // Use shared helper to add duration/instructions
+    enrichPrescribedMedicines(
+      prescribedMedicines,
+      medicineDurations,
+      medicineInstructions,
+    );
+
+    const initialVisitPrice = totalPayment;
+    const initialVisitPaid = paidPayment;
 
     const newPatient = new patient({
       name: name.trim(),
@@ -160,10 +126,15 @@ export async function createPatient(req, res) {
       nextVisit: nextVisitDate,
       userId,
       clinicId,
+      // Payment fields - pending is calculated automatically
+      totalPayment,
+      paidPayment,
+      pendingPayment,
       visits: [
         {
           notes: notes?.trim(),
-          price: parseFloat(price) || 0,
+          price: initialVisitPrice,
+          paidAmount: initialVisitPaid,
           nextVisit: nextVisitDate,
           medicines: prescribedMedicines,
         },
@@ -216,11 +187,16 @@ export async function listPatients(req, res) {
 
   const total = await patient.countDocuments(filter);
 
+  // Optimize: Only fetch required fields for list view using .select()
   const patients = await patient
     .find(filter)
+    .select(
+      "name age gender phone treatment visits nextVisit isActive createdAt totalPayment paidPayment",
+    )
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
-    .limit(limit);
+    .limit(limit)
+    .lean();
 
   res.render("patients", {
     patients,
@@ -233,13 +209,41 @@ export async function listPatients(req, res) {
 // GET /patients/:id
 export async function getPatientDetail(req, res) {
   try {
-    const patientData = await patient
-      .findOne({
-        _id: req.params.id,
-        userId: req.user._id,
-      })
-      .lean();
+    // Don't use .lean() - we need the Mongoose document with proper getters
+    const patientData = await patient.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
     if (!patientData) return res.status(404).send("Patient not found");
+
+    // Ensure payment totals are up to date
+    let totalFromVisits = 0;
+    let paidFromVisits = 0;
+    if (patientData.visits && patientData.visits.length) {
+      patientData.visits.forEach((v) => {
+        totalFromVisits += v.price || 0;
+        paidFromVisits += v.paidAmount || 0;
+      });
+    }
+
+    // Update totals if they don't match
+    if (patientData.totalPayment !== totalFromVisits) {
+      patientData.totalPayment = totalFromVisits;
+    }
+    if (patientData.paidPayment !== paidFromVisits) {
+      patientData.paidPayment = paidFromVisits;
+    }
+    patientData.pendingPayment = Math.max(
+      0,
+      patientData.totalPayment - patientData.paidPayment,
+    );
+
+    // Save if updated
+    if (patientData.isModified()) {
+      await patientData.save();
+    }
+
     res.render("patient-detail", { patient: patientData });
   } catch (err) {
     console.error(err);
@@ -271,7 +275,7 @@ export async function newVisitForm(req, res) {
 export async function addVisit(req, res) {
   try {
     const { id } = req.params;
-    const { notes, price, nextVisit } = req.body.visit;
+    const { notes, totalPayment, paidPayment, nextVisit } = req.body.visit;
     const { medicineIds, medicineQuantities } = req.body;
     const userId = req.user._id;
 
@@ -304,25 +308,86 @@ export async function addVisit(req, res) {
       notes?.trim(),
     );
 
-    // Add duration/instructions to prescribed medicines
-    prescribedMedicines.forEach((med, index) => {
-      med.duration = medicineDurations[index] || "";
-      med.instructions = medicineInstructions[index] || "";
-    });
+    // Use shared helper to add duration/instructions
+    enrichPrescribedMedicines(
+      prescribedMedicines,
+      medicineDurations,
+      medicineInstructions,
+    );
+
+    const visitPrice = parseFloat(totalPayment || req.body.visit?.price) || 0;
+    const visitPaid =
+      parseFloat(paidPayment || req.body.visit?.paidAmount) || 0;
 
     foundPatient.visits.push({
       notes: notes?.trim(),
-      price: parseFloat(price) || 0,
+      price: visitPrice,
+      paidAmount: visitPaid,
       nextVisit: nextVisitDate,
       medicines: prescribedMedicines,
     });
     foundPatient.nextVisit = nextVisitDate;
+
+    // Recalculate patient totals from visit history for consistency
+    const totalFromVisits = foundPatient.visits.reduce(
+      (sum, v) => sum + (v.price || 0),
+      0,
+    );
+    const paidFromVisits = foundPatient.visits.reduce(
+      (sum, v) => sum + (v.paidAmount || 0),
+      0,
+    );
+
+    foundPatient.totalPayment = totalFromVisits;
+    foundPatient.paidPayment = paidFromVisits;
+    foundPatient.pendingPayment = Math.max(0, totalFromVisits - paidFromVisits);
 
     await foundPatient.save();
     res.redirect(`/patient/${id}`);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error adding visit");
+  }
+}
+
+// GET /patients/:id/visit/:visitIndex/pay
+export async function payVisit(req, res) {
+  try {
+    const { id, visitIndex } = req.params;
+    const foundPatient = await patient.findOne({
+      _id: id,
+      userId: req.user._id,
+    });
+    if (!foundPatient || !foundPatient.visits[visitIndex]) {
+      return res.status(404).send("Patient or visit not found");
+    }
+
+    const visit = foundPatient.visits[visitIndex];
+    const pending = visit.price - (visit.paidAmount || 0);
+    if (pending <= 0) {
+      return res.redirect(`/patient/${id}`);
+    }
+
+    visit.paidAmount = visit.price;
+
+    const totalFromVisits = foundPatient.visits.reduce(
+      (sum, v) => sum + (v.price || 0),
+      0,
+    );
+    const paidFromVisits = foundPatient.visits.reduce(
+      (sum, v) => sum + (v.paidAmount || 0),
+      0,
+    );
+
+    foundPatient.totalPayment = totalFromVisits;
+    foundPatient.paidPayment = paidFromVisits;
+    foundPatient.pendingPayment = Math.max(0, totalFromVisits - paidFromVisits);
+
+    await foundPatient.save();
+    res.redirect(`/patient/${id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
   }
 }
 
@@ -388,6 +453,14 @@ export async function updatePatient(req, res) {
       nextVisit: req.body.visit?.nextVisit
         ? new Date(req.body.visit.nextVisit)
         : undefined,
+      // Payment fields - calculate pending automatically
+      totalPayment: parseFloat(req.body.patient?.totalPayment) || 0,
+      paidPayment: parseFloat(req.body.patient?.paidPayment) || 0,
+      pendingPayment: Math.max(
+        0,
+        (parseFloat(req.body.patient?.totalPayment) || 0) -
+          (parseFloat(req.body.patient?.paidPayment) || 0),
+      ),
     };
 
     Object.keys(updateData).forEach(

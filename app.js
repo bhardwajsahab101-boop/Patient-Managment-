@@ -46,9 +46,7 @@ main();
 
 const app = express();
 
-app.set("trust proxy", 1);
 // Trust proxy for accurate client IP behind reverse proxies (Docker, Nginx, etc.)
-// Set TRUST_PROXY in .env or defaults to 1 (trust first proxy)
 app.set("trust proxy", process.env.TRUST_PROXY || 1);
 
 const __filename = fileURLToPath(import.meta.url);
@@ -112,13 +110,23 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Session middleware
+// Session middleware - validate SESSION_SECRET in production
+const sessionSecret = process.env.SESSION_SECRET;
+if (!sessionSecret && process.env.NODE_ENV === "production") {
+  console.error("❌ SESSION_SECRET must be set in production environment");
+  process.exit(1);
+}
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "defaultsecretchangeme",
+    secret: sessionSecret || "dev-only-change-in-production",
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 1 day
+    cookie: {
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    },
   }),
 );
 
@@ -126,6 +134,32 @@ app.use(
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+// EJS Helper functions for dates and status formatting
+app.locals.formatDate = (date) => {
+  if (!date) return "N/A";
+  return new Date(date).toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+app.locals.getVisitStatus = (nextVisit) => {
+  if (!nextVisit) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const next = new Date(nextVisit);
+  next.setHours(0, 0, 0, 0);
+
+  const diffDays = Math.floor((next - today) / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return { label: "Today", class: "bg-warning text-dark" };
+  if (diffDays < 0) return { label: "Overdue", class: "bg-danger" };
+  return { label: "Upcoming", class: "bg-success" };
+};
+
+app.locals.safe = (str) => (str ? str : "");
 
 // Custom method override (forms use ?_method=PUT/DELETE)
 app.use((req, res, next) => {
