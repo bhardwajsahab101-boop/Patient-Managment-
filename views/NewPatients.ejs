@@ -87,7 +87,7 @@
           value="<%= _visit.nextVisit || '' %>" />
       </div>
 
-      <div class="col-md-4 mb-3">
+<div class="col-md-4 mb-3">
         <label class="form-label" for="visitPrice">Total Payment (₹)</label>
         <input type="number" id="visitPrice" name="patient[totalPayment]" class="form-control" min="0" step="0.01"
           value="<%= _patient.totalPayment || _visit.price || '' %>" placeholder="0.00" oninput="updatePending()" />
@@ -96,7 +96,7 @@
       <div class="col-md-4 mb-3">
         <label class="form-label" for="paidPayment">Paid Amount (₹)</label>
         <input type="number" id="paidPayment" name="patient[paidPayment]" class="form-control" min="0" step="0.01"
-          value="<%= _patient.paidPayment || '0' %>" placeholder="0.00" oninput="updatePending()" />
+          value="<%= _patient.paidPayment || '' %>" placeholder="Leave empty for full payment" oninput="updatePending()" />
       </div>
     </div>
 
@@ -202,10 +202,18 @@
     updatePending();
   });
   
-  // Simple function: Pending = Total - Paid
+  // Simple function: Pending = Total - Paid (empty paid = fully paid)
   function updatePending() {
     var total = parseFloat(document.getElementById('visitPrice')?.value) || 0;
-    var paid = parseFloat(document.getElementById('paidPayment')?.value) || 0;
+    var paidInput = document.getElementById('paidPayment');
+    var paid = paidInput.value;
+    // If paid is empty, default to total (fully paid)
+    if (paid === '' || paid === null || isNaN(parseFloat(paid))) {
+      paid = total;
+      paidInput.value = '';
+    } else {
+      paid = parseFloat(paid);
+    }
     var pending = Math.max(0, total - paid);
     document.getElementById('pendingPayment').value = pending.toFixed(2);
   }

@@ -17,29 +17,43 @@
 <!-- Payment Summary -->
 <% 
   let grandTotal = 0, grandPaid = 0, grandPending = 0;
-  patients.forEach(p => {
-    let pTotal = 0;
-    if (p.visits) { p.visits.forEach(v => { pTotal += (v.price || 0); }); }
-    const total = p.totalPayment || pTotal;
-    const paid = p.paidPayment || 0;
-    grandTotal += total;
-    grandPaid += paid;
-    grandPending += Math.max(0, total - paid);
-  });
+  if (typeof summaryTotals !== 'undefined') {
+    grandTotal = summaryTotals.total || 0;
+    grandPaid = summaryTotals.paid || 0;
+    grandPending = summaryTotals.pending || 0;
+  } else {
+    patients.forEach(p => {
+      let pTotal = 0;
+      if (p.visits) { p.visits.forEach(v => { pTotal += (v.price || 0); }); }
+      const total = p.totalPayment || pTotal;
+      const paid = p.paidPayment || 0;
+      grandTotal += total;
+      grandPaid += paid;
+      grandPending += Math.max(0, total - paid);
+    });
+  }
+
+  // Dynamic labels based on status filter
+  let summaryLabel = "All Time";
+  if (typeof status !== 'undefined') {
+    if (status === "today") summaryLabel = "Today";
+    else if (status === "overdue") summaryLabel = "Overdue";
+    else if (status === "upcoming") summaryLabel = "Upcoming";
+  }
 %>
-<% if (patients.length > 0) { %>
+<% if (patients.length > 0 || (typeof summaryTotals !== 'undefined' && summaryTotals.total >= 0)) { %>
 <div class="alert alert-info mb-4">
   <div class="row text-center">
     <div class="col-4">
-      <small class="text-dark">Total All Time</small>
+      <small class="text-dark">Total <%= summaryLabel %></small>
       <div class="h4 mb-0 text-primary">₹<%= grandTotal.toFixed(0) %></div>
     </div>
     <div class="col-4">
-      <small class="text-dark">Paid All Time</small>
+      <small class="text-dark">Paid <%= summaryLabel %></small>
       <div class="h4 mb-0 text-success">₹<%= grandPaid.toFixed(0) %></div>
     </div>
     <div class="col-4">
-      <small class="text-dark">Pending All Time</small>
+      <small class="text-dark">Pending <%= summaryLabel %></small>
       <div class="h4 mb-0 text-danger">₹<%= grandPending.toFixed(0) %></div>
     </div>
   </div>
@@ -50,9 +64,9 @@
 <div class="toolbar-card mb-4">
   <form action="/patients" method="GET" class="row g-3 align-items-center">
     <div class="col-md-6">
-      <div class="search-box">
+<div class="search-box">
         <i class="fas fa-search search-icon"></i>
-        <input type="text" name="q" class="form-control search-input" placeholder="Search by name or phone..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" autocomplete="off">
+        <input type="text" name="q" class="form-control search-input" placeholder="Search by name or phone..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" autocomplete="off" oninput="let p=this.form; clearTimeout(p.timeout); p.timeout=setTimeout(()=>p.submit(),300)">
       </div>
     </div>
     <div class="col-md-6 d-flex justify-content-md-end gap-2">
@@ -61,16 +75,16 @@
           <i class="fas fa-xmark me-1"></i>Clear
         </a>
       <% } %>
-      <select class="form-select w-auto" disabled title="Coming soon">
-        <option>All Patients</option>
-        <option>Overdue</option>
-        <option>Today</option>
-        <option>Upcoming</option>
+<select class="form-select w-auto" name="status" onchange="this.form.submit()">
+        <option value="all" <%= typeof status !== 'undefined' && status === 'all' ? 'selected' : '' %>>All Patients</option>
+        <option value="overdue" <%= typeof status !== 'undefined' && status === 'overdue' ? 'selected' : '' %>>Overdue</option>
+        <option value="today" <%= typeof status !== 'undefined' && status === 'today' ? 'selected' : '' %>>Added Today</option>
+        <option value="upcoming" <%= typeof status !== 'undefined' && status === 'upcoming' ? 'selected' : '' %>>Upcoming</option>
       </select>
-      <select class="form-select w-auto" disabled title="Coming soon">
-        <option>Latest First</option>
-        <option>Oldest First</option>
-        <option>A-Z</option>
+      <select class="form-select w-auto" name="sort" onchange="this.form.submit()">
+        <option value="latest" <%= typeof sort !== 'undefined' && sort === 'latest' ? 'selected' : '' %>>Latest First</option>
+        <option value="oldest" <%= typeof sort !== 'undefined' && sort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+        <option value="az" <%= typeof sort !== 'undefined' && sort === 'az' ? 'selected' : '' %>>A-Z</option>
       </select>
     </div>
   </form>
@@ -184,20 +198,30 @@
   <% } %>
 </div>
 
+<% 
+  const buildQuery = (pageNum) => {
+    const params = new URLSearchParams();
+    if (pageNum > 1) params.set('page', pageNum);
+    if (typeof searchQuery !== 'undefined' && searchQuery) params.set('q', searchQuery);
+    if (typeof status !== 'undefined' && status !== 'all') params.set('status', status);
+    if (typeof sort !== 'undefined' && sort !== 'latest') params.set('sort', sort);
+    return params.toString() ? '?' + params.toString() : '/patients';
+  };
+%>
 <% if (totalPages > 1) { %>
 <div class="pagination-wrapper">
   <nav aria-label="Page navigation">
     <ul class="pagination">
       <li class="page-item <%= currentPage > 1 ? '' : 'disabled' %>">
-        <% if (currentPage > 1) { %><a class="page-link" href="/patients?page=<%= currentPage - 1 %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&q=' + encodeURIComponent(searchQuery) : '' %>"><i class="fas fa-chevron-left"></i></a><% } else { %><span class="page-link"><i class="fas fa-chevron-left"></i></span><% } %>
+        <% if (currentPage > 1) { %><a class="page-link" href="<%= buildQuery(currentPage - 1) %>"><i class="fas fa-chevron-left"></i></a><% } else { %><span class="page-link"><i class="fas fa-chevron-left"></i></span><% } %>
       </li>
       <% for (let i = 1; i <= totalPages; i++) { %>
         <% if (i === currentPage) { %><li class="page-item active"><span class="page-link"><%= i %></span></li>
-        <% } else if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %><li class="page-item"><a class="page-link" href="/patients?page=<%= i %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&q=' + encodeURIComponent(searchQuery) : '' %>"><%= i %></a></li>
+        <% } else if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %><li class="page-item"><a class="page-link" href="<%= buildQuery(i) %>"><%= i %></a></li>
         <% } else if (i === currentPage - 2 || i === currentPage + 2) { %><li class="page-item disabled"><span class="page-link">...</span></li><% } %>
       <% } %>
       <li class="page-item <%= currentPage < totalPages ? '' : 'disabled' %>">
-        <% if (currentPage < totalPages) { %><a class="page-link" href="/patients?page=<%= currentPage + 1 %><%= typeof searchQuery !== 'undefined' && searchQuery ? '&q=' + encodeURIComponent(searchQuery) : '' %>"><i class="fas fa-chevron-right"></i></a><% } else { %><span class="page-link"><i class="fas fa-chevron-right"></i></span><% } %>
+        <% if (currentPage < totalPages) { %><a class="page-link" href="<%= buildQuery(currentPage + 1) %>"><i class="fas fa-chevron-right"></i></a><% } else { %><span class="page-link"><i class="fas fa-chevron-right"></i></span><% } %>
       </li>
     </ul>
   </nav>

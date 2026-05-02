@@ -137,7 +137,9 @@
 <% visitsArr.forEach(function(v, idx) { 
   var displayIdx = visitsArr.length - idx; // Show 1-based index
   var visitPrice = v && v.price ? Number(v.price) : 0;
-  var visitPaid = v && v.paidAmount ? Number(v.paidAmount) : 0;
+  var visitPaid = v && typeof v.paidAmount !== 'undefined' && v.paidAmount !== null
+    ? Number(v.paidAmount)
+    : visitPrice;
   var visitPending = visitPrice - visitPaid;
   if (visitPending < 0) visitPending = 0;
 %>

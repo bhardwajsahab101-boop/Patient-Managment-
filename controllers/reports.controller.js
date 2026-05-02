@@ -5,23 +5,26 @@ export async function getReports(req, res) {
     const userId = req.user._id;
     const { from, to } = req.query;
 
-    // Default date range: last 30 days if not specified
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now);
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    // Default date range: all time if not specified
+    const fromDate = from ? new Date(from) : null;
+    const toDate = to ? new Date(to) : null;
 
-    const fromDate = from ? new Date(from) : thirtyDaysAgo;
-    const toDate = to ? new Date(to) : new Date();
-
-    // Normalize dates
-    fromDate.setHours(0, 0, 0, 0);
-    toDate.setHours(23, 59, 59, 999);
+    // Normalize dates to local full-day boundaries if provided
+    if (fromDate) {
+      fromDate.setHours(0, 0, 0, 0);
+    }
+    if (toDate) {
+      toDate.setHours(23, 59, 59, 999);
+    }
 
     const userMatch = { userId };
-    const match = {
-      ...userMatch,
-      "visits.date": { $gte: fromDate, $lte: toDate },
-    };
+    let match = userMatch;
+    if (fromDate && toDate) {
+      match = {
+        ...userMatch,
+        "visits.date": { $gte: fromDate, $lte: toDate },
+      };
+    }
 
     const [
       totalPatients,
@@ -35,13 +38,17 @@ export async function getReports(req, res) {
       patient.aggregate([
         { $match: userMatch },
         { $unwind: "$visits" },
-        { $match: match },
+        ...(fromDate && toDate
+          ? [{ $match: { "visits.date": { $gte: fromDate, $lte: toDate } } }]
+          : []),
         { $count: "count" },
       ]),
       patient.aggregate([
         { $match: userMatch },
         { $unwind: "$visits" },
-        { $match: match },
+        ...(fromDate && toDate
+          ? [{ $match: { "visits.date": { $gte: fromDate, $lte: toDate } } }]
+          : []),
         {
           $group: {
             _id: null,
@@ -56,7 +63,9 @@ export async function getReports(req, res) {
       patient.aggregate([
         { $match: userMatch },
         { $unwind: "$visits" },
-        { $match: match },
+        ...(fromDate && toDate
+          ? [{ $match: { "visits.date": { $gte: fromDate, $lte: toDate } } }]
+          : []),
         {
           $group: {
             _id: {
@@ -73,7 +82,9 @@ export async function getReports(req, res) {
       patient.aggregate([
         { $match: userMatch },
         { $unwind: "$visits" },
-        { $match: match },
+        ...(fromDate && toDate
+          ? [{ $match: { "visits.date": { $gte: fromDate, $lte: toDate } } }]
+          : []),
         {
           $group: {
             _id: "$_id",
@@ -91,35 +102,36 @@ export async function getReports(req, res) {
     const totalRevenue = revenueAgg[0]?.total || 0;
 
     // Growth calculation: compare current period vs previous same-length period
-    const periodLength = toDate.getTime() - fromDate.getTime();
-    const lastPeriodFrom = new Date(fromDate.getTime() - periodLength);
-    const lastPeriodTo = new Date(fromDate.getTime() - 1);
+    let growth = 0;
+    if (fromDate && toDate) {
+      const periodLength = toDate.getTime() - fromDate.getTime();
+      const lastPeriodFrom = new Date(fromDate.getTime() - periodLength);
+      const lastPeriodTo = new Date(fromDate.getTime() - 1);
 
-    const lastRevenueAgg = await patient.aggregate([
-      { $match: userMatch },
-      { $unwind: "$visits" },
-      {
-        $match: {
-          "visits.date": {
-            $gte: lastPeriodFrom,
-            $lte: lastPeriodTo,
+      const lastRevenueAgg = await patient.aggregate([
+        { $match: userMatch },
+        { $unwind: "$visits" },
+        {
+          $match: {
+            "visits.date": {
+              $gte: lastPeriodFrom,
+              $lte: lastPeriodTo,
+            },
           },
         },
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: "$visits.price" },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$visits.price" },
+          },
         },
-      },
-    ]);
-
-    const lastRevenue = lastRevenueAgg[0]?.total || 0;
-
-    const growth =
-      lastRevenue === 0
-        ? 0
-        : ((totalRevenue - lastRevenue) / lastRevenue) * 100;
+      ]);
+      const lastRevenue = lastRevenueAgg[0]?.total || 0;
+      growth =
+        lastRevenue === 0
+          ? 0
+          : ((totalRevenue - lastRevenue) / lastRevenue) * 100;
+    }
 
     // Fill missing dates in revenueChart with 0 revenue for continuous chart
     const filledRevenueChart = fillMissingDates(revenueChart, fromDate, toDate);
@@ -168,8 +180,16 @@ function fillMissingDates(data, fromDate, toDate) {
   const dateMap = new Map();
   data.forEach((d) => dateMap.set(d._id, d.total));
 
-  const current = new Date(fromDate);
-  const end = new Date(toDate);
+  let current, end;
+  if (fromDate && toDate) {
+    current = new Date(fromDate);
+    end = new Date(toDate);
+  } else {
+    // For all time, find min and max dates from data
+    const dates = data.map((d) => new Date(d._id)).sort((a, b) => a - b);
+    current = dates[0];
+    end = dates[dates.length - 1];
+  }
 
   while (current <= end) {
     const dateStr = current.toISOString().split("T")[0];

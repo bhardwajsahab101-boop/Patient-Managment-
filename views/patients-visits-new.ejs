@@ -183,7 +183,12 @@
 
   function calculatePending() {
     const total = parseFloat(totalInput.value) || 0;
-    const paid = parseFloat(paidInput.value) || 0;
+    let paid = parseFloat(paidInput.value);
+    // If paid is empty or not provided, auto-fill with total
+    if (isNaN(paid) || paidInput.value === '') {
+      paid = total;
+      paidInput.value = total > 0 ? total : '';
+    }
     const pending = Math.max(0, total - paid);
     pendingSpan.textContent = pending.toFixed(2);
   }
@@ -191,6 +196,8 @@
   if (totalInput && paidInput) {
     totalInput.addEventListener('input', calculatePending);
     paidInput.addEventListener('input', calculatePending);
+    // Initialize on page load
+    calculatePending();
   }
 </script>
 

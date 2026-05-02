@@ -83,7 +83,11 @@ export async function createPatient(req, res) {
     // Payment fields - calculate pending automatically
     const totalPayment =
       parseFloat(req.body.patient?.totalPayment || price) || 0;
-    const paidPayment = parseFloat(req.body.patient?.paidPayment) || 0;
+    const rawPaidPayment = req.body.patient?.paidPayment;
+    const paidPayment =
+      rawPaidPayment !== undefined && rawPaidPayment !== ""
+        ? parseFloat(rawPaidPayment) || 0
+        : totalPayment;
     const pendingPayment = Math.max(0, totalPayment - paidPayment);
 
     const sanitizedPhone = phone.replace(/\D/g, "");
@@ -175,6 +179,8 @@ export async function listPatients(req, res) {
   const page = parseInt(req.query.page) || 1;
   const limit = 12;
   const searchQuery = req.query.q ? req.query.q.trim() : "";
+  const statusFilter = req.query.status || "all";
+  const sortOrder = req.query.sort || "latest";
 
   const filter = { userId };
 
@@ -185,24 +191,103 @@ export async function listPatients(req, res) {
     ];
   }
 
+  // Build status filter based on visit and creation dates
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (statusFilter === "overdue") {
+    // Next visit exists and is before today
+    filter.nextVisit = { $lt: today };
+  } else if (statusFilter === "today") {
+    // Patients added today
+    filter.createdAt = {
+      $gte: today,
+      $lt: tomorrow,
+    };
+  } else if (statusFilter === "upcoming") {
+    // Next visit is after today
+    filter.nextVisit = { $gte: tomorrow };
+  }
+  // "all" - no additional filter
+
   const total = await patient.countDocuments(filter);
 
+  // Determine sort order
+  let sortOptions = { createdAt: -1 }; // default: latest first
+  if (sortOrder === "oldest") {
+    sortOptions = { createdAt: 1 };
+  } else if (sortOrder === "az") {
+    sortOptions = { name: 1 };
+  }
+
   // Optimize: Only fetch required fields for list view using .select()
-  const patients = await patient
+  let patients = await patient
     .find(filter)
     .select(
       "name age gender phone treatment visits nextVisit isActive createdAt totalPayment paidPayment",
     )
-    .sort({ createdAt: -1 })
+    .sort(sortOptions)
     .skip((page - 1) * limit)
     .limit(limit)
     .lean();
+
+  const totalSummaryAgg = await patient.aggregate([
+    { $match: filter },
+    { $unwind: { path: "$visits", preserveNullAndEmptyArrays: true } },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: { $ifNull: ["$visits.price", 0] } },
+        paid: {
+          $sum: {
+            $ifNull: ["$visits.paidAmount", "$visits.price"],
+          },
+        },
+      },
+    },
+  ]);
+
+  const summaryTotals = {
+    total: totalSummaryAgg[0]?.total || 0,
+    paid: totalSummaryAgg[0]?.paid || 0,
+    pending: Math.max(
+      0,
+      (totalSummaryAgg[0]?.total || 0) - (totalSummaryAgg[0]?.paid || 0),
+    ),
+  };
+
+  patients = patients.map((p) => {
+    let totalFromVisits = 0;
+    let paidFromVisits = 0;
+    if (p.visits && p.visits.length) {
+      p.visits.forEach((v) => {
+        const visitPrice = v.price || 0;
+        const visitPaid =
+          v.paidAmount !== undefined && v.paidAmount !== null
+            ? v.paidAmount
+            : visitPrice;
+        totalFromVisits += visitPrice;
+        paidFromVisits += visitPaid;
+      });
+    }
+    return {
+      ...p,
+      totalPayment: totalFromVisits,
+      paidPayment: paidFromVisits,
+      pendingPayment: Math.max(0, totalFromVisits - paidFromVisits),
+    };
+  });
 
   res.render("patients", {
     patients,
     currentPage: page,
     totalPages: Math.ceil(total / limit),
     searchQuery,
+    status: statusFilter,
+    sort: sortOrder,
+    summaryTotals,
   });
 }
 
@@ -222,8 +307,13 @@ export async function getPatientDetail(req, res) {
     let paidFromVisits = 0;
     if (patientData.visits && patientData.visits.length) {
       patientData.visits.forEach((v) => {
-        totalFromVisits += v.price || 0;
-        paidFromVisits += v.paidAmount || 0;
+        const visitPrice = v.price || 0;
+        const visitPaid =
+          v.paidAmount !== undefined && v.paidAmount !== null
+            ? v.paidAmount
+            : visitPrice;
+        totalFromVisits += visitPrice;
+        paidFromVisits += visitPaid;
       });
     }
 
@@ -316,8 +406,11 @@ export async function addVisit(req, res) {
     );
 
     const visitPrice = parseFloat(totalPayment || req.body.visit?.price) || 0;
+    const rawVisitPaid = paidPayment;
     const visitPaid =
-      parseFloat(paidPayment || req.body.visit?.paidAmount) || 0;
+      rawVisitPaid !== undefined && rawVisitPaid !== ""
+        ? parseFloat(rawVisitPaid) || 0
+        : visitPrice;
 
     foundPatient.visits.push({
       notes: notes?.trim(),
@@ -453,15 +546,17 @@ export async function updatePatient(req, res) {
       nextVisit: req.body.visit?.nextVisit
         ? new Date(req.body.visit.nextVisit)
         : undefined,
-      // Payment fields - calculate pending automatically
-      totalPayment: parseFloat(req.body.patient?.totalPayment) || 0,
-      paidPayment: parseFloat(req.body.patient?.paidPayment) || 0,
-      pendingPayment: Math.max(
-        0,
-        (parseFloat(req.body.patient?.totalPayment) || 0) -
-          (parseFloat(req.body.patient?.paidPayment) || 0),
-      ),
     };
+
+    // Handle payment fields - calculate pending automatically
+    const totalPayment = parseFloat(req.body.patient?.totalPayment) || 0;
+    // If paid is not provided, default to total amount (fully paid)
+    const paidPayment = req.body.patient?.paidPayment
+      ? parseFloat(req.body.patient?.paidPayment)
+      : totalPayment;
+    updateData.totalPayment = totalPayment;
+    updateData.paidPayment = paidPayment;
+    updateData.pendingPayment = Math.max(0, totalPayment - paidPayment);
 
     Object.keys(updateData).forEach(
       (key) =>
