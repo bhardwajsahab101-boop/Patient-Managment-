@@ -3,22 +3,30 @@
 <h3 class="fw-bold mb-4">Add New Patient</h3>
 
 <div class="card p-4 shadow-sm">
-  <% if (typeof errors !== 'undefined' && errors && errors.length) { %>
+  <% 
+    // Define local helper variables to reduce repetitive typeof checks
+    const _hasErrors = typeof errors !== 'undefined' && errors && errors.length;
+    const _patient = (typeof patient !== 'undefined' && patient) ? patient : {};
+    const _visit = (typeof visit !== 'undefined' && visit) ? visit : {};
+    const _medicines = (typeof medicines !== 'undefined') ? medicines : [];
+    
+    // Handle selected medicine IDs with proper undefined checks
+    let localMedIds = (typeof selectedMedicineIds !== 'undefined') ? selectedMedicineIds : [];
+    const selectedIds = Array.isArray(localMedIds)
+      ? localMedIds.map(String)
+      : localMedIds
+      ? [String(localMedIds)]
+      : [];
+    const quantityMap = (typeof selectedMedicineQuantities !== 'undefined') ? selectedMedicineQuantities : {};
+  %>
+
+  <% if (_hasErrors) { %>
     <div class="alert alert-danger">
       <% errors.forEach(function(e) { %>
         <div><%= e.msg %></div>
       <% }) %>
     </div>
   <% } %>
-
-  <% 
-    const selectedIds = Array.isArray(selectedMedicineIds)
-      ? selectedMedicineIds.map(String)
-      : selectedMedicineIds
-      ? [String(selectedMedicineIds)]
-      : [];
-    const quantityMap = selectedMedicineQuantities || {};
-  %>
 
   <form action="/patients" method="POST">
 
@@ -27,38 +35,45 @@
     
     <div class="row">
       <div class="col-md-6 mb-3">
-        <label class="form-label">Name *</label>
-        <input type="text" name="patient[name]" class="form-control" required
-          value="<%= (typeof patient !== 'undefined' && patient) ? patient.name : '' %>" />
+        <label class="form-label" for="patientName">Name *</label>
+        <input type="text" id="patientName" name="patient[name]" class="form-control" required
+          value="<%= _patient.name || '' %>" placeholder="Enter patient name" />
       </div>
 
       <div class="col-md-3 mb-3">
-        <label class="form-label">Age</label>
-        <input type="number" name="patient[age]" class="form-control"
-          value="<%= (typeof patient !== 'undefined' && patient) ? patient.age : '' %>" />
+        <label class="form-label" for="patientAge">Age</label>
+        <input type="number" id="patientAge" name="patient[age]" class="form-control" min="0" max="120"
+          value="<%= _patient.age || '' %>" placeholder="Years" />
       </div>
 
       <div class="col-md-3 mb-3">
-        <label class="form-label">Gender</label>
-        <select name="patient[gender]" class="form-select">
-          <option value="Male" <%= (typeof patient !== 'undefined' && patient && patient.gender === 'Male') ? 'selected' : '' %>>Male</option>
-          <option value="Female" <%= (typeof patient !== 'undefined' && patient && patient.gender === 'Female') ? 'selected' : '' %>>Female</option>
-          <option value="Other" <%= (typeof patient !== 'undefined' && patient && patient.gender === 'Other') ? 'selected' : '' %>>Other</option>
+        <label class="form-label" for="patientGender">Gender</label>
+        <select id="patientGender" name="patient[gender]" class="form-select">
+          <option value="">Select gender</option>
+          <option value="Male" <%= _patient.gender === 'Male' ? 'selected' : '' %>>Male</option>
+          <option value="Female" <%= _patient.gender === 'Female' ? 'selected' : '' %>>Female</option>
+          <option value="Other" <%= _patient.gender === 'Other' ? 'selected' : '' %>>Other</option>
         </select>
       </div>
     </div>
 
     <div class="row">
       <div class="col-md-6 mb-3">
-        <label class="form-label">Phone *</label>
-        <input type="text" name="patient[phone]" class="form-control" required
-          value="<%= (typeof patient !== 'undefined' && patient) ? patient.phone : '' %>" />
+        <label class="form-label" for="patientPhone">Phone *</label>
+        <input type="tel" id="patientPhone" name="patient[phone]" class="form-control" required
+          value="<%= _patient.phone || '' %>" placeholder="10-digit mobile number" pattern="[0-9]{10}" />
       </div>
 
       <div class="col-md-6 mb-3">
-        <label class="form-label">Treatment</label>
-        <input type="text" name="patient[treatment]" class="form-control"
-          value
+        <label class="form-label" for="patientTreatment">Treatment</label>
+        <input type="text" id="patientTreatment" name="patient[treatment]" class="form-control"
+          value="<%= _patient.treatment || '' %>" placeholder="Current treatment if any" />
+      </div>
+
+      <div class="col-12 mb-3">
+        <label class="form-label" for="patientAddress">Address</label>
+        <textarea id="patientAddress" name="patient[address]" class="form-control" rows="2"
+          placeholder="Full address"><%= _patient.address || '' %></textarea>
       </div>
     </div>
 
@@ -67,27 +82,28 @@
     
     <div class="row">
       <div class="col-md-4 mb-3">
-        <label class="form-label">Next Visit Date</label>
-        <input type="date" name="visit[nextVisit]" class="form-control"
-          value="<%= (typeof visit !== 'undefined' && visit) ? visit.nextVisit : '' %>" />
+        <label class="form-label" for="visitNextVisit">Next Visit Date</label>
+        <input type="date" id="visitNextVisit" name="visit[nextVisit]" class="form-control"
+          value="<%= _visit.nextVisit || '' %>" />
       </div>
 
       <div class="col-md-4 mb-3">
-        <label class="form-label">Price (₹)</label>
-        <input type="number" name="visit[price]" class="form-control" min="0" step="0.01"
-          value="<%= (typeof visit !== 'undefined' && visit) ? visit.price : '' %>" />
+        <label class="form-label" for="visitPrice">Price (₹)</label>
+        <input type="number" id="visitPrice" name="visit[price]" class="form-control" min="0" step="0.01"
+          value="<%= _visit.price || '' %>" placeholder="0.00" />
       </div>
     </div>
 
     <div class="mb-3">
-      <label class="form-label">Notes</label>
-      <textarea name="visit[notes]" class="form-control" rows="2"><%= (typeof visit !== 'undefined' && visit) ? visit.notes : '' %></textarea>
+      <label class="form-label" for="visitNotes">Notes</label>
+      <textarea id="visitNotes" name="visit[notes]" class="form-control" rows="2"
+        placeholder="Visit notes or symptoms"><%= _visit.notes || '' %></textarea>
     </div>
 
     <!-- MEDICINES -->
     <h5 class="text-primary mb-3 mt-4">💊 Prescribe Medicines <small class="text-muted">(Optional)</small></h5>
     
-    <% if (typeof medicines !== 'undefined' && medicines.length > 0) { %>
+    <% if (_medicines.length > 0) { %>
       <div class="table-responsive">
         <table class="table table-sm table-bordered">
           <thead class="table-light">
@@ -101,25 +117,32 @@
             </tr>
           </thead>
           <tbody>
-            <% medicines.forEach((med, idx) => { %>
+            <% _medicines.forEach((med, idx) => { %>
               <tr>
                 <td class="text-center">
                   <% const isSelected = selectedIds.includes(String(med._id)); %>
-                  <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" class="form-check-input med-check" data-index="<%= idx %>" <%= isSelected ? 'checked' : '' %>>
+                  <input type="checkbox" name="medicineIds[]" value="<%= med._id %>" 
+                    class="form-check-input med-check" data-index="<%= idx %>" <%= isSelected ? 'checked' : '' %>
+                    id="medCheck<%= idx %>">
                 </td>
-                <td><strong><%= med.name %></strong></td>
+                <td>
+                  <label for="medCheck<%= idx %>"><strong><%= med.name %></strong></label>
+                </td>
                 <td><span class="badge bg-info text-dark"><%= med.category || 'Tablet' %></span></td>
                 <td><%= med.dosage || '-' %></td>
                 <td>
                   <% if (med.stock <= 5) { %>
-                    <span class="badge bg-danger"><%= med.stock %></span>
+                    <span class="badge bg-danger" title="Low stock"><%= med.stock %></span>
                   <% } else { %>
                     <span class="badge bg-success"><%= med.stock %></span>
                   <% } %>
                 </td>
                 <td>
                   <% const selectedQty = quantityMap[String(med._id)] || "1"; %>
-                  <input type="number" name="medicineQuantities[]" class="form-control form-control-sm" min="1" max="<%= med.stock %>" value="<%= selectedQty %>" <%= selectedIds.includes(String(med._id)) ? '' : 'disabled' %> id="qty-<%= idx %>">
+                  <input type="number" name="medicineQuantities[]" 
+                    class="form-control form-control-sm" min="1" max="<%= med.stock %>" 
+                    value="<%= selectedQty %>" <%= selectedIds.includes(String(med._id)) ? '' : 'disabled' %>
+                    id="qty-<%= idx %>">
                 </td>
               </tr>
             <% }) %>
@@ -133,20 +156,24 @@
     <% } %>
 
     <div class="d-flex gap-2 mt-4">
-      <button class="btn btn-primary">Save Patient</button>
+      <button type="submit" class="btn btn-primary">Save Patient</button>
       <a href="/patients" class="btn btn-outline-secondary">Cancel</a>
     </div>
   </form>
 </div>
 
 <script>
-  // Enable/disable quantity inputs based on checkbox
-  document.querySelectorAll('.med-check').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      const idx = this.dataset.index;
-      const qtyInput = document.getElementById('qty-' + idx);
-      qtyInput.disabled = !this.checked;
-      if (this.checked) qtyInput.focus();
+  document.addEventListener('DOMContentLoaded', function() {
+    // Enable/disable quantity inputs based on checkbox
+    document.querySelectorAll('.med-check').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        var idx = this.dataset.index;
+        var qtyInput = document.getElementById('qty-' + idx);
+        if (qtyInput) {
+          qtyInput.disabled = !this.checked;
+          if (this.checked) qtyInput.focus();
+        }
+      });
     });
   });
 </script>
