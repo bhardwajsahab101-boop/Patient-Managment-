@@ -8,8 +8,13 @@ export const validatePatient = [
     .isLength({ max: 100 })
     .withMessage("Name too long"),
   body("patient.phone")
-    .optional()
+    .optional({ checkFalsy: true })
     .trim()
+    .customSanitizer((value) => {
+      // If user submits empty string, treat as undefined so validators don't fail
+      if (value === "" || value === undefined || value === null) return undefined;
+      return value;
+    })
     .isLength({ min: 10, max: 10 })
     .withMessage("Valid 10-digit phone required"),
   body("patient.age").optional().isInt({ min: 0, max: 120 }),

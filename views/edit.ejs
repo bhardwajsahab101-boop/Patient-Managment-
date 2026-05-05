@@ -34,11 +34,9 @@
         <option <%= patient.gender === 'Other' ? 'selected' : '' %>>Other</option>
       </select>
     </div>
-
     <div class="mb-3">
       <label class="form-label">Phone</label>
-      <input type="text" name="patient[phone]" value="<%= patient.phone %>" class="form-control" required />
-    </div>
+      <input type="tel" name="patient[phone]" value="<%= patient.phone || '' %>" class="form-control" />
 
     <div class="mb-3">
       <label class="form-label">Treatment</label>

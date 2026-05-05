@@ -21,9 +21,18 @@ const PatientData = new Schema({
 
   phone: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
-    match: [/^\d{10}$/, "Enter valid 10-digit phone number"],
+    validate: {
+      validator: function (v) {
+        // Allow empty/undefined when phone is optional
+        if (v === undefined || v === null) return true;
+        const trimmed = String(v).trim();
+        if (trimmed === "") return true;
+        return /^\d{10}$/.test(trimmed);
+      },
+      message: "Enter valid 10-digit phone number",
+    },
   },
 
   address: {
