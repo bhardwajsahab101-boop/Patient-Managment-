@@ -8,6 +8,7 @@ export const validatePatient = [
     .isLength({ max: 100 })
     .withMessage("Name too long"),
   body("patient.phone")
+    .optional()
     .trim()
     .isLength({ min: 10, max: 10 })
     .withMessage("Valid 10-digit phone required"),
