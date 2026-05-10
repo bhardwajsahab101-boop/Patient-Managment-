@@ -1,4 +1,4 @@
-<% title = 'Reports' %>
+y<% title = 'Reports' %>
 <% extraStyles = ['/css/reports.css'] %>
 
 <%- layout("./layout/boilerPlate.ejs") %>
@@ -134,16 +134,6 @@
       </div>
     <% } %>
   </div>
-</div>
-
-<!-- Top Patients Table (Pro Advanced) -->
-<% if (stats.showAdvancedAnalytics) { %>
-<div class="table-card">
-
-
-
-
-  <div class="table-header">
     <h5><i class="fas fa-trophy me-2 text-warning"></i>Top Patients</h5>
     <span class="table-badge"><%= (stats.topPatients || []).length %> records</span>
   </div>
