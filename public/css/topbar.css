@@ -606,6 +606,33 @@
     display: none;
   }
 
+  /* Prevent top-right overflow on small screens */
+  .topbar-container {
+    min-width: 0;
+  }
+
+  .topbar-right {
+    gap: 8px;
+    min-width: 0;
+  }
+
+  /* Hide secondary text labels on mobile (icons remain) */
+  .topbar-btn-text {
+    display: none;
+  }
+
+  .clinic-switcher-trigger .switch-clinic-text {
+    display: none;
+  }
+
+  /* Tighten clinic switcher button on mobile */
+  .clinic-switcher-trigger {
+    padding: 8px;
+    border-radius: 10px;
+    gap: 8px;
+    min-width: 40px;
+  }
+
   .user-trigger {
     padding: 4px;
   }
