@@ -1,5 +1,10 @@
 import User from "../models/User.js";
 import Clinic from "../models/clinic.js";
+import Plan from "../models/Plan.js";
+import {
+  ensureAdminProPlan,
+  syncPlanStatusForUser,
+} from "./planStatus.js";
 
 // 🔐 Base auth: session must exist + user must exist in DB
 export const requireAuth = async (req, res, next) => {
@@ -35,24 +40,39 @@ export const attachClinic = async (req, res, next) => {
   }
 };
 
-// 🟢 Require active account + valid subscription
+// 🟢 Require active account + valid subscription (Plan is source of truth)
 export const requireActive = async (req, res, next) => {
   try {
     const user = req.user;
+    if (!user) return res.redirect("/login");
 
-    if (!user.isActive) {
-      return res.redirect("/account-pending");
+    // Admins: never expire (always treated as active PRO)
+    if (user.role === "admin") {
+      await ensureAdminProPlan({ userId: user._id });
+      return next();
     }
 
-    if (user.subscriptionEndsAt && new Date() > user.subscriptionEndsAt) {
+    const planDoc = await Plan.findOne({ userId: user._id }).lean();
+
+    // Compute active/expired from plan/trial dates and optionally sync user.isActive
+    const syncResult = await syncPlanStatusForUser({
+      userId: user._id,
+      user,
+      planDoc,
+    });
+
+    // Block if plan is not active (trial or paid)
+    if (!syncResult.isActive) {
       return res.status(403).render("account-pending", {
         title: "Subscription Expired",
         message:
-          "Your subscription has expired. Please contact support to renew.",
+          "Your subscription/trial has expired. Please contact support to renew.",
         showRenewal: true,
+        userName: user?.name || "",
       });
     }
 
+    // If plan is active, allow access.
     next();
   } catch (err) {
     console.error("Active check error:", err);

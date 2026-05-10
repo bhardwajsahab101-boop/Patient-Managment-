@@ -32,8 +32,11 @@ router.get("/", async (req, res) => {
     let { clinicId, q, category, lowStock, expiring } = req.query;
     const userId = req.user._id;
 
+    // Use clinic context if available (supports multi-clinic for Pro users)
     if (!clinicId) {
-      clinicId = await getUserClinic(userId);
+      clinicId = req.clinicContext?.clinicId
+        ? String(req.clinicContext.clinicId)
+        : await getUserClinic(userId);
     }
 
     if (!clinicId) {

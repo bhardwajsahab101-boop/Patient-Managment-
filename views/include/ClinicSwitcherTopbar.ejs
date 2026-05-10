@@ -1,0 +1,92 @@
+<% if (typeof currentUser !== 'undefined' && currentUser) { %>
+  <% if (typeof currentPlan !== 'undefined' && currentPlan === 'pro') { %>
+
+    <% const _userClinics = (typeof userClinics !== 'undefined' && userClinics) ? userClinics : [];
+       const _clinicId = (typeof clinicId !== 'undefined' && clinicId) ? clinicId : null;
+       if (_userClinics.length && _clinicId) { %>
+
+      <div class="topbar-clinic-switch">
+        <div class="clinic-switcher-dropdown" id="clinicSwitcherDropdown">
+          <button
+            type="button"
+            class="clinic-switcher-trigger"
+            aria-label="Switch clinic"
+            aria-expanded="false"
+          >
+            <i class="fa-solid fa-hospital"></i>
+            <span class="d-none d-md-inline">Switch Clinic</span>
+            <i class="fas fa-chevron-down ms-1"></i>
+          </button>
+
+          <div class="clinic-switcher-menu" id="clinicSwitcherMenu">
+            <div class="clinic-switcher-title">Clinic</div>
+            <form method="GET" action="<%= currentRoute || '/dashboard' %>" class="clinic-switcher-form">
+              <select class="form-select" name="clinicId" onchange="this.form.submit()">
+                <% userClinics.forEach(c => { %>
+                  <option
+                    value="<%= c._id %>"
+                    <%= c._id.toString() === clinicId.toString() ? 'selected' : '' %>
+                  >
+                    <%= c.name %>
+                  </option>
+                <% }) %>
+        
+              </select>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <style>
+        .topbar-clinic-switch { position: relative; }
+        .clinic-switcher-trigger {
+          display:flex; align-items:center; gap:8px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.15);
+          color: #fff;
+          padding: 8px 12px;
+          border-radius: 10px;
+          cursor:pointer;
+        }
+        .clinic-switcher-menu {
+          position:absolute;
+          right:0;
+          top: calc(100% + 8px);
+          min-width: 280px;
+          background: #fff;
+          color: #111;
+          border-radius: 12px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+          padding: 12px;
+          display:none;
+          z-index: 9999;
+        }
+        .clinic-switcher-dropdown.open .clinic-switcher-menu { display:block; }
+        .clinic-switcher-title {
+          font-weight: 700;
+          font-size: 0.9rem;
+          margin-bottom: 8px;
+          color: #0d6efd;
+        }
+        .clinic-switcher-form select { cursor:pointer; }
+      </style>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function(){
+          const dropdown = document.getElementById('clinicSwitcherDropdown');
+          if(!dropdown) return;
+          const menu = document.getElementById('clinicSwitcherMenu');
+          const trigger = dropdown.querySelector('.clinic-switcher-trigger');
+          trigger?.addEventListener('click', function(e){
+            e.preventDefault();
+            dropdown.classList.toggle('open');
+          });
+          document.addEventListener('click', function(e){
+            if(!dropdown.contains(e.target)) dropdown.classList.remove('open');
+          });
+        });
+      </script>
+
+    <% } %>
+  <% } %>
+<% } %>

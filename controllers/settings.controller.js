@@ -1,9 +1,34 @@
 import Clinic from "../models/clinic.js";
 import User from "../models/User.js";
+import ClinicMember from "../models/ClinicMember.js";
 
-// Helper: Get user's clinic
+// Helper: Get user's clinic (owner’s clinic)
 async function getUserClinic(userId) {
   return await Clinic.findOne({ ownerId: userId });
+}
+
+// Helper: upsert clinic member by phone
+async function upsertClinicMemberByPhone({ ownerId, phone }) {
+  const clinic = await getUserClinic(ownerId);
+  if (!clinic) throw new Error("Clinic not found");
+
+  const memberUser = await User.findOne({ phone }).lean();
+  if (!memberUser) throw new Error("User with this phone not found");
+
+  const existingMember = await ClinicMember.findOne({
+    clinicId: clinic._id,
+    userId: memberUser._id,
+  });
+
+  if (existingMember) return { member: existingMember, created: false };
+
+  const member = await ClinicMember.create({
+    clinicId: clinic._id,
+    userId: memberUser._id,
+    role: "ownerstaff",
+  });
+
+  return { member, created: true };
 }
 
 // GET /settings — Main settings page
@@ -11,7 +36,7 @@ export const getSettings = async (req, res) => {
   try {
     const user = req.user;
     const clinic = await getUserClinic(user._id);
-    
+
     if (!clinic) {
       return res.redirect("/create-clinic");
     }
@@ -39,7 +64,6 @@ export const updateClinicDetails = async (req, res) => {
       return res.status(404).json({ error: "Clinic not found" });
     }
 
-    // Update basic details
     if (name) clinic.name = name;
     if (location !== undefined) clinic.location = location;
     if (address !== undefined) clinic.address = address;
@@ -53,6 +77,64 @@ export const updateClinicDetails = async (req, res) => {
   } catch (err) {
     console.error("Update clinic error:", err);
     res.status(500).json({ error: "Failed to update clinic details" });
+  }
+};
+
+// POST /settings/clinic/members — declare/attach clinic member by phone (owner only)
+export const declareClinicMember = async (req, res) => {
+  try {
+    const ownerId = req.user._id;
+    const { phone, staffPassword } = req.body;
+
+    if (!phone || typeof phone !== "string") {
+      return res.status(400).json({ error: "Phone is required" });
+    }
+
+    const sanitized = phone.replace(/\D/g, "");
+    if (!/^\d{10}$/.test(sanitized)) {
+      return res
+        .status(400)
+        .json({ error: "Enter a valid 10-digit phone number" });
+    }
+
+    // doctor must provide staff password for login
+    if (!staffPassword || typeof staffPassword !== "string") {
+      return res.status(400).json({ error: "Staff password is required" });
+    }
+
+    const { member, created } = await upsertClinicMemberByPhone({
+      ownerId,
+      phone: sanitized,
+    });
+
+    // If user existed already, we still require password set/update.
+    // Update password only if we created a new user OR user exists but has different password.
+    // Phase 1 simplest: always update password for the member's user record.
+    const bcrypt = (await import("bcrypt")).default;
+    const hashedPassword = await bcrypt.hash(staffPassword, 10);
+    await (
+      await import("../models/User.js")
+    ).default.findOneAndUpdate(
+      { phone: sanitized },
+      { $set: { password: hashedPassword, isActive: true, role: "doctor" } },
+      { new: true },
+    );
+
+    res.json({
+      success: true,
+      message: created
+        ? "Member declared successfully"
+        : "Member already exists (password updated)",
+      member: {
+        id: member._id,
+        clinicId: String(member.clinicId),
+        userId: String(member.userId),
+        role: member.role,
+      },
+    });
+  } catch (err) {
+    console.error("declareClinicMember error:", err);
+    res.status(400).json({ error: err.message || "Failed to declare member" });
   }
 };
 
@@ -77,7 +159,6 @@ export const updatePrintSettings = async (req, res) => {
       return res.status(404).json({ error: "Clinic not found" });
     }
 
-    // Update print settings
     clinic.printSettings = {
       showLogo: showLogo === "true",
       showAddress: showAddress === "true",
@@ -115,7 +196,6 @@ export const updateNotificationSettings = async (req, res) => {
       return res.status(404).json({ error: "Clinic not found" });
     }
 
-    // Update notification settings
     clinic.notificationSettings = {
       whatsappReminders: whatsappReminders === "true",
       appointmentReminderHours: parseInt(appointmentReminderHours) || 24,
@@ -143,7 +223,6 @@ export const updateInventorySettings = async (req, res) => {
       return res.status(404).json({ error: "Clinic not found" });
     }
 
-    // Update inventory settings
     clinic.inventorySettings = {
       lowStockThreshold: parseInt(lowStockThreshold) || 10,
       expiryAlertDays: parseInt(expiryAlertDays) || 30,
@@ -165,9 +244,10 @@ export const changePassword = async (req, res) => {
     const user = req.user;
     const { currentPassword, newPassword, confirmPassword } = req.body;
 
-    // Validate input
     if (!currentPassword || !newPassword || !confirmPassword) {
-      return res.status(400).json({ error: "All password fields are required" });
+      return res
+        .status(400)
+        .json({ error: "All password fields are required" });
     }
 
     if (newPassword !== confirmPassword) {
@@ -175,21 +255,21 @@ export const changePassword = async (req, res) => {
     }
 
     if (newPassword.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters" });
     }
 
-    // Verify current password
     const UserModel = await import("../models/User.js");
     const User = UserModel.default;
-    
+
     const userData = await User.findById(user._id);
     const isMatch = await userData.comparePassword(currentPassword);
-    
+
     if (!isMatch) {
       return res.status(400).json({ error: "Current password is incorrect" });
     }
 
-    // Update password
     userData.password = newPassword;
     await userData.save();
 
@@ -251,6 +331,8 @@ export const getSettingsData = async (req, res) => {
   try {
     const user = req.user;
     const clinic = await getUserClinic(user._id);
+    const Plan = (await import("../models/Plan.js")).default;
+    const plan = await Plan.findOne({ userId: user._id }).lean();
 
     if (!clinic) {
       return res.status(404).json({ error: "Clinic not found" });

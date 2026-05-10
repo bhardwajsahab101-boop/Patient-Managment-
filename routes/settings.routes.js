@@ -1,5 +1,6 @@
 import express from "express";
 import { requireAuth, requireActive } from "../middleware/auth.js";
+import { requireOwnerClinic } from "../middleware/requireOwnerClinic.js";
 import {
   getSettings,
   updateClinicDetails,
@@ -10,6 +11,7 @@ import {
   updateLogo,
   updateSignature,
   getSettingsData,
+  declareClinicMember,
 } from "../controllers/settings.controller.js";
 
 const router = express.Router();
@@ -44,5 +46,11 @@ router.put("/logo", updateLogo);
 
 // PUT /settings/signature — Upload doctor signature
 router.put("/signature", updateSignature);
+
+router.post(
+  "/clinic/members",
+  requireOwnerClinic,
+  declareClinicMember,
+);
 
 export default router;

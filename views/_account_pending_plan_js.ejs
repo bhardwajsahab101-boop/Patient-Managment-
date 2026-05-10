@@ -1,0 +1,71 @@
+<script>
+  (function () {
+    const planCards = document.querySelectorAll(
+      ".pricing-comparison .plan-card",
+    );
+    const selectedPlanText = document.getElementById("selectedPlanText");
+    const activateCta = document.getElementById("activateCta");
+
+    const baseMsg =
+      "Hi MediCare Hub, I just signed up and want to activate my account. My name is ";
+
+    function getPlanFromCard(card) {
+      return card && card.getAttribute("data-plan");
+    }
+
+    function updateUI(selectedPlan) {
+      planCards.forEach((c) => {
+        const p = getPlanFromCard(c);
+        if (p === selectedPlan) c.classList.add("active");
+        else c.classList.remove("active");
+      });
+
+      if (selectedPlanText) {
+        if (selectedPlan === "starter")
+          selectedPlanText.textContent = "Starter selected — ₹499/month";
+        else if (selectedPlan === "pro")
+          selectedPlanText.textContent = "Pro selected — ₹999/month";
+        else selectedPlanText.textContent = "No plan selected yet.";
+      }
+
+      if (activateCta) {
+        // Use current userName (server-rendered into data attribute)
+        const name = (activateCta.getAttribute("data-user-name") || "").trim();
+        const planLabel = selectedPlan === "starter" ? "Starter" : "Pro";
+
+        const text = baseMsg + name + ", selected plan: " + planLabel;
+        activateCta.setAttribute(
+          "href",
+          "https://wa.me/918950817515?text=" + encodeURIComponent(text),
+        );
+      }
+    }
+
+    // Initialize selection: default to Pro
+    let selected = "pro";
+    const activeCard = document.querySelector(
+      ".pricing-comparison .plan-card.active",
+    );
+    if (activeCard) {
+      const p = getPlanFromCard(activeCard);
+      if (p) selected = p;
+    }
+    updateUI(selected);
+
+    planCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const p = getPlanFromCard(card);
+        if (!p) return;
+        selected = p;
+        updateUI(selected);
+      });
+
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          card.click();
+        }
+      });
+    });
+  })();
+</script>

@@ -77,10 +77,37 @@ router.get("/users/:id", requireAuth, requireAdmin, async (req, res) => {
 
     const clinic = await Clinic.findOne({ ownerId: id }).lean();
 
+    // Show all clinics registered by this user (Pro multi-clinic)
+    const userClinics = await Clinic.find({ ownerId: id })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Attach free-trial request info (if any) to render correct approve button
+    const plan = await (await import("../models/Plan.js")).default
+      .findOne({ userId: id })
+      .lean();
+
+    let planRequest = null;
+    let trialDaysLeft = null;
+    let userPlan = "starter"; // default
+    if (plan) {
+      userPlan = plan.plan || "starter";
+      if (plan.status === "pending") {
+        planRequest = plan.plan || null;
+        if (plan.trialEndsAt) {
+          const diffMs = new Date(plan.trialEndsAt).getTime() - Date.now();
+          trialDaysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        }
+      }
+    }
+
     res.render("admin-user-detail", {
       title: `User Details - ${user.name}`,
-      user,
+      user: { ...user, planRequest },
       clinic,
+      userClinics,
+      trialDaysLeft,
+      userPlan,
     });
   } catch (err) {
     console.error("User detail error:", err);
@@ -166,7 +193,7 @@ router.post(
   },
 );
 
-// POST /admin/users/:id/subscription — Update subscription days
+// POST /admin/users/:id/subscription — Update subscription days and plan
 router.post(
   "/users/:id/subscription",
   requireAuth,
@@ -174,21 +201,34 @@ router.post(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { subscriptionDays } = req.body;
+      const { subscriptionDays, planType } = req.body;
       const days = parseInt(subscriptionDays) || 30;
+      const plan = planType || "starter";
 
       const subscriptionEndsAt = new Date();
       subscriptionEndsAt.setDate(subscriptionEndsAt.getDate() + days);
 
       const user = await User.findByIdAndUpdate(
         id,
-        { subscriptionEndsAt },
+        { isActive: true, subscriptionEndsAt },
         { new: true },
       );
 
       if (!user) {
         return res.status(404).render("error", { message: "User not found" });
       }
+
+      // Import Plan model and update/create plan document
+      const Plan = (await import("../models/Plan.js")).default;
+      let planDoc = await Plan.findOne({ userId: id });
+      if (!planDoc) {
+        planDoc = new Plan({ userId: id });
+      }
+      planDoc.plan = plan;
+      planDoc.status = "active";
+      planDoc.subscriptionEndsAt = subscriptionEndsAt;
+      planDoc.trialEndsAt = undefined;
+      await planDoc.save();
 
       res.redirect("/admin");
     } catch (err) {

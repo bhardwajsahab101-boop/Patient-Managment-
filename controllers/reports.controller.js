@@ -1,9 +1,16 @@
+// import { patient } from "../models/patient.js";
 import { patient } from "../models/patient.js";
+import Plan from "../models/Plan.js";
+import { getPlanStatus } from "../middleware/planStatus.js";
 
 export async function getReports(req, res) {
   try {
-    const userId = req.user._id;
     const { from, to } = req.query;
+
+    // Get clinicId from context (supports multi-clinic for Pro users)
+    const clinicId = req.clinicContext?.clinicId
+      ? String(req.clinicContext.clinicId)
+      : null;
 
     // Default date range: all time if not specified
     const fromDate = from ? new Date(from) : null;
@@ -17,14 +24,12 @@ export async function getReports(req, res) {
       toDate.setHours(23, 59, 59, 999);
     }
 
-    const userMatch = { userId };
-    let match = userMatch;
-    if (fromDate && toDate) {
-      match = {
-        ...userMatch,
-        "visits.date": { $gte: fromDate, $lte: toDate },
-      };
-    }
+    // clinic-scoped isolation boundary (staff/owner should see same clinic data)
+    const userMatch = { clinicId };
+
+    const planDoc = await Plan.findOne({ userId: req.user._id }).lean();
+    const isProActive =
+      planDoc?.plan === "pro" && getPlanStatus(planDoc).isActive;
 
     const [
       totalPatients,
@@ -35,6 +40,7 @@ export async function getReports(req, res) {
       topPatientsAgg,
     ] = await Promise.all([
       patient.countDocuments(userMatch),
+
       patient.aggregate([
         { $match: userMatch },
         { $unwind: "$visits" },
@@ -144,8 +150,11 @@ export async function getReports(req, res) {
         overdueCount,
         revenueChart: filledRevenueChart,
         growth: Math.round(growth),
-        topPatients: topPatientsAgg || [],
+        // Pro-only section (expiration-aware)
+        topPatients: isProActive ? topPatientsAgg || [] : [],
+        showAdvancedAnalytics: isProActive,
       },
+
       filters: {
         from: from || "",
         to: to || "",

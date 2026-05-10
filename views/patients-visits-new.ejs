@@ -138,7 +138,7 @@
           <div class="card-footer bg-light">
             <div class="d-flex gap-2 justify-content-between">
               <a
-                href="/patient/<%= patient._id %>"
+                href="/patient/<%= patient._id %>?clinicId=<%= clinicId || '' %>"
                 class="btn btn-outline-secondary"
               >
                 ← Back to Patient

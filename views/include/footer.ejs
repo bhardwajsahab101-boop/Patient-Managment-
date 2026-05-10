@@ -29,23 +29,30 @@
       <div class="footer-section">
         <h6>Quick Links</h6>
         <ul>
+<%
+const activeClinicId =
+  typeof clinicId !== 'undefined'
+    ? clinicId
+    : (locals?.clinicId || '');
+%>
+
           <li>
-            <a href="/dashboard"
+            <a href="/dashboard?clinicId=<%= activeClinicId %>"
               ><i class="fas fa-chevron-right"></i> Dashboard</a
             >
           </li>
           <li>
-            <a href="/patients"
+            <a href="/patients?clinicId=<%= activeClinicId %>"
               ><i class="fas fa-chevron-right"></i> Patients</a
             >
           </li>
           <li>
-            <a href="/followup"
+            <a href="/followup?clinicId=<%= activeClinicId %>"
               ><i class="fas fa-chevron-right"></i> Follow-ups</a
             >
           </li>
           <li>
-            <a href="/medicines"
+            <a href="/medicines?clinicId=<%= activeClinicId %>"
               ><i class="fas fa-chevron-right"></i> Medicines</a
             >
           </li>

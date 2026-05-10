@@ -41,16 +41,19 @@ const PatientData = new Schema({
     maxlength: 500,
   },
 
+  // NOTE: clinicId is the isolation boundary (multi-tenant) for patients.
+  // userId is kept for backward compatibility and auditing, but it is not
+  // the primary isolation key anymore.
   userId: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
   },
 
   clinicId: {
     type: Schema.Types.ObjectId,
     ref: "Clinic",
-    required: false,
+    required: true,
   },
 
   createdAt: {
@@ -137,10 +140,10 @@ const PatientData = new Schema({
 const patient = mongoose.model("patient", PatientData);
 
 // Indexes for faster queries
-PatientData.index({ userId: 1, clinicId: 1 });
-PatientData.index({ userId: 1, clinicId: 1, nextVisit: 1 });
-PatientData.index({ userId: 1, phone: 1 });
-PatientData.index({ userId: 1, nextVisit: 1, isActive: 1 });
+PatientData.index({ clinicId: 1, createdAt: -1 });
+PatientData.index({ clinicId: 1, nextVisit: 1 });
+PatientData.index({ clinicId: 1, phone: 1 });
+PatientData.index({ clinicId: 1, nextVisit: 1, isActive: 1 });
 PatientData.index({ userId: 1, createdAt: -1 });
 
 export { patient };

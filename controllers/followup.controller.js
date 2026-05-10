@@ -1,15 +1,22 @@
 import { patient } from "../models/patient.js";
 
+// Helper: resolve clinicId from context
+function resolveClinicId(req) {
+  return req.clinicContext?.clinicId
+    ? String(req.clinicContext.clinicId)
+    : null;
+}
+
 export async function removeFromFollowup(req, res) {
   try {
     const { id } = req.params;
-    const userId = req.user._id;
+    const clinicId = resolveClinicId(req);
 
-    const existing = await patient.findOne({ _id: id, userId });
+    const existing = await patient.findOne({ _id: id, clinicId });
     if (!existing) return res.status(404).send("Patient not found");
 
     await patient.findByIdAndUpdate(id, { nextVisit: null });
-    res.redirect("/followup");
+    res.redirect(`/followup?clinicId=${clinicId || ""}`);
   } catch (err) {
     console.error("Remove followup error:", err);
     res
@@ -20,7 +27,7 @@ export async function removeFromFollowup(req, res) {
 
 export async function getFollowups(req, res) {
   try {
-    const userId = req.user._id;
+    const clinicId = resolveClinicId(req);
     const todayMidnight = new Date();
     todayMidnight.setHours(0, 0, 0, 0);
 
@@ -39,7 +46,7 @@ export async function getFollowups(req, res) {
     const tomorrowRange = getDateRange(1);
 
     const baseFilter = {
-      userId,
+      clinicId,
       nextVisit: { $gte: yesterdayRange.start, $lte: tomorrowRange.end },
     };
 
@@ -69,8 +76,6 @@ export async function getFollowups(req, res) {
         );
       });
 
-    const userFilter = { userId };
-
     const [
       totalPatients,
       overdueCount,
@@ -78,27 +83,27 @@ export async function getFollowups(req, res) {
       tomorrowCount,
       followupRevenue,
     ] = await Promise.all([
-      patient.countDocuments(userFilter),
+      patient.countDocuments({ clinicId }),
       patient.countDocuments({
-        ...userFilter,
+        clinicId,
         nextVisit: { $lt: todayRange.start },
       }),
       patient.countDocuments({
-        ...userFilter,
+        clinicId,
         nextVisit: {
           $gte: todayRange.start,
           $lte: todayRange.end,
         },
       }),
       patient.countDocuments({
-        ...userFilter,
+        clinicId,
         nextVisit: {
           $gte: tomorrowRange.start,
           $lte: tomorrowRange.end,
         },
       }),
       patient.aggregate([
-        { $match: userFilter },
+        { $match: { clinicId } },
         { $unwind: "$visits" },
         {
           $match: {

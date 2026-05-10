@@ -18,10 +18,11 @@ import {
   requireActive,
   requireClinic,
 } from "../middleware/auth.js";
+import { loadClinicContext } from "../middleware/clinicContext.js";
 
 const router = express.Router();
 
-router.use(requireAuth, requireActive, requireClinic);
+router.use(requireAuth, requireActive, requireClinic, loadClinicContext);
 
 // New patient form (must be BEFORE /:id)
 router.get("/new", newPatientForm);
@@ -30,7 +31,21 @@ router.get("/new", newPatientForm);
 router.post("/", validatePatient, createPatient);
 
 // List all patients
-router.get("/", listPatients);
+router.get(
+  "/",
+  (req, res, next) => {
+    // ensure selected clinicId persists; loadClinicContext already runs in router.use
+    // but we normalize empty/invalid clinicId so it cannot fall back to default
+    if (
+      typeof req.query.clinicId === "string" &&
+      req.query.clinicId.trim() === ""
+    ) {
+      delete req.query.clinicId;
+    }
+    next();
+  },
+  listPatients,
+);
 
 // Visit form & add visit (must be BEFORE /:id)
 router.get("/:id/visits/new", newVisitForm);

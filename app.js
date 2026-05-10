@@ -18,13 +18,27 @@ import signupRoutes from "./routes/signup.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import prescriptionRoutes from "./routes/prescription.routes.js";
 import settingsRoutes from "./routes/settings.routes.js";
+import exportRoutes from "./routes/export.routes.js";
+import accountPendingRoutes from "./routes/account-pending.routes.js";
+import adminTrialRoutes from "./routes/admin-trial.routes.js";
+
 import { errorHandler } from "./middleware/errorHandler.js";
+import {
+  loadClinicContext,
+  requireProForClinicSelector,
+} from "./middleware/clinicContext.js";
+import { requireOwnerOrMemberClinic } from "./middleware/clinicMemberAuth.js";
+import { requireOwnerClinic } from "./middleware/requireOwnerClinic.js";
+
 import {
   requireAuth,
   requireActive,
   requireClinic,
 } from "./middleware/auth.js";
+
 import User from "./models/User.js";
+import Clinic from "./models/clinic.js";
+import Plan from "./models/Plan.js";
 import {
   getCreateClinicForm,
   createClinic,
@@ -189,21 +203,131 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// Load user's plan for views (currentPlan)
+app.use(async (req, res, next) => {
+  if (req.session && req.session.userId) {
+    try {
+      const plan = await Plan.findOne({ userId: req.session.userId }).lean();
+      res.locals.currentPlan = plan?.plan || null;
+    } catch {
+      res.locals.currentPlan = null;
+    }
+  } else {
+    res.locals.currentPlan = null;
+  }
+  next();
+});
+
+// Clinic context is loaded via `loadClinicContext` from ./middleware/clinicContext.js.
+// (Removed duplicated inline middleware to avoid multi-clinic context mismatches.)
+
 // ROUTES
 app.use("/", signupRoutes);
 
-app.use("/dashboard", dashboardRoutes);
-app.use("/patients", patientRoutes);
-app.use("/followup", followupRoutes);
-app.use("/reports", reportsRoutes);
-app.use("/message", messagesRoutes);
+app.use(
+  "/dashboard",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  dashboardRoutes,
+);
+app.use(
+  "/patients",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  patientRoutes,
+);
+app.use(
+  "/followup",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  followupRoutes,
+);
+app.use(
+  "/reports",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  reportsRoutes,
+);
+app.use(
+  "/message",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  messagesRoutes,
+);
+
 app.use("/support", supportRoutes);
-app.use("/medicines", medicineRoutes);
-app.use("/prescription", prescriptionRoutes);
-app.use("/settings", settingsRoutes);
+app.use(
+  "/medicines",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  medicineRoutes,
+);
+app.use(
+  "/prescription",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  prescriptionRoutes,
+);
+app.use(
+  "/settings",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireOwnerClinic,
+  settingsRoutes,
+);
+
 app.use("/admin", adminRoutes);
 
+app.use(
+  "/export",
+  requireAuth,
+  requireActive,
+  requireClinic,
+  loadClinicContext,
+  requireProForClinicSelector,
+  requireOwnerOrMemberClinic,
+  exportRoutes,
+);
+app.use("/", accountPendingRoutes);
+app.use("/", adminTrialRoutes);
+
+// Pricing page
+app.get("/pricing", (req, res) => {
+  res.render("pricing");
+});
+// make it easy to to to crate clinic  page and easy to switch clinic and admin can also saw how many clinics had a pro user resistered
 // Create clinic routes (must be active but no clinic yet)
+
 app.get("/create-clinic", requireAuth, requireActive, getCreateClinicForm);
 app.post("/create-clinic", requireAuth, requireActive, createClinic);
 

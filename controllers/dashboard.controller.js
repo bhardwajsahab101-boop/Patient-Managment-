@@ -3,7 +3,6 @@ import Medicine from "../models/medicine.js";
 
 export async function getDashboard(req, res) {
   try {
-    const userId = req.user._id;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -11,14 +10,14 @@ export async function getDashboard(req, res) {
     yesterday.setDate(today.getDate() - 1);
 
     const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const baseFilter = { userId };
+    // Get clinicId from context (supports multi-clinic for Pro users)
+    const clinicId = req.clinicContext?.clinicId
+      ? String(req.clinicContext.clinicId)
+      : null;
 
-    // Get user's clinic for medicine queries
-    const Clinic = (await import("../models/clinic.js")).default;
-    const userClinic = await Clinic.findOne({ ownerId: userId }).lean();
-    const clinicId = userClinic?._id;
+    const baseFilter = { clinicId };
 
     const thirtyDaysFromNow = new Date(today);
     thirtyDaysFromNow.setDate(today.getDate() + 30);

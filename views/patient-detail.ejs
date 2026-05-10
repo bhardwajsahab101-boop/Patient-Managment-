@@ -72,19 +72,19 @@
 </div>
 
 <div class="action-bar btn-action-bar">
-  <a href="/patients/<%= patient._id %>/visits/new" class="btn btn-action btn-primary-action">
+              <a href="/patients/<%= patient._id %>/visits/new?clinicId=<%= clinicId || '' %>" class="btn btn-action btn-primary-action">
     <i class="fas fa-plus-circle"></i> Add Visit
   </a>
   <a href="/message/<%= patient._id %>" class="btn btn-action btn-whatsapp-action">
     <i class="fab fa-whatsapp"></i> WhatsApp
   </a>
-  <a href="/patients/<%= patient._id %>/edit" class="btn btn-action btn-edit-action">
+  <a href="/patients/<%= patient._id %>/edit?clinicId=<%= clinicId || '' %>" class="btn btn-action btn-edit-action">
     <i class="fas fa-edit"></i> Edit
   </a>
-  <a href="/patients/<%= patient._id %>/delete" class="btn btn-action btn-delete-action">
+  <a href="/patients/<%= patient._id %>/delete?clinicId=<%= clinicId || '' %>" class="btn btn-action btn-delete-action">
     <i class="fas fa-trash-alt"></i> Delete
   </a>
-  <a href="/patients" class="btn btn-action btn-back-action">
+  <a href="/patients?clinicId=<%= clinicId || '' %>" class="btn btn-action btn-back-action">
     <i class="fas fa-arrow-left"></i> Back
   </a>
 </div>
@@ -170,7 +170,7 @@
       </div>
       
       <% if (visitPending > 0) { %>
-        <a href="/patients/<%= patient._id %>/visit/<%= idx %>/pay" class="btn btn-sm btn-success mb-2">
+        <a href="/patients/<%= patient._id %>/visit/<%= idx %>/pay?clinicId=<%= clinicId || '' %>" class="btn btn-sm btn-success mb-2">
           <i class="fas fa-rupee-sign"></i> Pay Pending ₹<%= visitPending.toFixed(0) %>
         </a>
       <% } else { %>

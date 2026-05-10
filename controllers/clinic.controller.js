@@ -1,4 +1,7 @@
+
 import Clinic from "../models/clinic.js";
+import Plan from "../models/Plan.js";
+import { getPlanStatus } from "../middleware/planStatus.js";
 
 // GET /create-clinic - show form
 export async function getCreateClinicForm(req, res) {
@@ -23,10 +26,16 @@ export async function createClinic(req, res) {
       });
     }
 
-    // Prevent duplicate clinic creation
-    const existing = await Clinic.findOne({ ownerId: userId }).lean();
-    if (existing) {
-      return res.redirect("/dashboard");
+    // Check user's plan - only active Pro users can have multiple clinics
+    const plan = await Plan.findOne({ userId }).lean();
+    const isPro = plan?.plan === "pro" && getPlanStatus(plan).isActive;
+
+    if (!isPro) {
+      // Prevent non-Pro users from creating multiple clinics
+      const existing = await Clinic.findOne({ ownerId: userId }).lean();
+      if (existing) {
+        return res.redirect("/dashboard");
+      }
     }
 
     const clinic = new Clinic({

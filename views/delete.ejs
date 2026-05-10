@@ -26,7 +26,11 @@
             >
               <button type="submit" class="btn btn-danger">Yes, Delete</button>
             </form>
-            <a href="/patients" class="btn btn-secondary">Cancel</a>
+            <a
+              href="/patients?clinicId=<%= clinicId || '' %>"
+              class="btn btn-secondary"
+              >Cancel</a
+            >
           </div>
         </div>
       </div>

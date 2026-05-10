@@ -1,0 +1,231 @@
+<%- layout("./layout/boilerPlate.ejs") %>
+
+<div class="staff-page py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="h3 mb-1">Staff Member Management</h1>
+      <p class="text-muted mb-0">Add and remove staff members for your clinic.</p>
+    </div>
+    <div class="text-end">
+      <span class="badge bg-secondary">OWNER ONLY</span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Add Staff by Phone</h5>
+          <form id="addMemberForm">
+            <div class="mb-3">
+              <label class="form-label">Staff name</label>
+              <input
+                type="text"
+                name="name"
+                class="form-control"
+                placeholder="e.g. John Doe"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Staff phone number</label>
+              <input
+                type="text"
+                name="phone"
+                class="form-control"
+                placeholder="10-digit phone (e.g. 9876543210)"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Staff password (set by doctor)</label>
+              <input
+                type="password"
+                name="staffPassword"
+                class="form-control"
+                placeholder="Enter staff password"
+                required
+              />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">
+
+              <i class="fa-solid fa-user-plus me-2"></i>Add Member
+            </button>
+          </form>
+
+          <div id="addMemberMsg" class="mt-3"></div>
+
+          <hr class="my-4" />
+          <div class="text-muted small">
+            Members must already exist in the app (registered user). After adding, they appear in your staff list.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="mb-0">Staff Members</h5>
+            <button class="btn btn-outline-primary btn-sm" type="button" id="refreshMembersBtn">
+              <i class="fa-solid fa-rotate me-1"></i>Refresh
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th style="width: 40%">Name</th>
+                  <th style="width: 25%">Phone</th>
+                  <th style="width: 20%">Role</th>
+                  <th style="width: 15%">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="membersTbody">
+                <% if (members && members.length) { %>
+                  <% members.forEach((m) => { %>
+                    <tr>
+                      <td><%= m.name %></td>
+                      <td><%= m.phone %></td>
+                      <td><span class="badge bg-light text-dark border"><%= m.role %></span></td>
+                      <td>
+                        <button
+                          class="btn btn-outline-danger btn-sm"
+                          type="button"
+                          onclick="removeMember('<%= m.userId %>', '<%= m.name %>')"
+                        >
+                          <i class="fa-solid fa-trash me-1"></i>Remove
+                        </button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4" class="text-center text-muted py-4">No staff members yet.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="membersMsg" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function refreshMembers() {
+    const tbody = document.getElementById('membersTbody');
+    const msg = document.getElementById('membersMsg');
+    if (msg) msg.innerHTML = '';
+
+    try {
+      const resp = await fetch('/staff/members');
+      const data = await resp.json().catch(() => ({}));
+
+      if (!resp.ok) {
+        if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0">' + (data.error || 'Failed to refresh') + '</div>';
+        return;
+      }
+
+      const members = Array.isArray(data.members) ? data.members : [];
+
+      if (!members.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">No staff members yet.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = members.map((m) => {
+        return `
+          <tr>
+            <td>${m.name || ''}</td>
+            <td>${m.phone || ''}</td>
+            <td><span class="badge bg-light text-dark border">${m.role || ''}</span></td>
+            <td>
+              <button class="btn btn-outline-danger btn-sm" type="button" onclick="removeMember('${m.userId}', '${(m.name || '').replace(/'/g, "\\'")}')">
+                <i class="fa-solid fa-trash me-1"></i>Remove
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch (e) {
+      if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0">Network error</div>';
+    }
+  }
+
+  async function removeMember(userId, name) {
+    const confirmed = confirm('Remove staff member: ' + name + '?');
+    if (!confirmed) return;
+
+    try {
+      const resp = await fetch('/staff/members/' + userId + '/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      const msg = document.getElementById('membersMsg');
+      if (!resp.ok) {
+        if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0">' + (data.error || 'Failed to remove') + '</div>';
+        return;
+      }
+
+      if (msg) msg.innerHTML = '<div class="alert alert-success mb-0">Member removed</div>';
+      await refreshMembers();
+    } catch (e) {
+      const msg = document.getElementById('membersMsg');
+      if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0">Network error</div>';
+    }
+  }
+
+  (function () {
+    const form = document.getElementById('addMemberForm');
+    const msg = document.getElementById('addMemberMsg');
+    const refreshBtn = document.getElementById('refreshMembersBtn');
+
+    if (refreshBtn) refreshBtn.addEventListener('click', refreshMembers);
+
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (msg) msg.innerHTML = '';
+
+      const formData = new FormData(form);
+      const phone = (formData.get('phone') || '').toString().trim();
+      const name = (formData.get('name') || '').toString().trim();
+      const staffPassword = (formData.get('staffPassword') || '').toString();
+
+      try {
+        const resp = await fetch('/staff/members', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone, name, staffPassword }),
+        });
+
+
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (!resp.ok) {
+          if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0">' + (data.error || 'Failed to add member') + '</div>';
+          return;
+        }
+
+        if (msg) msg.innerHTML = '<div class="alert alert-success mb-0">' + (data.message || 'Member added') + '</div>';
+        form.reset();
+        await refreshMembers();
+      } catch (err) {
+        if (msg) msg.innerHTML = '<div class="alert alert-danger mb-0">Network error</div>';
+      }
+    });
+  })();
+</script>
+

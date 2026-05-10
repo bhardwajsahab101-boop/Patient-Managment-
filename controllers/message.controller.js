@@ -1,20 +1,35 @@
 import { patient } from "../models/patient.js";
 import Clinic from "../models/clinic.js";
 
+// Helper: resolve clinicId from context
+function resolveClinicId(req) {
+  return req.clinicContext?.clinicId
+    ? String(req.clinicContext.clinicId)
+    : null;
+}
+
 export async function getMessage(req, res) {
   try {
+    const clinicId = resolveClinicId(req);
+
     const patientData = await patient
       .findOne({
         _id: req.params.id,
         userId: req.user._id,
+        clinicId,
       })
       .lean();
 
     if (!patientData) return res.status(404).send("Patient not found");
 
-    // Get user's clinic
-    const userClinic = await Clinic.findOne({ ownerId: req.user._id }).lean();
-const clinicName = userClinic?.name || "DentaCore";
+    // Get clinic details from patient's clinicId
+    let clinicName = "DentaCore";
+    if (patientData.clinicId) {
+      const clinic = await Clinic.findById(patientData.clinicId).lean();
+      if (clinic) {
+        clinicName = clinic.name || "DentaCore";
+      }
+    }
 
     const latestVisit = patientData.visits.at(-1);
     const nextDate = latestVisit?.nextVisit

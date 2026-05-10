@@ -1,5 +1,6 @@
 import express from "express";
 import { getReports } from "../controllers/reports.controller.js";
+import { requireOwnerClinic } from "../middleware/requireOwnerClinic.js";
 import {
   requireAuth,
   requireActive,
@@ -9,6 +10,6 @@ import {
 const router = express.Router();
 
 router.use(requireAuth, requireActive, requireClinic);
-router.get("/", getReports);
+router.get("/", requireOwnerClinic, getReports);
 
 export default router;

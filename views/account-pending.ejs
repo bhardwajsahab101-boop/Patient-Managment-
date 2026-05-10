@@ -1,10 +1,28 @@
 <%- layout("./layout/auth.ejs") %>
 
 <style>
-  /* Override auth card for wider pending page */
-  .pending-wrapper .auth-card {
-    max-width: 520px;
+  /* Make auth layout card wider for this page.
+     Note: auth layout wraps the page with: <div class="auth-card">...</div>
+     (outside of .pending-wrapper), so we must target .auth-card directly. */
+  .auth-card {
+    max-width: 980px;
+    width: calc(100% - 2rem);
     padding: 2.5rem 2rem;
+  }
+
+  /* Keep the content readable on very wide screens */
+  .pending-wrapper {
+    margin: 0 auto;
+    max-width: 980px;
+  }
+
+  /* Slightly reduce padding on tablets/mobile */
+  @media (max-width: 768px) {
+    .auth-card {
+      max-width: 520px;
+      width: 100%;
+      padding: 1.75rem 1.25rem;
+    }
   }
 
   /* Value statement */
@@ -23,6 +41,7 @@
     gap: 0.75rem;
     margin-bottom: 1rem;
   }
+
   .plan-card {
     flex: 1;
     border: 2px solid #e5e7eb;
@@ -32,12 +51,14 @@
     opacity: 0.7;
     transition: all 0.2s ease;
   }
+
   .plan-card.active {
     border-color: #0d6efd;
     opacity: 1;
     background: #eff6ff;
     position: relative;
   }
+
   .plan-card .plan-badge {
     position: absolute;
     top: -10px;
@@ -51,12 +72,14 @@
     border-radius: 10px;
     white-space: nowrap;
   }
+
   .plan-card h4 {
     font-size: 0.9rem;
     font-weight: 700;
     color: #374151;
     margin-bottom: 0.25rem;
   }
+
   .plan-card .plan-price {
     font-size: 1.1rem;
     font-weight: 800;
@@ -72,29 +95,28 @@
     margin-bottom: 1.5rem;
     background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
   }
+
   .pricing-card h3 {
     font-size: 1.25rem;
     font-weight: 800;
     color: #1f2937;
     margin-bottom: 0.25rem;
   }
+
   .pricing-card .price {
     font-size: 2rem;
     font-weight: 900;
     color: #0d6efd;
     margin-bottom: 1rem;
   }
-  .pricing-card .price span {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #6b7280;
-  }
+
   .feature-list {
     list-style: none;
     padding: 0;
     margin: 0 0 1.25rem;
     text-align: left;
   }
+
   .feature-list li {
     padding: 0.4rem 0;
     font-size: 0.95rem;
@@ -103,10 +125,12 @@
     align-items: center;
     gap: 0.5rem;
   }
+
   .feature-list li i {
     color: #10b981;
     font-size: 1rem;
   }
+
   .btn-activate {
     background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
     border: none;
@@ -125,6 +149,7 @@
     width: 100%;
     justify-content: center;
   }
+
   .btn-activate:hover {
     color: #fff;
     transform: translateY(-2px);
@@ -136,12 +161,14 @@
     text-align: center;
     margin-bottom: 1.5rem;
   }
+
   .whatsapp-section p {
     color: #065f46;
     font-weight: 600;
     margin-bottom: 0.75rem;
     font-size: 1rem;
   }
+
   .btn-whatsapp {
     background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
     border: none;
@@ -160,6 +187,7 @@
     width: 100%;
     justify-content: center;
   }
+
   .btn-whatsapp:hover {
     color: #fff;
     transform: translateY(-2px);
@@ -170,6 +198,7 @@
   .why-section {
     margin-bottom: 1.5rem;
   }
+
   .why-section h4 {
     text-align: center;
     font-size: 1rem;
@@ -177,11 +206,13 @@
     color: #374151;
     margin-bottom: 0.75rem;
   }
+
   .why-list {
     list-style: none;
     padding: 0;
     margin: 0;
   }
+
   .why-list li {
     display: flex;
     align-items: center;
@@ -190,6 +221,7 @@
     font-size: 0.9rem;
     color: #4b5563;
   }
+
   .why-list li i {
     color: #f59e0b;
     font-size: 0.9rem;
@@ -202,11 +234,13 @@
     color: #9ca3af;
     margin-bottom: 1.25rem;
   }
+
   .logout-link {
     text-align: center;
     font-size: 0.85rem;
     color: #9ca3af;
   }
+
   .logout-link button {
     background: none;
     border: none;
@@ -216,44 +250,131 @@
     cursor: pointer;
     font-size: 0.85rem;
   }
+
   .logout-link button:hover {
     color: #374151;
+  }
+
+  /* Button inside cards */
+  .btn-choose {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #0d6efd;
+    font-weight: 800;
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    transition: all 0.15s ease;
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .btn-choose:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(13, 110, 253, 0.15);
+  }
+
+  .plan-card.active .btn-choose {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
   }
 </style>
 
 <div class="pending-wrapper">
-  <!-- 1. Value first -->
   <p class="value-statement">
     Manage patients, medicines, and clinic records in one place.
   </p>
 
-  <!-- Comparison feel -->
-  <div class="pricing-comparison">
-    <div class="plan-card">
-      <h4>Basic</h4>
-      <div class="plan-price">₹0</div>
-      <small class="text-muted">Coming Soon</small>
+  <% if (showRenewal) { %>
+    <div class="alert alert-warning" style="text-align:center; margin-bottom: 1.25rem;">
+      <i class="fa-solid fa-triangle-exclamation me-2"></i>
+      <strong><%= title %></strong>
+      <div style="margin-top:0.5rem; color:#374151; font-weight:600;">
+        <%= message %>
+      </div>
     </div>
-    <div class="plan-card active">
-      <div class="plan-badge">Recommended</div>
+
+    <div style="margin-bottom: 1.25rem; text-align:center;">
+      <a href="/support" class="btn-activate" style="display:inline-block; width: 100%; max-width: 360px;">
+        <i class="fa-solid fa-headset me-2"></i>Contact Support
+      </a>
+    </div>
+  <% } %>
+
+  <div class="pricing-comparison" style="display: <%= showRenewal ? 'none' : 'flex' %>">
+    <div
+      class="plan-card <%= (((typeof selectedPlan !== 'undefined') ? selectedPlan : '') || '').toLowerCase() === 'starter' ? 'active' : '' %>"
+      role="button"
+      tabindex="0"
+      data-plan="starter"
+      aria-pressed="<%= ((typeof selectedPlan !== 'undefined') ? selectedPlan : '') === 'starter' %>"
+    >
+      <h4>Starter</h4>
+      <div class="plan-price">₹499</div>
+      <small class="text-muted">/ month</small>
+
+      <ul class="feature-list mt-3 mb-0">
+        <li><i class="fa-solid fa-check"></i> 14-day free trial</li>
+        <li><i class="fa-solid fa-check"></i> Patient management</li>
+        <li><i class="fa-solid fa-check"></i> Medicine tracking</li>
+        <li><i class="fa-solid fa-check"></i> Reports</li>
+        <li><i class="fa-solid fa-check"></i> Support</li>
+      </ul>
+
+      <form
+        method="POST"
+        action="/account-pending/activate-trial?plan=starter"
+        style="margin: 0"
+      >
+        <button type="submit" class="btn-choose" data-trial-action="starter">
+          Activate 14-Day Free Trial
+        </button>
+      </form>
+    </div>
+
+    <div
+      class="plan-card <%= ((typeof selectedPlan !== 'undefined') ? selectedPlan : '') === 'pro' ? 'active' : '' %>"
+      role="button"
+      tabindex="0"
+      data-plan="pro"
+      aria-pressed="<%= ((typeof selectedPlan !== 'undefined') ? selectedPlan : '') === 'pro' %>"
+    >
+      <div class="plan-badge">Most Popular</div>
       <h4>Pro</h4>
-      <div class="plan-price">₹1000</div>
-      <small class="text-muted">per month</small>
+      <div class="plan-price">₹999</div>
+      <small class="text-muted">/ month</small>
+
+      <ul class="feature-list mt-3 mb-0">
+        <li><i class="fa-solid fa-check"></i> All Starter features</li>
+        <li><i class="fa-solid fa-check"></i> 14-day free trial</li>
+        <li><i class="fa-solid fa-check"></i> Multi-clinic support</li>
+ 
+        <li><i class="fa-solid fa-check"></i> Advanced analytics</li>
+        <li><i class="fa-solid fa-check"></i> Export/backup</li>
+      </ul>
+
+      <form
+        method="POST"
+        action="/account-pending/activate-trial?plan=pro"
+        style="margin: 0"
+      >
+        <button type="submit" class="btn-choose" data-trial-action="pro">
+          Activate 14-Day Free Trial
+        </button>
+      </form>
     </div>
   </div>
 
-  <!-- 2. Pricing card -->
-  <div class="pricing-card">
-    <h3>Starter Plan</h3>
-    <div class="price">₹1000 <span>/ month</span></div>
-    <ul class="feature-list">
-      <li><i class="fa-solid fa-check"></i> Patient management</li>
-      <li><i class="fa-solid fa-check"></i> Medicine tracking</li>
-      <li><i class="fa-solid fa-check"></i> Reports</li>
-      <li><i class="fa-solid fa-check"></i> Support</li>
-    </ul>
+  <div class="pricing-card" style="display: <%= showRenewal ? 'none' : 'block' %>">
+    <h3 class="mb-3">Activate your selected plan</h3>
+    <p class="text-muted mb-3" id="selectedPlanText">No plan selected yet.</p>
+
     <a
-      href="https://wa.me/918950817515?text=Hi%20MediCare%20Hub%2C%20I%20just%20signed%20up%20and%20want%20to%20activate%20my%20account.%20My%20name%20is%20<%= encodeURIComponent(userName || '') %>."
+      id="activateCta"
+      data-user-name="<%= encodeURIComponent(userName || '') %>"
+      href="https://wa.me/918950817515?text=Hi%20MediCare%20Hub%2C%20I%20just%20signed%20up%20and%20want%20to%20activate%20my%20account."
       target="_blank"
       class="btn-activate"
     >
@@ -262,8 +383,7 @@
     </a>
   </div>
 
-  <!-- 3. WhatsApp CTA -->
-  <div class="whatsapp-section">
+  <div class="whatsapp-section" style="display: <%= showRenewal ? 'none' : 'block' %>;">
     <p>👋 Prefer to chat? Activate via WhatsApp directly</p>
     <a
       href="https://wa.me/918950817515?text=Hi%20MediCare%20Hub%2C%20I%20just%20signed%20up%20and%20want%20to%20activate%20my%20account.%20My%20name%20is%20<%= encodeURIComponent(userName || '') %>."
@@ -275,8 +395,7 @@
     </a>
   </div>
 
-  <!-- Why choose us -->
-  <div class="why-section">
+  <div class="why-section" style="display: <%= showRenewal ? 'none' : 'block' %>;">
     <h4>Why choose us?</h4>
     <ul class="why-list">
       <li><i class="fa-solid fa-star"></i> Trusted by 500+ clinics</li>
@@ -286,13 +405,15 @@
     </ul>
   </div>
 
-  <p class="support-note">
+  <p class="support-note" style="display: <%= showRenewal ? 'none' : 'block' %>;">
     📧 Prefer email? <a href="/support">Send us a message</a>
   </p>
 
-  <form action="/logout" method="POST" class="logout-link">
+  <form action="/logout" method="POST" class="logout-link" style="display: <%= showRenewal ? 'none' : 'block' %>;">
     <button type="submit">
       <i class="fa-solid fa-arrow-right-from-bracket me-1"></i> Logout
     </button>
   </form>
+
+  <%- include("./_account_pending_plan_js.ejs") %>
 </div>

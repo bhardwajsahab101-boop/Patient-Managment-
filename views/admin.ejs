@@ -367,9 +367,22 @@
         <div class="user-actions">
           <form action="/admin/users/<%= user._id %>/toggle" method="POST">
             <button type="submit" class="btn btn-success btn-sm">
-              <i class="fa-solid fa-check me-1"></i>Activate
+              <i class="fa-solid fa-check me-1"></i>Activate (User)
             </button>
           </form>
+
+          <form
+            action="/admin/trials/approve?userId=<%= user._id %>&plan=starter"
+            method="POST"
+            class="d-inline"
+            onsubmit="return confirm('Approve 14-day free trial for <%= user.name %>?');"
+          >
+            <button type="submit" class="btn btn-primary btn-sm ms-2">
+              <i class="fa-solid fa-bolt me-1"></i>Activate 14-Day Trial
+            </button>
+          </form>
+
+
           <form action="/admin/users/<%= user._id %>/subscription" method="POST" class="sub-form">
             <input type="number" name="subscriptionDays" value="30" min="1" max="3650" title="Days" />
             <button type="submit" class="btn btn-primary btn-sm">

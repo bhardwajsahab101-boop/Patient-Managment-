@@ -18,11 +18,18 @@
         <li class="nav-item">
           <a class="nav-link active" href="/">Home</a>
         </li>
+        <%
+        const activeClinicId =
+          typeof clinicId !== 'undefined'
+            ? clinicId
+            : (locals?.clinicId || '');
+        %>
+
         <li class="nav-item">
-          <a class="nav-link" href="/patients">Patients</a>
+          <a class="nav-link" href="/patients?clinicId=<%= activeClinicId %>">Patients</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/patients/new">New Patient</a>
+          <a class="nav-link" href="/patients/new?clinicId=<%= activeClinicId %>">New Patient</a>
         </li>
       </ul>
       <form class="d-flex">

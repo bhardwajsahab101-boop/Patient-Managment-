@@ -2,19 +2,28 @@ import { patient } from "../models/patient.js";
 import Clinic from "../models/clinic.js";
 import Medicine from "../models/medicine.js";
 
+// Helper: resolve clinicId from context
+function resolveClinicId(req) {
+  return req.clinicContext?.clinicId
+    ? String(req.clinicContext.clinicId)
+    : null;
+}
+
 // GET /prescription/:patientId/:visitIndex
 // GET /prescription/:patientId/:visitIndex/print
 export async function getPrescription(req, res) {
   try {
     const { patientId, visitIndex } = req.params;
     const userId = req.user._id;
+    const clinicId = resolveClinicId(req);
     const isPrintMode = req.query.print === "true";
 
-    // Find patient owned by user
+    // Find patient owned by user in current clinic
     const patientData = await patient
       .findOne({
         _id: patientId,
         userId: userId,
+        clinicId,
       })
       .lean();
 
@@ -25,10 +34,10 @@ export async function getPrescription(req, res) {
     const visit = patientData.visits[visitIndex];
 
     // Get clinic details
-    const clinicId = patientData.clinicId;
+    const patientClinicId = patientData.clinicId;
     let clinic = null;
-    if (clinicId) {
-      clinic = await Clinic.findById(clinicId).lean();
+    if (patientClinicId) {
+      clinic = await Clinic.findById(patientClinicId).lean();
     }
 
     // Enrich medicines with full details if needed (populate name/dosage already stored)

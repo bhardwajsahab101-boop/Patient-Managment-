@@ -7,7 +7,14 @@ import {
   enrichPrescribedMedicines,
 } from "../middleware/medicineHelpers.js";
 
-// Helper: get user's default clinic
+// Helper: resolve clinicId from middleware context (Pro multi-clinic)
+function getClinicIdFromContext(req) {
+  return req?.clinicContext?.clinicId
+    ? String(req.clinicContext.clinicId)
+    : null;
+}
+
+// Helper: get user's default clinic (fallback for non-pro or when context isn't loaded)
 async function getUserClinic(userId) {
   const clinic = await Clinic.findOne({ ownerId: userId }).lean();
   return clinic ? clinic._id.toString() : null;
@@ -21,11 +28,26 @@ async function getClinicMedicines(clinicId) {
     .lean();
 }
 
+async function resolveClinicId(req) {
+  // Phase 1: enforce clinic isolation as the primary boundary.
+  // Clinic id must come from middleware context when possible.
+  const clinicIdFromContext = getClinicIdFromContext(req);
+  if (clinicIdFromContext) return clinicIdFromContext;
+
+  // Backward compatibility: if context is missing for legacy routes,
+  // fallback to the user’s first clinic.
+
+  const userId = req.user?._id;
+
+  if (!userId) return null;
+
+  return (await getUserClinic(userId)) ?? null;
+}
+
 // GET /patients/new
 export async function newPatientForm(req, res) {
   try {
-    const userId = req.user._id;
-    const clinicId = await getUserClinic(userId);
+    const clinicId = await resolveClinicId(req);
     const medicines = await getClinicMedicines(clinicId);
 
     res.render("NewPatients.ejs", {
@@ -43,8 +65,9 @@ export async function newPatientForm(req, res) {
 // POST /patients
 export async function createPatient(req, res) {
   try {
+    const clinicId = await resolveClinicId(req);
+
     if (req.validationErrors && req.validationErrors.length) {
-      const clinicId = await getUserClinic(req.user._id);
       const medicines = await getClinicMedicines(clinicId);
       const selectedMedicineIds = Array.isArray(req.body.medicineIds)
         ? req.body.medicineIds.map(String)
@@ -77,8 +100,7 @@ export async function createPatient(req, res) {
     const { name, age, gender, phone, treatment, address } = req.body.patient;
     const { notes, price, nextVisit } = req.body.visit;
     const { medicineIds, medicineQuantities } = req.body;
-    const userId = req.user._id;
-    const clinicId = await getUserClinic(userId);
+    const userId = req.user?._id;
 
     // Payment fields - calculate pending automatically
     const totalPayment =
@@ -98,7 +120,6 @@ export async function createPatient(req, res) {
     }
 
     // Process prescribed medicines
-    // Handle new duration/instructions fields
     const medicineDurations = req.body.medicineDurations || [];
     const medicineInstructions = req.body.medicineInstructions || [];
 
@@ -110,15 +131,11 @@ export async function createPatient(req, res) {
       notes?.trim(),
     );
 
-    // Use shared helper to add duration/instructions
     enrichPrescribedMedicines(
       prescribedMedicines,
       medicineDurations,
       medicineInstructions,
     );
-
-    const initialVisitPrice = totalPayment;
-    const initialVisitPaid = paidPayment;
 
     const newPatient = new patient({
       name: name.trim(),
@@ -130,15 +147,14 @@ export async function createPatient(req, res) {
       nextVisit: nextVisitDate,
       userId,
       clinicId,
-      // Payment fields - pending is calculated automatically
       totalPayment,
       paidPayment,
       pendingPayment,
       visits: [
         {
           notes: notes?.trim(),
-          price: initialVisitPrice,
-          paidAmount: initialVisitPaid,
+          price: totalPayment,
+          paidAmount: paidPayment,
           nextVisit: nextVisitDate,
           medicines: prescribedMedicines,
         },
@@ -153,16 +169,16 @@ export async function createPatient(req, res) {
         {
           clinicId,
           patientId: null,
-          createdAt: { $gte: new Date(Date.now() - 60000) }, // last minute
+          createdAt: { $gte: new Date(Date.now() - 60000) },
         },
         { patientId: newPatient._id },
       );
     }
 
-    res.redirect("/patients");
+    res.redirect(`/patients?clinicId=${clinicId || ""}`);
   } catch (err) {
     console.error("Create patient error:", err);
-    const clinicId = await getUserClinic(req.user._id);
+    const clinicId = await resolveClinicId(req);
     const medicines = await getClinicMedicines(clinicId);
     res.status(400).render("NewPatients", {
       errors: [{ msg: err.message }],
@@ -172,17 +188,18 @@ export async function createPatient(req, res) {
     });
   }
 }
-
+//  hey blackbox please go throw me code and fix the patient data leaking issue  in the 2 cilinics from a single user as for now there showing same data in the both clinic dashboard and also switch user dropdown is not working
 // GET /patients
 export async function listPatients(req, res) {
-  const userId = req.user._id;
+  const clinicId = await resolveClinicId(req);
+
   const page = parseInt(req.query.page) || 1;
   const limit = 12;
   const searchQuery = req.query.q ? req.query.q.trim() : "";
   const statusFilter = req.query.status || "all";
   const sortOrder = req.query.sort || "latest";
 
-  const filter = { userId };
+  const filter = { clinicId };
 
   if (searchQuery) {
     filter.$or = [
@@ -191,38 +208,25 @@ export async function listPatients(req, res) {
     ];
   }
 
-  // Build status filter based on visit and creation dates
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
   if (statusFilter === "overdue") {
-    // Next visit exists and is before today
     filter.nextVisit = { $lt: today };
   } else if (statusFilter === "today") {
-    // Patients added today
-    filter.createdAt = {
-      $gte: today,
-      $lt: tomorrow,
-    };
+    filter.createdAt = { $gte: today, $lt: tomorrow };
   } else if (statusFilter === "upcoming") {
-    // Next visit is after today
     filter.nextVisit = { $gte: tomorrow };
   }
-  // "all" - no additional filter
 
   const total = await patient.countDocuments(filter);
 
-  // Determine sort order
-  let sortOptions = { createdAt: -1 }; // default: latest first
-  if (sortOrder === "oldest") {
-    sortOptions = { createdAt: 1 };
-  } else if (sortOrder === "az") {
-    sortOptions = { name: 1 };
-  }
+  let sortOptions = { createdAt: -1 };
+  if (sortOrder === "oldest") sortOptions = { createdAt: 1 };
+  if (sortOrder === "az") sortOptions = { name: 1 };
 
-  // Optimize: Only fetch required fields for list view using .select()
   let patients = await patient
     .find(filter)
     .select(
@@ -240,11 +244,7 @@ export async function listPatients(req, res) {
       $group: {
         _id: null,
         total: { $sum: { $ifNull: ["$visits.price", 0] } },
-        paid: {
-          $sum: {
-            $ifNull: ["$visits.paidAmount", "$visits.price"],
-          },
-        },
+        paid: { $sum: { $ifNull: ["$visits.paidAmount", "$visits.price"] } },
       },
     },
   ]);
@@ -272,6 +272,7 @@ export async function listPatients(req, res) {
         paidFromVisits += visitPaid;
       });
     }
+
     return {
       ...p,
       totalPayment: totalFromVisits,
@@ -288,21 +289,22 @@ export async function listPatients(req, res) {
     status: statusFilter,
     sort: sortOrder,
     summaryTotals,
+    clinicId,
   });
 }
 
 // GET /patients/:id
 export async function getPatientDetail(req, res) {
   try {
-    // Don't use .lean() - we need the Mongoose document with proper getters
+    const clinicId = await resolveClinicId(req);
+
     const patientData = await patient.findOne({
       _id: req.params.id,
-      userId: req.user._id,
+      clinicId,
     });
 
     if (!patientData) return res.status(404).send("Patient not found");
 
-    // Ensure payment totals are up to date
     let totalFromVisits = 0;
     let paidFromVisits = 0;
     if (patientData.visits && patientData.visits.length) {
@@ -317,19 +319,18 @@ export async function getPatientDetail(req, res) {
       });
     }
 
-    // Update totals if they don't match
     if (patientData.totalPayment !== totalFromVisits) {
       patientData.totalPayment = totalFromVisits;
     }
     if (patientData.paidPayment !== paidFromVisits) {
       patientData.paidPayment = paidFromVisits;
     }
+
     patientData.pendingPayment = Math.max(
       0,
       patientData.totalPayment - patientData.paidPayment,
     );
 
-    // Save if updated
     if (patientData.isModified()) {
       await patientData.save();
     }
@@ -344,16 +345,17 @@ export async function getPatientDetail(req, res) {
 // GET /patients/:id/visits/new
 export async function newVisitForm(req, res) {
   try {
+    const clinicId = await resolveClinicId(req);
     const userId = req.user._id;
+
     const patientData = await patient.findOne({
       _id: req.params.id,
-      userId,
+      clinicId,
     });
+
     if (!patientData) return res.status(404).send("Patient not found");
 
-    const clinicId = await getUserClinic(userId);
     const medicines = await getClinicMedicines(clinicId);
-
     res.render("patients-visits-new", { patient: patientData, medicines });
   } catch (err) {
     console.error(err);
@@ -365,15 +367,17 @@ export async function newVisitForm(req, res) {
 export async function addVisit(req, res) {
   try {
     const { id } = req.params;
-    const { notes, totalPayment, paidPayment, nextVisit } = req.body.visit;
-    const { medicineIds, medicineQuantities } = req.body;
-    const userId = req.user._id;
+    const clinicId = await resolveClinicId(req);
 
     const foundPatient = await patient.findOne({
       _id: id,
-      userId,
+      clinicId,
     });
+
     if (!foundPatient) return res.status(404).send("Patient not found");
+
+    const { notes, totalPayment, paidPayment, nextVisit } = req.body.visit;
+    const { medicineIds, medicineQuantities } = req.body;
 
     const nextVisitDate = nextVisit ? new Date(nextVisit) : null;
     if (
@@ -383,10 +387,6 @@ export async function addVisit(req, res) {
       return res.status(400).send("Invalid future date");
     }
 
-    const clinicId = await getUserClinic(userId);
-
-    // Process prescribed medicines
-    // Handle new duration/instructions fields
     const medicineDurations = req.body.medicineDurations || [];
     const medicineInstructions = req.body.medicineInstructions || [];
 
@@ -398,7 +398,6 @@ export async function addVisit(req, res) {
       notes?.trim(),
     );
 
-    // Use shared helper to add duration/instructions
     enrichPrescribedMedicines(
       prescribedMedicines,
       medicineDurations,
@@ -421,7 +420,6 @@ export async function addVisit(req, res) {
     });
     foundPatient.nextVisit = nextVisitDate;
 
-    // Recalculate patient totals from visit history for consistency
     const totalFromVisits = foundPatient.visits.reduce(
       (sum, v) => sum + (v.price || 0),
       0,
@@ -436,7 +434,7 @@ export async function addVisit(req, res) {
     foundPatient.pendingPayment = Math.max(0, totalFromVisits - paidFromVisits);
 
     await foundPatient.save();
-    res.redirect(`/patient/${id}`);
+    res.redirect(`/patient/${id}?clinicId=${clinicId || ""}`);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error adding visit");
@@ -447,19 +445,20 @@ export async function addVisit(req, res) {
 export async function payVisit(req, res) {
   try {
     const { id, visitIndex } = req.params;
+    const clinicId = await resolveClinicId(req);
+
     const foundPatient = await patient.findOne({
       _id: id,
-      userId: req.user._id,
+      clinicId,
     });
+
     if (!foundPatient || !foundPatient.visits[visitIndex]) {
       return res.status(404).send("Patient or visit not found");
     }
 
     const visit = foundPatient.visits[visitIndex];
     const pending = visit.price - (visit.paidAmount || 0);
-    if (pending <= 0) {
-      return res.redirect(`/patient/${id}`);
-    }
+    if (pending <= 0) return res.redirect(`/patient/${id}`);
 
     visit.paidAmount = visit.price;
 
@@ -477,7 +476,7 @@ export async function payVisit(req, res) {
     foundPatient.pendingPayment = Math.max(0, totalFromVisits - paidFromVisits);
 
     await foundPatient.save();
-    res.redirect(`/patient/${id}`);
+    res.redirect(`/patient/${id}?clinicId=${clinicId || ""}`);
   } catch (err) {
     console.error(err);
     res.status(500).send("Server error");
@@ -487,10 +486,12 @@ export async function payVisit(req, res) {
 // GET /patients/:id/edit
 export async function editForm(req, res) {
   try {
+    const clinicId = await resolveClinicId(req);
     const patientData = await patient.findOne({
       _id: req.params.id,
-      userId: req.user._id,
+      clinicId,
     });
+
     if (!patientData) return res.status(404).send("Patient not found");
     res.render("edit", { patient: patientData });
   } catch (err) {
@@ -501,10 +502,12 @@ export async function editForm(req, res) {
 // GET /patients/:id/delete
 export async function deleteForm(req, res) {
   try {
+    const clinicId = await resolveClinicId(req);
     const patientData = await patient.findOne({
       _id: req.params.id,
-      userId: req.user._id,
+      clinicId,
     });
+
     if (!patientData) return res.status(404).send("Patient not found");
     res.render("delete", { patient: patientData });
   } catch (err) {
@@ -527,13 +530,9 @@ export async function updatePatient(req, res) {
     }
 
     const { id } = req.params;
-    const userId = req.user._id;
+    const clinicId = await resolveClinicId(req);
 
-    // Verify ownership first
-    const existing = await patient.findOne({
-      _id: id,
-      userId,
-    });
+    const existing = await patient.findOne({ _id: id, clinicId });
     if (!existing) return res.status(404).send("Patient not found");
 
     const updateData = {
@@ -548,12 +547,11 @@ export async function updatePatient(req, res) {
         : undefined,
     };
 
-    // Handle payment fields - calculate pending automatically
     const totalPayment = parseFloat(req.body.patient?.totalPayment) || 0;
-    // If paid is not provided, default to total amount (fully paid)
     const paidPayment = req.body.patient?.paidPayment
       ? parseFloat(req.body.patient?.paidPayment)
       : totalPayment;
+
     updateData.totalPayment = totalPayment;
     updateData.paidPayment = paidPayment;
     updateData.pendingPayment = Math.max(0, totalPayment - paidPayment);
@@ -568,13 +566,12 @@ export async function updatePatient(req, res) {
       return res.status(400).send("Invalid date");
     }
 
-    const updatedPatient = await patient.findByIdAndUpdate(id, updateData, {
+    await patient.findOneAndUpdate({ _id: id, clinicId }, updateData, {
       new: true,
       runValidators: true,
     });
 
-    if (!updatedPatient) return res.status(404).send("Patient not found");
-    res.redirect("/patients");
+    res.redirect(`/patients?clinicId=${clinicId || ""}`);
   } catch (err) {
     console.error("Update error:", err);
     res.status(400).send("Validation error: " + err.message);
@@ -585,14 +582,15 @@ export async function updatePatient(req, res) {
 export async function deletePatient(req, res) {
   try {
     const { id } = req.params;
+    const clinicId = await resolveClinicId(req);
 
     const deleted = await patient.findOneAndDelete({
       _id: id,
-      userId: req.user._id,
+      clinicId,
     });
     if (!deleted) return res.status(404).send("Patient not found");
 
-    res.redirect("/patients");
+    res.redirect(`/patients?clinicId=${clinicId || ""}`);
   } catch (err) {
     console.error(err);
     res.status(500).send("Delete error");

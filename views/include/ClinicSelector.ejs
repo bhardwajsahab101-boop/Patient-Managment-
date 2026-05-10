@@ -1,0 +1,22 @@
+<% if (typeof currentUser !== 'undefined' && currentUser) { %>
+  <% if (typeof clinicId !== 'undefined' && userClinics && userClinics.length) { %>
+    <% // Show selector only for Pro users %>
+    <% const showSelector = (typeof currentPlan === 'string' ? currentPlan === 'pro' : false); %>
+    <% if (showSelector) { %>
+      <div class="clinic-selector mb-3">
+        <form method="GET" action="<%= currentRoute || '' %>">
+          <input type="hidden" name="_method" value="GET" />
+          <label class="form-label small text-muted fw-semibold">Clinic</label>
+          <select class="form-select" name="clinicId" onchange="this.form.submit()">
+            <% userClinics.forEach(c => { %>
+              <option value="<%= c._id %>" <%= c._id.toString() === clinicId.toString() ? 'selected' : '' %>>
+                <%= c.name %>
+              </option>
+            <% }) %>
+          </select>
+        </form>
+      </div>
+    <% } %>
+  <% } %>
+<% } %>
+
