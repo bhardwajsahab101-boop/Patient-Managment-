@@ -11,6 +11,7 @@ export async function requireClinicAccessFromParam(req, res, next) {
     const clinicIdFromParam = req.params?.clinicId
       ? String(req.params.clinicId)
       : null;
+      // hey black box this check total revenue is not working in any of pages like patients and reports  
 
     // Backward compatibility: when app is still mounted at /patients etc
     // and clinicId comes from query via loadClinicContext, do nothing here.

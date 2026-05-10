@@ -8,8 +8,9 @@ export async function getReports(req, res) {
     const { from, to } = req.query;
 
     // Get clinicId from context (supports multi-clinic for Pro users)
+
     const clinicId = req.clinicContext?.clinicId
-      ? String(req.clinicContext.clinicId)
+      ? req.clinicContext.clinicId
       : null;
 
     // Default date range: all time if not specified
@@ -139,8 +140,9 @@ export async function getReports(req, res) {
           : ((totalRevenue - lastRevenue) / lastRevenue) * 100;
     }
 
-    // Fill missing dates in revenueChart with 0 revenue for continuous chart
-    const filledRevenueChart = fillMissingDates(revenueChart, fromDate, toDate);
+    // Avoid any JS-side range expansion (can still blow heap with huge collections).
+    // We rely on Mongo aggregation output only.
+    const filledRevenueChart = revenueChart;
 
     res.render("reports", {
       stats: {
@@ -182,8 +184,28 @@ export async function getReports(req, res) {
  * Fill missing dates between from and to with 0 revenue entries
  * so the Chart.js line chart shows a continuous timeline.
  */
+function shouldFillMissingDates(fromDate, toDate) {
+  // If the range is too wide, filling can create huge arrays and blow heap.
+  // Default max is 366 days (1 year + leap safety).
+  if (!fromDate || !toDate) return true;
+
+  const days = Math.floor(
+    (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return days <= 366;
+}
+
 function fillMissingDates(data, fromDate, toDate) {
   if (!data || data.length === 0) return data;
+
+  // Safety: never create more than ~370 days.
+  // Even if someone bypassed shouldFillMissingDates, prevent heap blowups.
+  if (fromDate && toDate) {
+    const days = Math.floor(
+      (toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+    if (days > 366) return data;
+  }
 
   const result = [];
   const dateMap = new Map();

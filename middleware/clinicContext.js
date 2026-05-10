@@ -4,6 +4,7 @@ import Plan from "../models/Plan.js";
 import { getPlanStatus } from "./planStatus.js";
 
 // Determines clinic context for Pro users.
+
 // - Reads `clinicId` from query (dropdown)
 // - Validates clinic belongs to current user
 // - Falls back to first clinic for the user
@@ -43,19 +44,20 @@ export async function loadClinicContext(req, res, next) {
 
     res.locals.userClinics = clinics;
 
-    const defaultClinicId = clinics[0]?._id?.toString() || null;
+    const defaultClinicId = clinics[0]?._id || null;
 
-    const selectedClinicId = req.query?.clinicId
-      ? String(req.query.clinicId)
-      : null;
+    const selectedClinicId = req.query?.clinicId ? req.query.clinicId : null;
+
 
     // Validate selected clinic (must be owned OR member)
     let clinicId = defaultClinicId;
 
     if (selectedClinicId) {
-      const ok = clinics.some((c) => c._id.toString() === selectedClinicId);
-      if (ok) {
-        clinicId = selectedClinicId;
+      const okClinic = clinics.find(
+        (c) => c._id.toString() === String(selectedClinicId),
+      );
+      if (okClinic) {
+        clinicId = okClinic._id; // MUST remain ObjectId
       }
     }
 

@@ -14,7 +14,7 @@ export async function getDashboard(req, res) {
 
     // Get clinicId from context (supports multi-clinic for Pro users)
     const clinicId = req.clinicContext?.clinicId
-      ? String(req.clinicContext.clinicId)
+      ? req.clinicContext.clinicId
       : null;
 
     const baseFilter = { clinicId };
@@ -61,6 +61,7 @@ export async function getDashboard(req, res) {
           },
         },
       ]),
+
       clinicId ? Medicine.countDocuments({ clinicId, isActive: true }) : 0,
       clinicId
         ? Medicine.countDocuments({

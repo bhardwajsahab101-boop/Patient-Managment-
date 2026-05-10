@@ -1,73 +1,110 @@
-import { patient } from "../models/patient.js";
 import Medicine from "../models/medicine.js";
 import * as archiver from "archiver";
-import { PassThrough } from "stream";
+import { Readable } from "stream";
 
+import { patient } from "../models/patient.js";
 
-
-// wait let me tell you what i want to give a right to doctor/owner so he or she can declair there staff member and make a saperate page for them where they can manage all the things regarding staff member perfoming actions like adding new member removing and much more and also i want to make then capable to manage staf sallery with my app 
 const archiverFn = archiver.default || archiver;
 
 const toObjectIdString = (id) => (id ? String(id) : null);
 
-function buildExportPayload({ clinic, patients, medicines }) {
-  return {
-    clinic: {
-      id: clinic._id,
-      name: clinic.name,
-      location: clinic.location,
-      phone: clinic.phone,
-      address: clinic.address,
-      doctorName: clinic.doctorName,
-    },
-    exportedAt: new Date().toISOString(),
-    patients,
-    medicines,
-  };
-}
+const MAX_EXPORT_PATIENTS = 20000;
+const MAX_EXPORT_MEDICINES = 5000;
 
-async function loadClinicAndData(req) {
+async function resolveClinicAndOwnership(req) {
   const userId = req.user._id;
   const clinicId = toObjectIdString(req.clinicContext?.clinicId);
   if (!clinicId) throw new Error("Clinic not found in context");
 
   const Clinic = (await import("../models/clinic.js")).default;
-  const clinic = await Clinic.findOne({ _id: clinicId, ownerId: userId }).lean();
+  const clinic = await Clinic.findOne({
+    _id: clinicId,
+    ownerId: userId,
+  }).lean();
   if (!clinic) throw new Error("Clinic not found or not owned");
 
-  const [patients, medicines] = await Promise.all([
-    patient.find({ clinicId: clinic._id }).sort({ createdAt: -1 }).lean(),
-    Medicine.find({ clinicId: clinic._id, isActive: true }).lean(),
-  ]);
-
-  return { clinic, patients, medicines };
+  return clinic;
 }
 
-// MVP JSON export (existing endpoint)
-export const exportClinicData = async (req, res) => {
-  try {
-    const { clinic, patients, medicines } = await loadClinicAndData(req);
-    const payload = buildExportPayload({ clinic, patients, medicines });
+function jsonArrayFromCursor(cursor) {
+  // Stream JSON array: [item1,item2,...] without holding everything in memory.
+  let first = true;
 
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename=dentacore-export-${clinic._id}.json`,
+  return new Readable({
+    async read() {
+      try {
+        // `cursor.next()` returns a promise.
+        const doc = await cursor.next();
+        if (!doc) {
+          this.push("]\n");
+          this.push(null);
+          return;
+        }
+
+        const chunk = first ? "[\n" : ",\n";
+        first = false;
+        this.push(chunk);
+        this.push(JSON.stringify(doc, null, 2));
+      } catch (e) {
+        this.destroy(e);
+      }
+    },
+  });
+}
+
+async function getPatientsCursor(clinicMongoId) {
+  const q = patient
+    .find({ clinicId: clinicMongoId })
+    .sort({ createdAt: -1 })
+    .lean()
+    .cursor({ batchSize: 500 });
+
+  // soft limit guard (avoid exporting insane datasets)
+  const count = await patient.countDocuments({ clinicId: clinicMongoId });
+  if (count > MAX_EXPORT_PATIENTS) {
+    throw new Error(
+      `Export too large: patients=${count}. Refusing to prevent memory exhaustion.`,
     );
-    return res.status(200).send(JSON.stringify(payload, null, 2));
-  } catch (err) {
-    console.error("exportClinicData error:", err);
-    return res.status(500).send("Export failed");
   }
+
+  return q;
+}
+
+async function getMedicinesCursor(clinicMongoId) {
+  const q = Medicine.find({ clinicId: clinicMongoId, isActive: true })
+    .lean()
+    .cursor({ batchSize: 500 });
+
+  const count = await Medicine.countDocuments({
+    clinicId: clinicMongoId,
+    isActive: true,
+  });
+  if (count > MAX_EXPORT_MEDICINES) {
+    throw new Error(
+      `Export too large: medicines=${count}. Refusing to prevent memory exhaustion.`,
+    );
+  }
+
+  return q;
+}
+
+export const exportClinicData = async (req, res) => {
+  // Memory-safe policy: refuse the big single JSON payload.
+  // This endpoint used to build huge JS objects -> heap out of memory.
+  return res
+    .status(409)
+    .send(
+      "Large JSON export is disabled to prevent server memory exhaustion. Use ZIP export instead.",
+    );
 };
 
 // Better ZIP export: clinic-backup.zip containing JSON files
-// - patients.json
-// - medicines.json
-// - clinic.json
+// - patients.json (streamed)
+// - medicines.json (streamed)
+// - clinic.json (small)
 export const exportClinicBackupZip = async (req, res) => {
   try {
-    const { clinic, patients, medicines } = await loadClinicAndData(req);
+    const clinic = await resolveClinicAndOwnership(req);
 
     res.setHeader("Content-Type", "application/zip");
     res.setHeader(
@@ -76,19 +113,24 @@ export const exportClinicBackupZip = async (req, res) => {
     );
 
     const archive = archiverFn("zip", { zlib: { level: 9 } });
-
-    // Pipe ZIP stream to response
     archive.pipe(res);
 
-    // Separate JSON files for long-term compatibility
+    // Small file can be appended normally.
     archive.append(JSON.stringify({ ...clinic, _id: clinic._id }, null, 2), {
       name: "clinic.json",
     });
-    archive.append(JSON.stringify(patients, null, 2), { name: "patients.json" });
-    archive.append(JSON.stringify(medicines, null, 2), { name: "medicines.json" });
+
+    const patientsCursor = await getPatientsCursor(clinic._id);
+    const medicinesCursor = await getMedicinesCursor(clinic._id);
+
+    archive.append(jsonArrayFromCursor(patientsCursor), {
+      name: "patients.json",
+    });
+    archive.append(jsonArrayFromCursor(medicinesCursor), {
+      name: "medicines.json",
+    });
 
     await archive.finalize();
-
     return;
   } catch (err) {
     console.error("exportClinicBackupZip error:", err);

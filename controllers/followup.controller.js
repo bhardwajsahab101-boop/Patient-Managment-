@@ -2,9 +2,7 @@ import { patient } from "../models/patient.js";
 
 // Helper: resolve clinicId from context
 function resolveClinicId(req) {
-  return req.clinicContext?.clinicId
-    ? String(req.clinicContext.clinicId)
-    : null;
+  return req.clinicContext?.clinicId ? req.clinicContext.clinicId : null;
 }
 
 export async function removeFromFollowup(req, res) {
@@ -81,7 +79,7 @@ export async function getFollowups(req, res) {
       overdueCount,
       todayCount,
       tomorrowCount,
-      followupRevenue,
+      followupRevenueCount,
     ] = await Promise.all([
       patient.countDocuments({ clinicId }),
       patient.countDocuments({
@@ -102,16 +100,17 @@ export async function getFollowups(req, res) {
           $lte: tomorrowRange.end,
         },
       }),
-      patient.aggregate([
-        { $match: { clinicId } },
-        { $unwind: "$visits" },
-        {
-          $match: {
-            nextVisit: { $gte: yesterdayRange.start, $lte: tomorrowRange.end },
-          },
+    ]);
+
+    const followupRevenue = await patient.aggregate([
+      { $match: { clinicId } },
+      { $unwind: "$visits" },
+      {
+        $match: {
+          nextVisit: { $gte: yesterdayRange.start, $lte: tomorrowRange.end },
         },
-        { $group: { _id: null, total: { $sum: "$visits.price" } } },
-      ]),
+      },
+      { $group: { _id: null, total: { $sum: "$visits.price" } } },
     ]);
 
     res.render("followup", {

@@ -3,9 +3,7 @@ import Clinic from "../models/clinic.js";
 
 // Helper: resolve clinicId from context
 function resolveClinicId(req) {
-  return req.clinicContext?.clinicId
-    ? String(req.clinicContext.clinicId)
-    : null;
+  return req.clinicContext?.clinicId ? req.clinicContext.clinicId : null;
 }
 
 export async function getMessage(req, res) {
@@ -15,7 +13,6 @@ export async function getMessage(req, res) {
     const patientData = await patient
       .findOne({
         _id: req.params.id,
-        userId: req.user._id,
         clinicId,
       })
       .lean();

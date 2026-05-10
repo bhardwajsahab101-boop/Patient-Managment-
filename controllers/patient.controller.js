@@ -9,15 +9,15 @@ import {
 
 // Helper: resolve clinicId from middleware context (Pro multi-clinic)
 function getClinicIdFromContext(req) {
-  return req?.clinicContext?.clinicId
-    ? String(req.clinicContext.clinicId)
-    : null;
+  return req?.clinicContext?.clinicId || null;
 }
 
 // Helper: get user's default clinic (fallback for non-pro or when context isn't loaded)
 async function getUserClinic(userId) {
-  const clinic = await Clinic.findOne({ ownerId: userId }).lean();
-  return clinic ? clinic._id.toString() : null;
+  const clinic = await Clinic.findOne({ ownerId: userId })
+  .sort({ createdAt: 1 })
+  .lean();
+  return clinic ? clinic._id : null;
 }
 
 // Helper: get available medicines for clinic
@@ -237,8 +237,12 @@ export async function listPatients(req, res) {
     .limit(limit)
     .lean();
 
-  const totalSummaryAgg = await patient.aggregate([
-    { $match: filter },
+const totalSummaryAgg = await patient.aggregate([
+  {
+    $match: {
+      clinicId,
+    },
+  },
     { $unwind: { path: "$visits", preserveNullAndEmptyArrays: true } },
     {
       $group: {
